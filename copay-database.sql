@@ -12,7 +12,7 @@ CREATE TABLE Users (
 );
 
 -- Groups Table: Stores information about expense groups
-CREATE TABLE Groups (
+CREATE TABLE `Groups` (
     group_id INT AUTO_INCREMENT PRIMARY KEY,
     group_name VARCHAR(100) NOT NULL,
     created_by INT NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE Group_Members (
     user_id INT NOT NULL,
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (group_id, user_id),
-    FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (group_id) REFERENCES `Groups`(group_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
@@ -39,7 +39,7 @@ CREATE TABLE Expenses (
     amount DECIMAL(10, 2) NOT NULL,
     currency VARCHAR(10) NOT NULL,  -- Added field for currency
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (group_id) REFERENCES `Groups`(group_id),
     FOREIGN KEY (added_by) REFERENCES Users(user_id)
 );
 
@@ -65,7 +65,7 @@ CREATE TABLE Wishlists (
     created_by INT NOT NULL,
     wishlist_name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (group_id) REFERENCES `Groups`(group_id),
     FOREIGN KEY (created_by) REFERENCES Users(user_id)
 );
 
