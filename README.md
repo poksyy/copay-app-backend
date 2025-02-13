@@ -1,3 +1,5 @@
+![Copay banner](https://i.ibb.co/tPXXpW3L/COPAY-BANNER.png)
+
 # CoPay Backend
 
 CoPay is a collaborative expense management application designed to simplify the division of costs within groups, such as dinners, trips, or gifts. It allows users to manage shared payments, create collaborative wish lists, and compare prices to find the best deals on products. The backend repository handles all server-side logic, user management, and data processing for these features.
