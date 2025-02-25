@@ -2,26 +2,26 @@ package com.copay.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
+@SpringBootApplication
 public class CopayApplication {
 
     public static void main(String[] args) {
     	
-        // Load .env file and set system properties before Spring Boot starts
+        // Load the .env file and ignore it if missing (prevents errors in non-local environments)
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-        // Set system properties before Spring Boot initialization
+        // Set database and security environment variables as system properties
+        // This ensures that Spring Boot can access them during initialization
         System.setProperty("DB_URL", dotenv.get("DB_URL"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
         System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
-
-        // Run Spring Boot application
-        SpringApplication.run(CopayApplication.class, args);
         
+        // Start the Spring Boot application
+        SpringApplication.run(CopayApplication.class, args);
+
     }
 }

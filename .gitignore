@@ -33,5 +33,4 @@ build/
 .vscode/
 
 ### Ignore local configurations that contain sensitive credentials ###
-application.properties
 .env
