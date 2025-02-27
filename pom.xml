@@ -30,41 +30,6 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
-<<<<<<< Updated upstream
-	<dependencies>
-
-		<!-- Spring Data JPA -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-
-		<!-- My SQL Connector -->
-		<dependency>
-		    <groupId>mysql</groupId>
-		    <artifactId>mysql-connector-java</artifactId>
-		    <version>8.0.29</version>
-		</dependency>
-
-		<!-- Dotenv -->
-		<dependency>
-			<groupId>io.github.cdimascio</groupId>
-			<artifactId>java-dotenv</artifactId>
-			<version>5.2.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-	</dependencies>
-
-=======
     <dependencies>
 	    <!-- Spring Boot Core -->
 	    <dependency>
@@ -160,7 +125,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
->>>>>>> Stashed changes
 	<build>
 		<plugins>
 			<plugin>
