@@ -14,7 +14,6 @@ public class CopayApplication {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
         // Set database and security environment variables as system properties
-        // This ensures that Spring Boot can access them during initialization
         System.setProperty("DB_URL", dotenv.get("DB_URL"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
