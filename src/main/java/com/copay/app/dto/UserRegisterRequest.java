@@ -1,5 +1,6 @@
 package com.copay.app.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -17,17 +18,26 @@ public class UserRegisterRequest {
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
+    
+    @NotBlank(message = "Confirm password cannot be empty")
+    private String confirmPassword;
 
-    // Constructors
+	@AssertTrue(message = "Passwords must match")
+    public boolean isPasswordsMatching() {
+        return password != null && password.equals(confirmPassword);
+    }
+
+    // Constructor for deserialization.
     public UserRegisterRequest() {}
 
-    public UserRegisterRequest(String username, String email, String password) {
+    public UserRegisterRequest(String username, String email, String password, String confirmPassword) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.confirmPassword = confirmPassword;
     }
 
-    // Getters and Setters
+    // Getters and Setters.
     public String getUsername() {
         return username;
     }
@@ -51,4 +61,12 @@ public class UserRegisterRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getConfirmPassword() {
+		return confirmPassword;
+	}
+
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
+	}
 }
