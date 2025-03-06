@@ -9,6 +9,7 @@ import com.copay.app.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,9 +26,18 @@ public class AuthController {
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
 
-		// Validate the @Annotations from UserRegisterRequest.
+		// Check if there are validation errors.
 		if (result.hasErrors()) {
-			return ResponseEntity.badRequest().body("Error: " + result.getAllErrors().get(0).getDefaultMessage());
+		    // Create a StringBuilder to concatenate error messages.
+		    StringBuilder errorMessages = new StringBuilder("Errors: ");
+		    
+		    // Iterate over all errors and append their messages.
+		    for (ObjectError error : result.getAllErrors()) {
+		        errorMessages.append(error.getDefaultMessage()).append(" ");
+		    }
+		    
+		    // Return all error messages in the response.
+		    return ResponseEntity.badRequest().body(errorMessages.toString());
 		}
 
 		try {
