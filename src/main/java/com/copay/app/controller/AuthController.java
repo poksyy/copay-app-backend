@@ -2,11 +2,17 @@ package com.copay.app.controller;
 
 import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.service.UserService;
+import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
 
 import com.copay.app.service.JwtService;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -23,21 +29,22 @@ public class AuthController {
 	private JwtService jwtService;
 
 	@PostMapping("/register")
+	
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
 
-		// Check if there are validation errors.
+		// Check if there are validation errors
 		if (result.hasErrors()) {
-		    // Create a StringBuilder to concatenate error messages.
-		    StringBuilder errorMessages = new StringBuilder("Errors: ");
+		    // Create a list to hold error messages
+		    List<String> errorMessages = new ArrayList<>();
 		    
-		    // Iterate over all errors and append their messages.
+		    // Iterate over all errors and collect their messages
 		    for (ObjectError error : result.getAllErrors()) {
-		        errorMessages.append(error.getDefaultMessage()).append(" ");
+		        errorMessages.add(error.getDefaultMessage());
 		    }
 		    
-		    // Return all error messages in the response.
-		    return ResponseEntity.badRequest().body(errorMessages.toString());
+		    // Return all error messages in the response as JSON
+		    return ResponseEntity.badRequest().body(new ValidationErrorResponse(errorMessages));
 		}
 
 		try {
