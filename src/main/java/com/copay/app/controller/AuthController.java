@@ -22,11 +22,13 @@ public class AuthController {
         try {
             userService.registerUser(userRegisterRequest);
 
-            // It generates a token
+            // Generates a token for the specific username.
             String token = jwtService.generateToken(userRegisterRequest.getUsername());
 
             return ResponseEntity.ok().body("JWT Token: " + token);
+            
         } catch (Exception e) {
+        	// HTTP 400 -> BAD REQUEST.
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
