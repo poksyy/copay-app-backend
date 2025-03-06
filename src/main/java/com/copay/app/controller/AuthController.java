@@ -44,7 +44,8 @@ public class AuthController {
 		    }
 		    
 		    // Return all error messages in the response as JSON
-		    return ResponseEntity.badRequest().body(new ValidationErrorResponse(errorMessages));
+		    ValidationErrorResponse validationResponse = new ValidationErrorResponse(errorMessages, "Validation failed", HttpStatus.BAD_REQUEST.value());
+		    return ResponseEntity.badRequest().body(validationResponse);
 		}
 
 		try {
