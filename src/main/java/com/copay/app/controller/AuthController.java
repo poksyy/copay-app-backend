@@ -2,20 +2,16 @@ package com.copay.app.controller;
 
 import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.service.UserService;
+import com.copay.app.service.ValidationService;
 import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
 
 import com.copay.app.service.JwtService;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,23 +25,14 @@ public class AuthController {
 	private JwtService jwtService;
 
 	@PostMapping("/register")
-	
+
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
 
-		// Check if there are validation errors
-		if (result.hasErrors()) {
-		    // Create a list to hold error messages
-		    List<String> errorMessages = new ArrayList<>();
-		    
-		    // Iterate over all errors and collect their messages
-		    for (ObjectError error : result.getAllErrors()) {
-		        errorMessages.add(error.getDefaultMessage());
-		    }
-		    
-		    // Return all error messages in the response as JSON
-		    ValidationErrorResponse validationResponse = new ValidationErrorResponse(errorMessages, "Validation failed", HttpStatus.BAD_REQUEST.value());
-		    return ResponseEntity.badRequest().body(validationResponse);
+		// Validate the request and check for validation errors throught the ValidationService.
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
 		try {
@@ -55,7 +42,7 @@ public class AuthController {
 			String token = jwtService.generateToken(userRegisterRequest.getUsername());
 
 			return ResponseEntity.ok().body("JWT Token: " + token);
-			
+
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Error: " + e.getMessage());
 		}
