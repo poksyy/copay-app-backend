@@ -25,12 +25,12 @@ public class AuthController {
 	private JwtService jwtService;
 
 	@PostMapping("/register")
-
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
 
 		// Validate the request and check for validation errors throught the ValidationService.
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+		
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
