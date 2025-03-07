@@ -1,8 +1,11 @@
 package com.copay.app.controller;
 
+import com.copay.app.dto.JwtResponse;
+import com.copay.app.dto.UserLoginRequest;
 import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.service.UserService;
 import com.copay.app.service.ValidationService;
+import com.copay.app.service.auth.AuthenticationService;
 import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
@@ -19,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
 	@Autowired
+	private AuthenticationService authenticationService;
+
+	@Autowired
 	private UserService userService;
 
 	@Autowired
@@ -28,9 +34,9 @@ public class AuthController {
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
 
-		// Validate the request and check for validation errors through the ValidationService.
+		// Validate the request through the ValidationService.
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-		
+
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
@@ -39,12 +45,39 @@ public class AuthController {
 			userService.registerUser(userRegisterRequest);
 
 			// Generates a token for the specific user.
-			String token = jwtService.generateToken(userRegisterRequest.getUsername());
+			JwtResponse jwtResponse = userService.registerUser(userRegisterRequest);
 
-			return ResponseEntity.ok().body("JWT Token: " + token);
+			return ResponseEntity.ok().body(jwtResponse);
 
 		} catch (Exception e) {
+			
 			return ResponseEntity.badRequest().body("Error: " + e.getMessage());
 		}
+	}
+
+	@PostMapping("/login")
+	public ResponseEntity<?> authenticate(@RequestBody @Valid UserLoginRequest loginRequest, BindingResult result) {
+
+		// Validate the request through the ValidationService.
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
+
+		try {
+
+			// Authenticate the user and obtain the JWT token.
+			JwtResponse jwtToken = authenticationService.authenticateUser(loginRequest);
+
+			// Return the JWT token.
+			return ResponseEntity.ok(jwtToken);
+
+		} catch (RuntimeException e) {
+
+			// If there is an error with authentication, return an error response.
+			return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+		}
+
 	}
 }
