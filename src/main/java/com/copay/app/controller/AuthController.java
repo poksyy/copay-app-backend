@@ -28,7 +28,7 @@ public class AuthController {
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
 
-		// Validate the request and check for validation errors throught the ValidationService.
+		// Validate the request and check for validation errors through the ValidationService.
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 		
 		if (validationResponse != null) {
