@@ -12,46 +12,50 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret; // Application.properties Jwt key
+	@Value("${jwt.secret}")
+	// .env JWT key.
+	private String jwtSecret;
 
-    // Transform String to secret key
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
-    }
+	// JWT token duration in seconds (1 hour).
+	private static final long JWT_EXPIRATION = 3600;
 
-    // Generate JWT token
-    public String generateToken(String username) {
-        long expirationTime = 1000 * 60 * 60; // Time expiration (1h)
+	// Transform String to secret key.
+	private SecretKey getSigningKey() {
 
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(getSigningKey()) // Sign with secret key
-                .compact(); // Generate token
-    }
+		return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+	}
 
-    // Validate JWT token
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+	// Generate JWT token.
+	public String generateToken(String username) {
 
-    // Get username with JWT token
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
-    }
+		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION)).signWith(getSigningKey())
+				.compact();
+	}
+
+	// Validate JWT token.
+	public boolean validateToken(String token) {
+
+		try {
+
+			Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
+			return true;
+
+		} catch (Exception e) {
+
+			return false;
+		}
+	}
+
+	// Get username with JWT token.
+	public String getUsernameFromToken(String token) {
+
+		Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+
+		return claims.getSubject();
+	}
+
+	public long getExpirationTime() {
+		return JWT_EXPIRATION;
+	}
 }
