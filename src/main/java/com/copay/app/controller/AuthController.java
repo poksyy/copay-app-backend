@@ -27,9 +27,6 @@ public class AuthController {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private JwtService jwtService;
-
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
 			BindingResult result) {
