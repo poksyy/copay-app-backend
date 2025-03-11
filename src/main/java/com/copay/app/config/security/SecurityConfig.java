@@ -19,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.copay.app.service.JwtService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -28,12 +31,16 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class SecurityConfig {
 
 	Dotenv dotenv = Dotenv.load();
-
 	String jwtSecret = dotenv.get("JWT_SECRET");
 
-	@Autowired
-	private UserDetailServiceImpl userDetailServiceImpl;
+    private final JwtService jwtService;
+    private final UserDetailServiceImpl userDetailServiceImpl;
 
+    public SecurityConfig(JwtService jwtService, UserDetailServiceImpl userDetailServiceImpl) {
+        this.jwtService = jwtService;
+        this.userDetailServiceImpl = userDetailServiceImpl;
+    }
+    
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -49,15 +56,18 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/response").permitAll()
-						.requestMatchers("/api/auth/register").permitAll().requestMatchers("/api/auth/login")
-						.permitAll().anyRequest().authenticated())
-				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
-				.cors(Customizer.withDefaults());
+	    // Create an instance of the JwtAuthenticationFilter with the JwtService
+	    JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService);
+	    
+	    http.csrf(csrf -> csrf.disable()) // Disable CSRF protection
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers("/api/response","/api/auth/register", "/api/auth/login").permitAll() // Allow public routes
+	            .anyRequest().authenticated()) // Any other requests require authentication
+	        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Disable session management 
+	        .cors(Customizer.withDefaults()) // Enable CORS (Cross-Origin Resource Sharing) with default settings
+	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add the JWT filter before the default authentication filter
 
-		return http.build();
+	    return http.build(); // Return the configured SecurityFilterChain
 	}
 
 	@Bean
