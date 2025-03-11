@@ -1,54 +1,44 @@
 package com.copay.app.service;
 
-import com.copay.app.dto.JwtResponse;
-import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.entity.User;
 import com.copay.app.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.List;
 
 @Service
 public class UserService {
 
-	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
-	private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.jwtService = jwtService;
-	}
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-	public JwtResponse registerUser(UserRegisterRequest request) {
+    public User createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
 
-		// Check if username or email is already taken.
-		if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-			throw new IllegalArgumentException("Username already exists");
-		}
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
-		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-			throw new IllegalArgumentException("Email already exists");
-		}
+    public User updateUser(Long id, User userDetails) {
+        User user = getUserById(id);
+        user.setUsername(userDetails.getUsername());
+        user.setEmail(userDetails.getEmail());
+        user.setPhoneNumber(userDetails.getPhoneNumber());
+        return userRepository.save(user);
+    }
 
-		// Create user entity.
-		User user = new User();
-		user.setUsername(request.getUsername());
-		user.setEmail(request.getEmail());
-		// Encrypt password.
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
-		user.setCreatedAt(LocalDateTime.now());
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
 
-		// Save user to DB.
-		userRepository.save(user);
-
-		// Generate JWT token for the newly registered user.
-		String jwtToken = jwtService.generateToken(request.getUsername());
-		// Get the expiration time of the JWT token.
-		long expiresIn = jwtService.getExpirationTime();
-
-		return new JwtResponse(jwtToken, expiresIn);
-
-	}
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }
