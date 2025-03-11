@@ -1,6 +1,7 @@
 package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,12 +11,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
 import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.entity.User;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
-import com.copay.app.dto.JwtResponse;
 
 @Service
 public class AuthService {
@@ -67,20 +69,25 @@ public class AuthService {
 	}
 	
 		public JwtResponse registerUser(UserRegisterRequest request) {
+			System.out.println("Trying to register user with username: " + request.getUsername());
 
-			// Check if username or email is already taken.
-			if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-				throw new IllegalArgumentException("Username already exists");
-			}
-
-			if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-				throw new IllegalArgumentException("Email already exists");
-			}
+			// Check if phone number or email is already taken.
+		    Optional<User> existingPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
+		    Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
+		    
+		    if (existingPhoneNumber.isPresent()) {
+		        throw new IllegalArgumentException("Phone number already exists");
+		    }
+		    
+		    if (existingEmail.isPresent()) {
+		        throw new IllegalArgumentException("Email already exists");
+		    }
 
 			// Create user entity.
 			User user = new User();
 			user.setUsername(request.getUsername());
 			user.setEmail(request.getEmail());
+			user.setPhoneNumber(request.getPhoneNumber());
 			// Encrypt password through the SecurityConfig @Bean.
 			user.setPassword(passwordEncoder.encode(request.getPassword()));
 			user.setCreatedAt(LocalDateTime.now());
