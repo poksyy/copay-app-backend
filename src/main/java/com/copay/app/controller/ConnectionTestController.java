@@ -4,10 +4,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TestController {
+public class ConnectionTestController {
 
     @GetMapping("/api/response")
-    public String testResponse() {
+    public String ConnectiontestResponse() {
         return "Connection successful!";
     }
 }
