@@ -35,11 +35,9 @@ public class SecurityConfig {
 	String jwtSecret = dotenv.get("JWT_SECRET");
 
     private final JwtService jwtService;
-    private final UserDetailServiceImpl userDetailServiceImpl;
 
-    public SecurityConfig(JwtService jwtService, UserDetailServiceImpl userDetailServiceImpl) {
+    public SecurityConfig(JwtService jwtService) {
         this.jwtService = jwtService;
-        this.userDetailServiceImpl = userDetailServiceImpl;
     }
     
 	@Bean
@@ -63,7 +61,7 @@ public class SecurityConfig {
 	    http.csrf(csrf -> csrf.disable()) // Disable CSRF protection
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers("/api/response","/api/auth/register", "/api/auth/login").permitAll() // Allow public routes
-	            .anyRequest().authenticated()) // Any other requests require authentication
+	            .anyRequest().authenticated()) // Require authentication for any other request
 	        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Disable session management 
 	        .cors(Customizer.withDefaults()) // Enable CORS (Cross-Origin Resource Sharing) with default settings
 	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add the JWT filter before the default authentication filter
