@@ -40,32 +40,33 @@ public class AuthService {
 
 	public JwtResponse loginUser(UserLoginRequest loginRequest) {
 
-		// Create authentication token with username and password.
+	    // Create authentication token with phone number and password.
+		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid phone number or password");
+        }
+		
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getUsername(), loginRequest.getPassword());
+                loginRequest.getPhoneNumber(), loginRequest.getPassword());
+		
+	    try {
+	        // Authenticate user using AuthenticationManager.
+	        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-		try {
+	        // Generate JWT token if authentication is successful.
+	        String jwtToken = jwtService.generateToken(authentication.getName());
+	        long expiresIn = jwtService.getExpirationTime();
 
-			// Authenticate user using Authen ticationManager.
-			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+	        return new JwtResponse(jwtToken, expiresIn);
 
-			// Generate JWT token if authentication is successful.
-			String jwtToken = jwtService.generateToken(authentication.getName());
-			// Get the expiration time of the JWT token getter.
-			long expiresIn = jwtService.getExpirationTime();
+	    } catch (BadCredentialsException e) {
+	        throw new RuntimeException("Invalid phone number or password");
 
-			return new JwtResponse(jwtToken, expiresIn);
-
-		} catch (BadCredentialsException e) {
-
-			// Throw exception if credentials are invalid.
-			throw new RuntimeException("Invalid username or password");
-
-		} catch (UsernameNotFoundException e) {
-
-			throw new RuntimeException("User not found");
-		}
-
+	    } catch (UsernameNotFoundException e) {
+	        throw new RuntimeException("User not found");
+	    }
 	}
 
 	public JwtResponse registerUser(UserRegisterRequest request) {
