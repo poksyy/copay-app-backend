@@ -36,6 +36,14 @@ public class SecurityConfig {
 
     private final JwtService jwtService;
     private final UserDetailServiceImpl userDetailServiceImpl;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+	public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+		this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+	}
+
+	@Autowired
+	private UserDetailServiceImpl userDetailServiceImpl;
 
     public SecurityConfig(JwtService jwtService, UserDetailServiceImpl userDetailServiceImpl) {
         this.jwtService = jwtService;
@@ -62,13 +70,20 @@ public class SecurityConfig {
 	    
 	    http.csrf(csrf -> csrf.disable()) // Disable CSRF protection
 	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/api/response","/api/auth/register", "/api/auth/login").permitAll() // Allow public routes
+	            .requestMatchers("/api/response", "/api/auth/register", "/api/auth/login", "/api/users/**").permitAll() // Allow public routes
 	            .anyRequest().authenticated()) // Any other requests require authentication
 	        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Disable session management 
-	        .cors(Customizer.withDefaults()) // Enable CORS (Cross-Origin Resource Sharing) with default settings
-	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add the JWT filter before the default authentication filter
+			// Custom error message for unauthenticated requests.
+			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(customAuthenticationEntryPoint))
+			// Enable JWT-based OAuth2 resource server support.
+			.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+			// Enable CORS (Cross-Origin Resource Sharing) with default settings
+	        .cors(Customizer.withDefaults()) 
+			// Add the JWT filter before the default authentication filter.
+	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); 
 
-	    return http.build(); // Return the configured SecurityFilterChain
+		// Return the configured SecurityFilterChain
+	    return http.build(); 
 	}
 
 	@Bean
