@@ -15,6 +15,9 @@ public class UserRegisterRequest {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Phone number cannot be empty")
+    private String phoneNumber;
+    
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
@@ -27,12 +30,14 @@ public class UserRegisterRequest {
         return password != null && password.equals(confirmPassword);
     }
 
+	
     // Constructor for deserialization.
     public UserRegisterRequest() {}
 
-    public UserRegisterRequest(String username, String email, String password, String confirmPassword) {
+    public UserRegisterRequest(String username, String email, String phoneNumber, String password, String confirmPassword) {
         this.username = username;
         this.email = email;
+        this.phoneNumber = phoneNumber;
         this.password = password;
         this.confirmPassword = confirmPassword;
     }
@@ -54,6 +59,14 @@ public class UserRegisterRequest {
         this.email = email;
     }
 
+    public String getPhoneNumber() {
+    	return phoneNumber;
+    }
+    
+    public void setPhoneNumber(String phoneNumber) {
+    	this.phoneNumber = phoneNumber;
+    }
+    
     public String getPassword() {
         return password;
     }
