@@ -34,7 +34,6 @@ public class AuthController {
 		}
 
 		try {
-			authenticationService.registerUser(userRegisterRequest);
 
 			// Generates a token for the specific user.
 			JwtResponse jwtResponse = authenticationService.registerUser(userRegisterRequest);

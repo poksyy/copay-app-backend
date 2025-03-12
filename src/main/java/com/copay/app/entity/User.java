@@ -20,6 +20,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String phoneNumber;
 
     @Column(name = "created_at", nullable = false, updatable = false)
