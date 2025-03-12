@@ -28,9 +28,9 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService,
-			UserRepository userRepository) {
-		
+	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
+			JwtService jwtService, UserRepository userRepository) {
+
 		// Constructor to initialize dependencies.
 		this.authenticationManager = authenticationManager;
 		this.jwtService = jwtService;
@@ -45,7 +45,7 @@ public class AuthService {
 				loginRequest.getUsername(), loginRequest.getPassword());
 
 		try {
-			
+
 			// Authenticate user using Authen ticationManager.
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
@@ -57,50 +57,50 @@ public class AuthService {
 			return new JwtResponse(jwtToken, expiresIn);
 
 		} catch (BadCredentialsException e) {
-			
+
 			// Throw exception if credentials are invalid.
 			throw new RuntimeException("Invalid username or password");
 
 		} catch (UsernameNotFoundException e) {
-			
+
 			throw new RuntimeException("User not found");
 		}
-		
+
 	}
-	
-		public JwtResponse registerUser(UserRegisterRequest request) {
-			System.out.println("Trying to register user with username: " + request.getUsername());
 
-			// Check if phone number or email is already taken.
-		    Optional<User> existingPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
-		    Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
-		    
-		    if (existingPhoneNumber.isPresent()) {
-		        throw new IllegalArgumentException("Phone number already exists");
-		    }
-		    
-		    if (existingEmail.isPresent()) {
-		        throw new IllegalArgumentException("Email already exists");
-		    }
+	public JwtResponse registerUser(UserRegisterRequest request) {
+		System.out.println("Trying to register user with username: " + request.getUsername());
 
-			// Create user entity.
-			User user = new User();
-			user.setUsername(request.getUsername());
-			user.setEmail(request.getEmail());
-			user.setPhoneNumber(request.getPhoneNumber());
-			// Encrypt password through the SecurityConfig @Bean.
-			user.setPassword(passwordEncoder.encode(request.getPassword()));
-			user.setCreatedAt(LocalDateTime.now());
+		// Check if phone number or email is already taken.
+		Optional<User> existingPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
+		Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
 
-			// Save user to DB.
-			userRepository.save(user);
+		if (existingPhoneNumber.isPresent()) {
+			throw new IllegalArgumentException("Phone number already exists");
+		}
 
-			// Generate JWT token for the newly registered user.
-			String jwtToken = jwtService.generateToken(request.getUsername());
-			// Get the expiration time of the JWT token.
-			long expiresIn = jwtService.getExpirationTime();
+		if (existingEmail.isPresent()) {
+			throw new IllegalArgumentException("Email already exists");
+		}
 
-			return new JwtResponse(jwtToken, expiresIn);
-		
+		// Create user entity.
+		User user = new User();
+		user.setUsername(request.getUsername());
+		user.setEmail(request.getEmail());
+		user.setPhoneNumber(request.getPhoneNumber());
+		// Encrypt password through the SecurityConfig @Bean.
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		user.setCreatedAt(LocalDateTime.now());
+
+		// Save user to DB.
+		userRepository.save(user);
+
+		// Generate JWT token for the newly registered user.
+		String jwtToken = jwtService.generateToken(request.getUsername());
+		// Get the expiration time of the JWT token.
+		long expiresIn = jwtService.getExpirationTime();
+
+		return new JwtResponse(jwtToken, expiresIn);
+
 	}
 }
