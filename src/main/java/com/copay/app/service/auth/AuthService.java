@@ -64,11 +64,11 @@ public class AuthService {
 			return new JwtResponse(jwtToken, expiresIn);
 
 		} catch (BadCredentialsException e) {
-			
+
 			throw new RuntimeException("Invalid phone number or password");
 
 		} catch (UsernameNotFoundException e) {
-			
+
 			throw new RuntimeException("User not found");
 		}
 	}

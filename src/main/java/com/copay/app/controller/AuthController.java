@@ -19,39 +19,37 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authenticationService;
+	@Autowired
+	private AuthService authenticationService;
 
-    // Handles user registration request.
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
-                                          BindingResult result) {
-        // Validates user input.
-        ValidationErrorResponse validationResponse = ValidationService.validate(result);
-        
-        if (validationResponse != null) {
-            return ResponseEntity.badRequest().body(validationResponse);
-        }
+	// Handles user registration request.
+	@PostMapping("/register")
+	public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest userRegisterRequest,
+			BindingResult result) {
+		// Validates user input.
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-        // Registers the user and returns a JWT response.
-        JwtResponse jwtResponse = authenticationService.registerUser(userRegisterRequest);
-        return ResponseEntity.ok().body(jwtResponse);
-    }
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
 
-    // Handles user login request.
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest loginRequest,
-                                          BindingResult result) {
-        // Validates login input.
-        ValidationErrorResponse validationResponse = ValidationService.validate(result);
-        
-        if (validationResponse != null) {
-            return ResponseEntity.badRequest().body(validationResponse);
-        }
+		// Registers the user and returns a JWT response.
+		JwtResponse jwtResponse = authenticationService.registerUser(userRegisterRequest);
+		return ResponseEntity.ok().body(jwtResponse);
+	}
 
-        // Authenticates the user and returns a JWT token.
-        JwtResponse jwtToken = authenticationService.loginUser(loginRequest);
-        return ResponseEntity.ok(jwtToken);
-    }
+	// Handles user login request.
+	@PostMapping("/login")
+	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest loginRequest, BindingResult result) {
+		// Validates login input.
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
+
+		// Authenticates the user and returns a JWT token.
+		JwtResponse jwtToken = authenticationService.loginUser(loginRequest);
+		return ResponseEntity.ok(jwtToken);
+	}
 }
-
