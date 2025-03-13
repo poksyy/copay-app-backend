@@ -16,6 +16,8 @@ import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
 import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.entity.User;
+import com.copay.app.exception.EmailAlreadyExistsException;
+import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 
@@ -40,48 +42,46 @@ public class AuthService {
 
 	public JwtResponse loginUser(UserLoginRequest loginRequest) {
 
-	    // Create authentication token with phone number and password.
+		// Create authentication token with phone number and password.
 		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid phone number or password");
-        }
-		
+			throw new RuntimeException("Invalid phone number or password");
+		}
+
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                loginRequest.getPhoneNumber(), loginRequest.getPassword());
-		
-	    try {
-	        // Authenticate user using AuthenticationManager.
-	        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+				loginRequest.getPhoneNumber(), loginRequest.getPassword());
 
-	        // Generate JWT token if authentication is successful.
-	        String jwtToken = jwtService.generateToken(authentication.getName());
-	        long expiresIn = jwtService.getExpirationTime();
+		try {
+			// Authenticate user using AuthenticationManager.
+			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-	        return new JwtResponse(jwtToken, expiresIn);
+			// Generate JWT token if authentication is successful.
+			String jwtToken = jwtService.generateToken(authentication.getName());
+			long expiresIn = jwtService.getExpirationTime();
 
-	    } catch (BadCredentialsException e) {
-	        throw new RuntimeException("Invalid phone number or password");
+			return new JwtResponse(jwtToken, expiresIn);
 
-	    } catch (UsernameNotFoundException e) {
-	        throw new RuntimeException("User not found");
-	    }
+		} catch (BadCredentialsException e) {
+			
+			throw new RuntimeException("Invalid phone number or password");
+
+		} catch (UsernameNotFoundException e) {
+			
+			throw new RuntimeException("User not found");
+		}
 	}
 
 	public JwtResponse registerUser(UserRegisterRequest request) {
-		System.out.println("Trying to register user with username: " + request.getUsername());
 
-		// Check if phone number or email is already taken.
-		Optional<User> existingPhoneNumber = userRepository.findByPhoneNumber(request.getPhoneNumber());
-		Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
-
-		if (existingPhoneNumber.isPresent()) {
-			throw new IllegalArgumentException("Phone number already exists");
+		// Check if phone or email is already taken.
+		if (userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+			throw new PhoneAlreadyExistsException("Phone already exists");
 		}
 
-		if (existingEmail.isPresent()) {
-			throw new IllegalArgumentException("Email already exists");
+		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+			throw new EmailAlreadyExistsException("Email already exists");
 		}
 
 		// Create user entity.

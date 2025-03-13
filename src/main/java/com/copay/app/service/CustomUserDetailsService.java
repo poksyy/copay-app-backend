@@ -11,19 +11,19 @@ import com.copay.app.repository.UserRepository;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+	public CustomUserDetailsService(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
-    @Override
-    public UserDetails loadUserByUsername(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber)
-                .map(user -> User.withUsername(user.getPhoneNumber())
-                        .password(user.getPassword())
-                        .roles("USER")
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+	@Override
+	public UserDetails loadUserByUsername(String phoneNumber) {
+		// Finds the user by phone number.
+		return userRepository.findByPhoneNumber(phoneNumber).map(user ->
+		// Creates a UserDetails object with phone number and password.
+		User.withUsername(user.getPhoneNumber()).password(user.getPassword()).build()).orElseThrow(() ->
+		// Throws custom exception if user is not found.
+		new UsernameNotFoundException("Phone not found"));
+	}
 }
