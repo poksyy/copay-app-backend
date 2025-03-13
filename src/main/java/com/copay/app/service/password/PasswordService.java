@@ -23,13 +23,14 @@ public class PasswordService {
     }
 
     public ResponseEntity<?> updatePassword(Long id, PasswordUpdateRequest request, String token) {
-        String username = jwtService.extractUsername(token);
+
+    	String phoneNumber = jwtService.extractPhoneNumber(token);
 
         // Find user by ID.
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         // Check if the authenticated user can change the password
-        if (!user.getUsername().equals(username)) {
+        if (!user.getPhoneNumber().equals(phoneNumber)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only update your own password.");
         }
 
@@ -44,4 +45,5 @@ public class PasswordService {
 
         return ResponseEntity.ok("Password updated successfully.");
     }
+
 }

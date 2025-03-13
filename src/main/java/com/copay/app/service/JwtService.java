@@ -39,10 +39,10 @@ public class JwtService {
 	    }
 	}
 	
-	public String generateToken(String username) {
+	public String generateToken(String phoneNumber) {
 	    long expirationTimeMillis = System.currentTimeMillis() + (JWT_EXPIRATION * 1000);
 	    return Jwts.builder()
-	        .setSubject(username)
+	        .setSubject(phoneNumber)
 	        .setIssuedAt(new Date())
 	        .setExpiration(new Date(expirationTimeMillis))
 	        .signWith(getSigningKey())
@@ -89,7 +89,7 @@ public class JwtService {
 		return JWT_EXPIRATION;
 	}
 	
-	public String extractUsername(String token) {
+	public String extractPhoneNumber(String token) {
         return Jwts.parserBuilder()
                    .setSigningKey(jwtSecret.getBytes())
                    .build()
