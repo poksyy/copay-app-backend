@@ -96,6 +96,7 @@ public class SecurityConfig {
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+
 	}
 
 	// Bean to create the AuthenticationManager to authenticate users.

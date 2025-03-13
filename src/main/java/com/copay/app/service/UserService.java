@@ -73,25 +73,4 @@ public class UserService {
     	
         return userRepository.findAll();
     }
-
-    public ResponseEntity<?> updatePassword(Long id, PasswordUpdateRequest request, Principal principal) {
-    	
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Permission validation.
-        if (!user.getUsername().equals(principal.getName())) {
-            throw new UserPermissionException("You can only update your own password.");
-        }
-
-        // Password validation.
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new IncorrectPasswordException("Current password is incorrect.");
-        }
-
-        // Persists the new password.
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Password updated successfully.");
-    }
 }
