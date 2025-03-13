@@ -2,6 +2,7 @@ package com.copay.app.validation;
 
 import java.util.List;
 
+// Validations of the Requests.
 public class ValidationErrorResponse {
     private List<String> errors;
     private String message;
