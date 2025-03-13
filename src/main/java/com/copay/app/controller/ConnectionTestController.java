@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ConnectionTestController {
 
-    @GetMapping("/api/response")
-    public String ConnectiontestResponse() {
-        return "Connection successful!";
-    }
+	@GetMapping("/api/response")
+	public String ConnectiontestResponse() {
+		return "Connection successful!";
+	}
 }
