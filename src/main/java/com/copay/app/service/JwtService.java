@@ -39,12 +39,14 @@ public class JwtService {
 	    }
 	}
 	
-	// Generate JWT token.
 	public String generateToken(String username) {
-
-		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION)).signWith(getSigningKey())
-				.compact();
+	    long expirationTimeMillis = System.currentTimeMillis() + (JWT_EXPIRATION * 1000);
+	    return Jwts.builder()
+	        .setSubject(username)
+	        .setIssuedAt(new Date())
+	        .setExpiration(new Date(expirationTimeMillis))
+	        .signWith(getSigningKey())
+	        .compact();
 	}
 
 	// Validate JWT token.
