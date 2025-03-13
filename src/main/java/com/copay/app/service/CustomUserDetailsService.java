@@ -22,8 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return userRepository.findByPhoneNumber(phoneNumber)
                 .map(user -> User.withUsername(user.getPhoneNumber())
                         .password(user.getPassword())
-                        .roles("USER")
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Phone not found"));
     }
 }
