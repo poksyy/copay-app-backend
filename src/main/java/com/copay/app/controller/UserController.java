@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.dto.UserResponseDTO;
+import com.copay.app.dto.user.UserCreateRequest;
+import com.copay.app.dto.user.UserUpdateRequest;
 import com.copay.app.entity.User;
 import com.copay.app.service.UserService;
 import com.copay.app.service.ValidationService;
@@ -37,7 +38,7 @@ public class UserController {
     // Handles user creation with validation.
     @PostMapping
     public ResponseEntity<?> createUser(
-            @Valid @RequestBody UserRegisterRequest userRegisterRequest, 
+            @Valid @RequestBody UserCreateRequest userCreateRequest, 
             BindingResult result) {
 
         // If validation errors exist, handle them with ValidationService.
@@ -48,11 +49,11 @@ public class UserController {
 
         // Create user entity and set properties.
         User user = new User();
-        user.setUsername(userRegisterRequest.getUsername());
-        user.setEmail(userRegisterRequest.getEmail());
-        user.setPassword(userRegisterRequest.getPassword());
-        user.setPhoneNumber(userRegisterRequest.getPhoneNumber());  // Assign phone number.
-        user.setCreatedAt(LocalDateTime.now());  // Set creation date.
+        user.setUsername(userCreateRequest.getUsername());
+        user.setEmail(userCreateRequest.getEmail());
+        user.setPassword(userCreateRequest.getPassword());
+        user.setPhoneNumber(userCreateRequest.getPhoneNumber());
+        user.setCreatedAt(LocalDateTime.now());
 
         // Save the user to the database.
         User savedUser = userService.createUser(user);
@@ -70,19 +71,20 @@ public class UserController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    // Retrieves a user by their phone number.
-    @GetMapping("/{phone}")
-    public ResponseEntity<UserResponseDTO> getUserByPhone(@PathVariable String phone) {
-        User user = userService.getUserByPhone(phone);
-        UserResponseDTO responseDTO = new UserResponseDTO(user);
-        return ResponseEntity.ok(responseDTO);
-    }
+//	  TODO - It must not have the same end point as the one above.
+//    // Retrieves a user by their phone number.
+//    @GetMapping("/{phone}")
+//    public ResponseEntity<UserResponseDTO> getUserByPhone(@PathVariable String phone) {
+//        User user = userService.getUserByPhone(phone);
+//        UserResponseDTO responseDTO = new UserResponseDTO(user);
+//        return ResponseEntity.ok(responseDTO);
+//    }
 
     // Updates a user with the provided ID.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable Long id, 
-            @Valid @RequestBody UserRegisterRequest userRegisterRequest, 
+            @Valid @RequestBody UserUpdateRequest userUpdateRequest, 
             BindingResult result) {
 
         // If validation errors exist, handle them with ValidationService.
@@ -95,11 +97,11 @@ public class UserController {
         User existingUser = userService.getUserById(id);
 
         // Update the user fields with the new data.
-        existingUser.setUsername(userRegisterRequest.getUsername());
-        existingUser.setEmail(userRegisterRequest.getEmail());
-        existingUser.setPassword(userRegisterRequest.getPassword());
-        existingUser.setPhoneNumber(userRegisterRequest.getPhoneNumber());  // Update phone number.
-        existingUser.setCreatedAt(existingUser.getCreatedAt());  // Keep the creation date.
+        existingUser.setUsername(userUpdateRequest.getUsername());
+        existingUser.setEmail(userUpdateRequest.getEmail());
+        existingUser.setPassword(userUpdateRequest.getPassword());
+        existingUser.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+        existingUser.setCreatedAt(existingUser.getCreatedAt());
 
         // Save the updated user.
         User updatedUser = userService.updateUser(id, existingUser);

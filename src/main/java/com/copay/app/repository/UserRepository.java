@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	// findBy* → Retrieves the full entity if it exists.
-	// existsBy* → Only checks forexistence without loading data.
+	// existsBy* → Only checks for existence without loading data.
 
 	// Finds a user by phone number, returning full entity if found.
 	Optional<User> findByPhoneNumber(String phoneNumber);
