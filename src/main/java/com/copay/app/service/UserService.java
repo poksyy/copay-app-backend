@@ -1,11 +1,11 @@
 package com.copay.app.service;
 
 import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.copay.app.entity.User;
-import com.copay.app.exception.EmailAlreadyExistsException;
-import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.repository.UserRepository;
 
 @Service
@@ -13,24 +13,18 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final UserUniquenessValidator userValidationService;
 
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserUniquenessValidator userValidationService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.userValidationService = userValidationService;
 	}
 
 	public User createUser(User user) {
 
-		// Verify if the phone number exists or not.
-		if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
-			throw new PhoneAlreadyExistsException(
-					"Phone number " + "<" + user.getPhoneNumber() + ">" + " already exists.");
-		}
-
-		// Verify if the phone number exists or not.
-		if (userRepository.existsByEmail(user.getEmail())) {
-			throw new EmailAlreadyExistsException("Email " + "<" + user.getEmail() + ">" + " already exists.");
-		}
+		// Verify if the phone number and/or email exists or not.
+		userValidationService.validateUserUniqueness(user);
 
 		// Encode the password.
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -56,6 +50,9 @@ public class UserService {
 		user.setEmail(userData.getEmail());
 		user.setPhoneNumber(userData.getPhoneNumber());
 
+		// Verify if the phone number and/or email exists or not.
+		userValidationService.validateUserUniqueness(user);
+
 		return userRepository.save(user);
 	}
 
@@ -68,4 +65,5 @@ public class UserService {
 
 		return userRepository.findAll();
 	}
+
 }
