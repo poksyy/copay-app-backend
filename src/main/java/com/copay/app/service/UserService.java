@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.copay.app.entity.User;
+import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 
 @Service
@@ -34,6 +35,7 @@ public class UserService {
 	}
 
 	public User getUserById(Long id) {
+		
 		return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 	}
 
@@ -56,10 +58,16 @@ public class UserService {
 		return userRepository.save(user);
 	}
 
-	public void deleteUser(Long id) {
-
-		userRepository.deleteById(id);
+	public String deleteUser(Long id) {
+		
+		User user = userRepository.findById(id)
+		    .orElseThrow(() -> new UserNotFoundException("User with id <" + id + "> not found."));
+		
+		userRepository.delete(user);
+		
+		return "User has been deleted successfully.";
 	}
+
 
 	public List<User> getAllUsers() {
 
