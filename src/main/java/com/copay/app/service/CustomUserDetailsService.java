@@ -26,4 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 		// Throws custom exception if user is not found.
 		new UsernameNotFoundException("Phone not found"));
 	}
+
+
 }
