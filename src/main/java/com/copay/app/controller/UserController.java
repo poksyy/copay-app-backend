@@ -2,6 +2,7 @@ package com.copay.app.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -80,6 +81,7 @@ public class UserController {
 //        return ResponseEntity.ok(responseDTO);
 //    }
 
+  
     // Updates a user with the provided ID.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(
@@ -113,9 +115,9 @@ public class UserController {
 
     // Deletes a user by their ID.
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+      String message = userService.deleteUser(id);
+      return ResponseEntity.ok(Map.of("message", message));
     }
 
     // Retrieves all users.
