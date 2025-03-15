@@ -1,7 +1,6 @@
 package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,10 +15,9 @@ import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
 import com.copay.app.dto.UserRegisterRequest;
 import com.copay.app.entity.User;
-import com.copay.app.exception.EmailAlreadyExistsException;
-import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
+import com.copay.app.service.UserUniquenessValidator;
 
 @Service
 public class AuthService {
@@ -28,16 +26,18 @@ public class AuthService {
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final UserUniquenessValidator userValidationService;
 
 	@Autowired
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
-			JwtService jwtService, UserRepository userRepository) {
+			JwtService jwtService, UserRepository userRepository, UserUniquenessValidator userValidationService) {
 
 		// Constructor to initialize dependencies.
 		this.authenticationManager = authenticationManager;
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.userValidationService = userValidationService;
 	}
 
 	public JwtResponse loginUser(UserLoginRequest loginRequest) {
@@ -75,15 +75,6 @@ public class AuthService {
 
 	public JwtResponse registerUser(UserRegisterRequest request) {
 
-		// Check if phone or email is already taken.
-		if (userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
-			throw new PhoneAlreadyExistsException("Phone already exists");
-		}
-
-		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-			throw new EmailAlreadyExistsException("Email already exists");
-		}
-
 		// Create user entity.
 		User user = new User();
 		user.setUsername(request.getUsername());
@@ -92,6 +83,9 @@ public class AuthService {
 		// Encrypt password through the SecurityConfig @Bean.
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user.setCreatedAt(LocalDateTime.now());
+
+		// Verify if the phone number and/or email exists or not.
+		userValidationService.validateUserUniqueness(user);
 
 		// Save user to DB.
 		userRepository.save(user);

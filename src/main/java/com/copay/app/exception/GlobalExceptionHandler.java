@@ -62,4 +62,12 @@ public class GlobalExceptionHandler {
 
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
+
+	// HTTP 400: User uniqueness violation (Phone number and email already exist).
+	@ExceptionHandler(UserUniquenessException.class)
+	public ResponseEntity<ValidationErrorResponse> handleUserUniquenessException(UserUniquenessException ex) {
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Phone number and email already exist.", HttpStatus.BAD_REQUEST.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
 }
