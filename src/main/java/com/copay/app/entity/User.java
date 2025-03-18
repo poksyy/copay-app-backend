@@ -26,6 +26,20 @@ public class User {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
+	// Constructor for fake data.
+    public User(String username, String email, String phoneNumber) {
+        this.username = username;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = "test"; 
+        this.createdAt = LocalDateTime.now();
+    }
+	
+    // Empty constructor.
+	public User() {
+		
+	}
+
 	// Getters and Setters.
 	public Long getUserId() {
 		return userId;
