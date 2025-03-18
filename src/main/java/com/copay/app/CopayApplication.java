@@ -21,6 +21,5 @@ public class CopayApplication {
         
         // Start the Spring Boot application
         SpringApplication.run(CopayApplication.class, args);
-
     }
 }
