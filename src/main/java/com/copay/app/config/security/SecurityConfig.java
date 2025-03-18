@@ -23,54 +23,63 @@ import com.copay.app.service.JwtService;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtService jwtService;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final JwtService jwtService;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+	@Autowired
+	private CustomUserDetailsService customUserDetailsService;
 
-    // Constructor to initialize JwtService and CustomAuthenticationEntryPoint dependencies.
-    public SecurityConfig(JwtService jwtService, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
-        this.jwtService = jwtService;
-        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
-    }
+	// Constructor to initialize JwtService and CustomAuthenticationEntryPoint
+	// dependencies.
+	public SecurityConfig(JwtService jwtService, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+		this.jwtService = jwtService;
+		this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+	}
 
-    // Bean to create a password encoder using BCrypt algorithm.
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	// Bean to create a password encoder using BCrypt algorithm.
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    // Bean to configure the security filter chain for HTTP requests.
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	// Bean to configure the security filter chain for HTTP requests.
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService);
+		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService);
 
-        http.csrf(csrf -> csrf.disable()) // Disable CSRF protection.
-            .cors(Customizer.withDefaults()) // Enable CORS with default settings.
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/response", "/api/auth/register", "/api/auth/login", "/api/users/**")
-                .permitAll() // Allow public routes.
-                .anyRequest().authenticated()) // Require authentication for all other endpoints.
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless sessions.
-            .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(customAuthenticationEntryPoint)) // Custom error for unauthenticated requests.
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter before authentication filter.
+		// Disable CSRF protection.
+		http.csrf(csrf -> csrf.disable())
+				// Enable CORS with default settings.
+				.cors(Customizer.withDefaults())
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/api/response", "/api/auth/register", "/api/auth/login", "/api/users/**",
+								"/api/fake-data/**")
+						// Allow public routes.
+						.permitAll()
+						// Require authentication for all other endpoints.
+						.anyRequest().authenticated())
+				// Stateless sessions.
+				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				// Custom error for unauthenticated requests.
+				.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(customAuthenticationEntryPoint))
+				// Add JWT filter before authentication filter.
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    // Bean to create the AuthenticationManager to authenticate users.
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+	// Bean to create the AuthenticationManager to authenticate users.
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
 
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
+		AuthenticationManagerBuilder authenticationManagerBuilder = http
+				.getSharedObject(AuthenticationManagerBuilder.class);
 
-        // Configures AuthenticationManager to load user details and verify password.
-        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
+		// Configures AuthenticationManager to load user details and verify password.
+		authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
 
-        // Return the AuthenticationManager.
-        return authenticationManagerBuilder.build();
-    }
+		// Return the AuthenticationManager.
+		return authenticationManagerBuilder.build();
+	}
 }
