@@ -25,6 +25,6 @@ public class FakeDataController {
 	@DeleteMapping("/clear-users")
 	public ResponseEntity<String> clearUsersFakeData() {
 		fakeDataService.clearUsersFakeData();
-		return ResponseEntity.ok("Fake data deleted");
+		return ResponseEntity.ok("User data deleted");
 	}
 }
