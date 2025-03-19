@@ -18,17 +18,17 @@ import jakarta.validation.Valid;
 @RequestMapping("/api")
 public class PasswordController {
 
-    @Autowired
-    private PasswordService passwordService;
+	@Autowired
+	private PasswordService passwordService;
 
-    @PutMapping("/{id}/reset-password")
-    public ResponseEntity<?> updatePassword(@PathVariable Long id,
-                                            @RequestBody @Valid PasswordUpdateRequest passwordUpdateRequest,
-                                            @RequestHeader("Authorization") String authorizationHeader) {
+	@PutMapping("/{id}/reset-password")
+	public ResponseEntity<?> resetPassword(@PathVariable Long id,
+			@RequestBody @Valid PasswordUpdateRequest passwordUpdateRequest,
+			@RequestHeader("Authorization") String authorizationHeader) {
 
-        // Extract the token from the Authorization header
-        String token = authorizationHeader.replace("Bearer ", "");
+		// Extract the token from the Authorization header
+		String token = authorizationHeader.replace("Bearer ", "");
 
-        return passwordService.updatePassword(id, passwordUpdateRequest, token);
-    }
+		return passwordService.resetPassword(id, passwordUpdateRequest, token);
+	}
 }

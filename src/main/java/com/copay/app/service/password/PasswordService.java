@@ -22,7 +22,7 @@ public class PasswordService {
         this.jwtService = jwtService;
     }
 
-    public ResponseEntity<?> updatePassword(Long id, PasswordUpdateRequest request, String token) {
+    public ResponseEntity<?> resetPassword(Long id, PasswordUpdateRequest request, String token) {
 
     	String phoneNumber = jwtService.extractPhoneNumber(token);
 
