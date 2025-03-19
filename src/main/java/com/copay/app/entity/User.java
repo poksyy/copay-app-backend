@@ -20,11 +20,14 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
-	@Column(unique = true, nullable = false)
+	@Column(unique = true, nullable = true)
 	private String phoneNumber;
 
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+	
+	@Column(name = "is_completed", nullable = false)
+	private boolean isCompleted = false;
 
 	// Constructor for fake data.
     public User(String username, String email, String phoneNumber) {
@@ -33,6 +36,7 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.password = "test"; 
         this.createdAt = LocalDateTime.now();
+        this.isCompleted = true;
     }
 	
     // Empty constructor.
@@ -87,5 +91,13 @@ public class User {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+	
+	public boolean isCompleted() {
+		return isCompleted;
+	}
+
+	public void setCompleted(boolean completed) {
+		isCompleted = completed;
 	}
 }
