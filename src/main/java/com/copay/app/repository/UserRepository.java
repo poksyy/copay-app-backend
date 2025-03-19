@@ -1,8 +1,14 @@
 package com.copay.app.repository;
 
-import com.copay.app.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+
+import com.copay.app.entity.User;
+
+import jakarta.transaction.Transactional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -23,4 +29,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	// Checks if a phone number already exists without loading the entity.
 	boolean existsByPhoneNumber(String phoneNumber);
+
+	// Deletes all users who have not completed the registration process.
+	@Transactional
+	@Modifying
+	@Query("DELETE FROM User u WHERE u.isCompleted = false")
+	int deleteIncompleteUsers();
 }
