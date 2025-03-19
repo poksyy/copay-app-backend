@@ -21,7 +21,7 @@ public class PasswordController {
     @Autowired
     private PasswordService passwordService;
 
-    @PutMapping("/{id}/password")
+    @PutMapping("/{id}/reset-password")
     public ResponseEntity<?> updatePassword(@PathVariable Long id,
                                             @RequestBody @Valid PasswordUpdateRequest passwordUpdateRequest,
                                             @RequestHeader("Authorization") String authorizationHeader) {
