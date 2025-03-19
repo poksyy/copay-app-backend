@@ -34,48 +34,43 @@ public class JwtService {
 
 	@PostConstruct
 	public void init() {
-	    if (jwtSecret == null || jwtSecret.isEmpty()) {
-	        throw new IllegalStateException("JWT Secret key is not configured in the environment.");
-	    }
+		if (jwtSecret == null || jwtSecret.isEmpty()) {
+			throw new IllegalStateException("JWT Secret key is not configured in the environment.");
+		}
 	}
-	
-	public String generateToken(String phoneNumber) {
-	    long expirationTimeMillis = System.currentTimeMillis() + (JWT_EXPIRATION * 1000);
-	    return Jwts.builder()
-	        .setSubject(phoneNumber)
-	        .setIssuedAt(new Date())
-	        .setExpiration(new Date(expirationTimeMillis))
-	        .signWith(getSigningKey())
-	        .compact();
+
+	public String generateToken(String input) {
+		long expirationTimeMillis = System.currentTimeMillis() + (JWT_EXPIRATION * 1000);
+		return Jwts.builder().setSubject(input).setIssuedAt(new Date()).setExpiration(new Date(expirationTimeMillis))
+				.signWith(getSigningKey()).compact();
 	}
 
 	// Validate JWT token.
 	public boolean validateToken(String token) {
-	    try {
-	        Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
-	        return true;
-	    } catch (ExpiredJwtException e) {
-	        // Expired token
-	        System.out.println("Token expired");
-	        return false;
-	    } catch (UnsupportedJwtException e) {
-	        // Unsupported token
-	        System.out.println("Unsupported token");
-	        return false;
-	    } catch (MalformedJwtException e) {
-	        // Malformed token
-	        System.out.println("Malformed token");
-	        return false;
-	    } catch (SignatureException e) {
-	        // Invalid signature
-	        System.out.println("Invalid signature");
-	        return false;
-	    } catch (Exception e) {
-	        // General catch-all exception
-	        return false;
-	    }
+		try {
+			Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
+			return true;
+		} catch (ExpiredJwtException e) {
+			// Expired token
+			System.out.println("Token expired");
+			return false;
+		} catch (UnsupportedJwtException e) {
+			// Unsupported token
+			System.out.println("Unsupported token");
+			return false;
+		} catch (MalformedJwtException e) {
+			// Malformed token
+			System.out.println("Malformed token");
+			return false;
+		} catch (SignatureException e) {
+			// Invalid signature
+			System.out.println("Invalid signature");
+			return false;
+		} catch (Exception e) {
+			// General catch-all exception
+			return false;
+		}
 	}
-
 
 	// Get username with JWT token.
 	public String getUsernameFromToken(String token) {
@@ -88,13 +83,14 @@ public class JwtService {
 	public long getExpirationTime() {
 		return JWT_EXPIRATION;
 	}
-	
+
 	public String extractPhoneNumber(String token) {
-        return Jwts.parserBuilder()
-                   .setSigningKey(jwtSecret.getBytes())
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody()
-                   .getSubject();
-    }
+		return Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody()
+				.getSubject();
+	}
+	
+	public String extractEmail(String token) {
+		return Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody()
+				.getSubject();
+	}
 }
