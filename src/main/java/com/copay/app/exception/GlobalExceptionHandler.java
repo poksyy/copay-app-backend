@@ -13,7 +13,7 @@ import com.copay.app.validation.ValidationErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	// HTTP 400: Phone number already exists.
+	// HTTP 409: Phone number already exists.
 	@ExceptionHandler(PhoneAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handlePhoneAlreadyExists(PhoneAlreadyExistsException ex) {
 
@@ -21,17 +21,17 @@ public class GlobalExceptionHandler {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Phone number already exists, please change it.", HttpStatus.BAD_REQUEST.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
-	// HTTP 400: Email already exists.
+	// HTTP 409: Email already exists.
 	@ExceptionHandler(EmailAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Email already exists, please change it.", HttpStatus.BAD_REQUEST.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
 	// HTTP 403: User is trying to modify password of another user.
