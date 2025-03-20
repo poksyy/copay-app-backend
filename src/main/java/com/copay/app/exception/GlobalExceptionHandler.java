@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
 
 		// Constructing response with error details
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number already exists, please change it.", HttpStatus.BAD_REQUEST.value());
+				"Phone number already exists, please change it.", HttpStatus.CONFLICT.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ValidationErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Email already exists, please change it.", HttpStatus.BAD_REQUEST.value());
+				"Email already exists, please change it.", HttpStatus.CONFLICT.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
@@ -64,12 +64,12 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 
-	// HTTP 400: User uniqueness violation (Phone number and email already exist).
+	// HTTP 409: User uniqueness violation (Phone number and email already exist).
 	@ExceptionHandler(UserUniquenessException.class)
 	public ResponseEntity<ValidationErrorResponse> handleUserUniquenessException(UserUniquenessException ex) {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number and email already exist.", HttpStatus.BAD_REQUEST.value());
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+				"Phone number and email already exist.", HttpStatus.CONFLICT.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
 	// HTTP 404: User not found with the provided ID.
