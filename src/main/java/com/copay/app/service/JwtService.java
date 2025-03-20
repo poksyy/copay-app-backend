@@ -24,8 +24,11 @@ public class JwtService {
 	private String jwtSecret;
 
 	// JWT token duration in seconds (1 hour).
-	private static final long JWT_EXPIRATION = 3600;
+	public static final long REGULAR_JWT_EXPIRATION = 3600;
 
+	// JWT Temporal Token (5 minutes).
+	public static final long TEMPORAL_JWT_EXPIRATION = 5 * 60;
+	
 	// Transform String to secret key.
 	private SecretKey getSigningKey() {
 
@@ -39,16 +42,26 @@ public class JwtService {
 	    }
 	}
 	
-	public String generateToken(String phoneNumber) {
-	    long expirationTimeMillis = System.currentTimeMillis() + (JWT_EXPIRATION * 1000);
+	public String generateToken(String email) {
+	    long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000); 
 	    return Jwts.builder()
-	        .setSubject(phoneNumber)
+	        .setSubject(email)
 	        .setIssuedAt(new Date())
 	        .setExpiration(new Date(expirationTimeMillis))
 	        .signWith(getSigningKey())
 	        .compact();
 	}
 
+	// Temporal token for the registerStepTwo().
+	public String generateTemporaryToken(String email) {
+	    long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
+	    return Jwts.builder()
+	        .setSubject(email)
+	        .setIssuedAt(new Date())
+	        .setExpiration(new Date(expirationTimeMillis))
+	        .signWith(getSigningKey())
+	        .compact();
+	}
 	// Validate JWT token.
 	public boolean validateToken(String token) {
 	    try {
@@ -76,7 +89,6 @@ public class JwtService {
 	    }
 	}
 
-
 	// Get username with JWT token.
 	public String getUsernameFromToken(String token) {
 
@@ -85,10 +97,7 @@ public class JwtService {
 		return claims.getSubject();
 	}
 
-	public long getExpirationTime() {
-		return JWT_EXPIRATION;
-	}
-	
+	// Get phoneNumber with JWT token.
 	public String extractPhoneNumber(String token) {
         return Jwts.parserBuilder()
                    .setSigningKey(jwtSecret.getBytes())
@@ -97,4 +106,23 @@ public class JwtService {
                    .getBody()
                    .getSubject();
     }
+	
+	// Get email with JWT token.
+	public String getEmailFromToken(String token) {
+	    return Jwts.parserBuilder()
+	               .setSigningKey(jwtSecret.getBytes())
+	               .build()
+	               .parseClaimsJws(token)  
+	               .getBody()
+	               .getSubject(); 
+	}
+	
+	public long getExpirationTime(boolean isTemporary) {
+		
+	    if (isTemporary) {
+	        return REGULAR_JWT_EXPIRATION; 
+	    } else {
+	        return TEMPORAL_JWT_EXPIRATION;  
+	    }
+	}
 }

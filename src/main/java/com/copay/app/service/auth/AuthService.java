@@ -15,12 +15,14 @@ import org.springframework.stereotype.Service;
 import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
 import com.copay.app.dto.UserRegisterStepOneDTO;
+import com.copay.app.dto.UserRegisterStepTwoDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.UserUniquenessValidator;
 
+import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -46,13 +48,13 @@ public class AuthService {
 
 	public JwtResponse loginUser(UserLoginRequest loginRequest) {
 
-		// Create authentication token with phone number and password.
-		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
-				.orElseThrow(() -> new RuntimeException("User not found"));
-
-		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-			throw new RuntimeException("Invalid phone number or password");
-		}
+		//		Create authentication token with phone number and password.
+		//		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
+		//				.orElseThrow(() -> new RuntimeException("User not found"));
+		//
+		//		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+		//			throw new RuntimeException("Invalid phone number or password");
+		//		}
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				loginRequest.getPhoneNumber(), loginRequest.getPassword());
@@ -96,34 +98,41 @@ public class AuthService {
 		userRepository.save(user);
 
 		// Generate JWT token for the newly registered user.
-		String jwtToken = jwtService.generateToken(request.getUsername());
+		String jwtToken = jwtService.generateTemporaryToken(request.getEmail());
 		// Get the expiration time of the JWT token.
 		long expiresIn = jwtService.getExpirationTime();
 
 		return new JwtResponse(jwtToken, expiresIn);
-
 	}
-	
+
 	@Transactional
-	public void registerStepTwo(String phoneNumber) {
-		
+	public JwtResponse registerStepTwo(UserRegisterStepTwoDTO request, String token) {
+
+		String email = jwtService.getEmailFromToken(token);
+
 		// Find user by email.
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		// Phone number can not be updated to empty or null.
-		if (phoneNumber == null || phoneNumber.isBlank()) {
+		if (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank()) {
 			throw new IllegalArgumentException("Phone number cannot be empty");
 		}
 
 		// Check if the phone number is already in use by another user.
-		Optional<User> existingUser = userRepository.findByPhoneNumber(phoneNumber);
+		Optional<User> existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
 		if (existingUser.isPresent() && !existingUser.get().getEmail().equals(email)) {
 			throw new IllegalArgumentException("Phone number is already registered");
 		}
 
 		// Update the user's phone number and mark user the registration as completed.
-		user.setPhoneNumber(phoneNumber);
+		user.setPhoneNumber(request.getPhoneNumber());
 		user.setCompleted(true);
 		userRepository.save(user);
+
+		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
+		long expiresIn = jwtService.getExpirationTime();
+		
+		// Generate a new JWT token (permanent token)
+		return new JwtResponse(jwtToken, expiresIn);
 	}
 }

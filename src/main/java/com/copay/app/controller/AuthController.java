@@ -37,19 +37,21 @@ public class AuthController {
 		JwtResponse jwtResponse = authService.registerStepOne(userRegisterStepOneDTO);
 		return ResponseEntity.ok().body(jwtResponse);
 	}
-	
+
 	// Update phone number of the user.
 	@PostMapping("/register/step-two")
 	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoDTO userRegisterStepTwoDTO,
-			BindingResult result) {
+			@RequestHeader("Authorization") String token, BindingResult result) {
+
 		// Validates user input.
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
+
+		authService.registerStepTwo(userRegisterStepTwoDTO, token);
 		
-		authService.registerStepTwo(userRegisterStepTwoDTO.getPhoneNumber());
 		return ResponseEntity.ok("Phone number updated successfully");
 	}
 
