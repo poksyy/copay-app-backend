@@ -44,6 +44,7 @@ public class UserController {
 
         // If validation errors exist, handle them with ValidationService.
         ValidationErrorResponse validationResponse = ValidationService.validate(result);
+        
         if (validationResponse != null) {
             return ResponseEntity.badRequest().body(validationResponse);
         }
