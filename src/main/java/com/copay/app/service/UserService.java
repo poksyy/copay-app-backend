@@ -71,33 +71,8 @@ public class UserService {
 		return "User has been deleted successfully.";
 	}
 
-
 	public List<User> getAllUsers() {
 
 		return userRepository.findAll();
 	}
-	
-	@Transactional
-	public void updatePhoneNumber(String email, String phoneNumber) {
-		
-		// Find user by email.
-		User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		// Phone number can not be updated to empty or null.
-		if (phoneNumber == null || phoneNumber.isBlank()) {
-			throw new IllegalArgumentException("Phone number cannot be empty");
-		}
-
-		// Check if the phone number is already in use by another user.
-		Optional<User> existingUser = userRepository.findByPhoneNumber(phoneNumber);
-		if (existingUser.isPresent() && !existingUser.get().getEmail().equals(email)) {
-			throw new IllegalArgumentException("Phone number is already registered");
-		}
-
-		// Update the user's phone number and mark user the registration as completed.
-		user.setPhoneNumber(phoneNumber);
-		user.setCompleted(true);
-		userRepository.save(user);
-	}
-
 }
