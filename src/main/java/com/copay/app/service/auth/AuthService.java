@@ -1,6 +1,7 @@
 package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,11 +14,14 @@ import org.springframework.stereotype.Service;
 
 import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
-import com.copay.app.dto.UserRegisterRequest;
+import com.copay.app.dto.UserRegisterStepOneDTO;
 import com.copay.app.entity.User;
+import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.UserUniquenessValidator;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthService {
@@ -73,7 +77,7 @@ public class AuthService {
 		}
 	}
 
-	public JwtResponse registerUser(UserRegisterRequest request) {
+	public JwtResponse registerStepOne(UserRegisterStepOneDTO request) {
 
 		// Create user entity.
 		User user = new User();
@@ -98,5 +102,28 @@ public class AuthService {
 
 		return new JwtResponse(jwtToken, expiresIn);
 
+	}
+	
+	@Transactional
+	public void registerStepTwo(String phoneNumber) {
+		
+		// Find user by email.
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		// Phone number can not be updated to empty or null.
+		if (phoneNumber == null || phoneNumber.isBlank()) {
+			throw new IllegalArgumentException("Phone number cannot be empty");
+		}
+
+		// Check if the phone number is already in use by another user.
+		Optional<User> existingUser = userRepository.findByPhoneNumber(phoneNumber);
+		if (existingUser.isPresent() && !existingUser.get().getEmail().equals(email)) {
+			throw new IllegalArgumentException("Phone number is already registered");
+		}
+
+		// Update the user's phone number and mark user the registration as completed.
+		user.setPhoneNumber(phoneNumber);
+		user.setCompleted(true);
+		userRepository.save(user);
 	}
 }
