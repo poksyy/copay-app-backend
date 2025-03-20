@@ -2,10 +2,7 @@ package com.copay.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import com.copay.app.config.env.EnvLoader;
-
-import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class CopayApplication {
