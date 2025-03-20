@@ -65,7 +65,7 @@ public class AuthService {
 
 			// Generate JWT token if authentication is successful.
 			String jwtToken = jwtService.generateToken(authentication.getName());
-			long expiresIn = jwtService.getExpirationTime();
+			long expiresIn = jwtService.getExpirationTime(true);
 
 			return new JwtResponse(jwtToken, expiresIn);
 
@@ -100,7 +100,7 @@ public class AuthService {
 		// Generate JWT token for the newly registered user.
 		String jwtToken = jwtService.generateTemporaryToken(request.getEmail());
 		// Get the expiration time of the JWT token.
-		long expiresIn = jwtService.getExpirationTime();
+		long expiresIn = jwtService.getExpirationTime(false);
 
 		return new JwtResponse(jwtToken, expiresIn);
 	}
@@ -130,7 +130,7 @@ public class AuthService {
 		userRepository.save(user);
 
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
-		long expiresIn = jwtService.getExpirationTime();
+		long expiresIn = jwtService.getExpirationTime(true);
 		
 		// Generate a new JWT token (permanent token)
 		return new JwtResponse(jwtToken, expiresIn);
