@@ -15,6 +15,6 @@ public class CopayApplication {
         EnvLoader.loadEnvVariables();
 
         // Start the Spring Boot application.
-        SpringApplication.run(CopayApplication.class, args);
+  SpringApplication.run(CopayApplication.class, args);
     }
 }
