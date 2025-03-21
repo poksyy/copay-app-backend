@@ -1,7 +1,12 @@
 package com.copay.app.exception;
 
 public class EmailSendingException extends RuntimeException {
-    public EmailSendingException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public EmailSendingException(String message) {
         super(message);
     }
 }
