@@ -41,8 +41,8 @@ public class JwtService {
 
 	public String generateToken(String input) {
 		long expirationTimeMillis = System.currentTimeMillis() + (JWT_EXPIRATION * 1000);
-		return Jwts.builder().setSubject(input).setIssuedAt(new Date()).setExpiration(new Date(expirationTimeMillis))
-				.signWith(getSigningKey()).compact();
+		return Jwts.builder().setSubject(input).setIssuedAt(new Date())
+				.setExpiration(new Date(expirationTimeMillis)).signWith(getSigningKey()).compact();
 	}
 
 	// Validate JWT token.
@@ -88,8 +88,13 @@ public class JwtService {
 		return Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody()
 				.getSubject();
 	}
-	
+
 	public String extractEmail(String token) {
+		return Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody()
+				.getSubject();
+	}
+
+	public String extractUserId(String token) {
 		return Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody()
 				.getSubject();
 	}
