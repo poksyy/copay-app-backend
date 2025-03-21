@@ -13,25 +13,25 @@ import com.copay.app.validation.ValidationErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	// HTTP 409: Phone number already exists.
+	// HTTP 400: Phone number already exists.
 	@ExceptionHandler(PhoneAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handlePhoneAlreadyExists(PhoneAlreadyExistsException ex) {
 
 		// Constructing response with error details
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number already exists, please change it.", HttpStatus.CONFLICT.value());
+				"Phone number already exists, please change it.", HttpStatus.BAD_REQUEST.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
-	// HTTP 409: Email already exists.
+	// HTTP 400: Email already exists.
 	@ExceptionHandler(EmailAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Email already exists, please change it.", HttpStatus.CONFLICT.value());
+				"Email already exists, please change it.", HttpStatus.BAD_REQUEST.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
 	// HTTP 403: User is trying to modify password of another user.
@@ -64,12 +64,12 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 
-	// HTTP 409: User uniqueness violation (Phone number and email already exist).
+	// HTTP 400: User uniqueness violation (Phone number and email already exist).
 	@ExceptionHandler(UserUniquenessException.class)
 	public ResponseEntity<ValidationErrorResponse> handleUserUniquenessException(UserUniquenessException ex) {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number and email already exist.", HttpStatus.CONFLICT.value());
-		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+				"Phone number and email already exist.", HttpStatus.BAD_REQUEST.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
 	// HTTP 404: User not found with the provided ID.

@@ -7,7 +7,6 @@ public class UserResponseDTO {
 	private Long id;
 	private String username;
 	private String email;
-	private String password;
 	private String phone;
 
 	// Converts user into UserResponseDTO.
@@ -15,7 +14,6 @@ public class UserResponseDTO {
 		this.id = user.getUserId();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
-		this.password = user.getPassword();
 		this.phone = user.getPhoneNumber();
 	}
 
@@ -43,14 +41,6 @@ public class UserResponseDTO {
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	
 	public String getPhoneNumber() {
 		return phone;
 	}
