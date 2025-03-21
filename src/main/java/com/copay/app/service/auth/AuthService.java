@@ -79,10 +79,11 @@ public class AuthService {
 		User user = new User();
 		user.setUsername(request.getUsername());
 		user.setEmail(request.getEmail());
-		user.setPhoneNumber(request.getPhoneNumber());
 		// Encrypt password through the SecurityConfig @Bean.
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user.setCreatedAt(LocalDateTime.now());
+		user.setPhoneNumber(null);
+		user.setCompleted(false);
 
 		// Verify if the phone number and/or email exists or not.
 		userValidationService.validateUserUniqueness(user);

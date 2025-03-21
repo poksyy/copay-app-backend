@@ -1,6 +1,7 @@
 package com.copay.app.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.copay.app.entity.User;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -72,6 +75,29 @@ public class UserService {
 	public List<User> getAllUsers() {
 
 		return userRepository.findAll();
+	}
+	
+	@Transactional
+	public void updatePhoneNumber(String email, String phoneNumber) {
+		
+		// Find user by email.
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		// Phone number can not be updated to empty or null.
+		if (phoneNumber == null || phoneNumber.isBlank()) {
+			throw new IllegalArgumentException("Phone number cannot be empty");
+		}
+
+		// Check if the phone number is already in use by another user.
+		Optional<User> existingUser = userRepository.findByPhoneNumber(phoneNumber);
+		if (existingUser.isPresent() && !existingUser.get().getEmail().equals(email)) {
+			throw new IllegalArgumentException("Phone number is already registered");
+		}
+
+		// Update the user's phone number and mark user the registration as completed.
+		user.setPhoneNumber(phoneNumber);
+		user.setCompleted(true);
+		userRepository.save(user);
 	}
 
 }
