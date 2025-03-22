@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.UserRegisterStepTwoDTO;
 import com.copay.app.dto.UserResponseDTO;
 import com.copay.app.dto.user.UserCreateRequest;
 import com.copay.app.dto.user.UserUpdateRequest;
