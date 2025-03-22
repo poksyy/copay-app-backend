@@ -62,6 +62,7 @@ public class JwtService {
 	        .signWith(getSigningKey())
 	        .compact();
 	}
+	
 	// Validate JWT token.
 	public boolean validateToken(String token) {
 	    try {
@@ -89,8 +90,8 @@ public class JwtService {
 	    }
 	}
 
-	// Get username with JWT token.
-	public String getUsernameFromToken(String token) {
+	// Identify the user through the token.
+	public String getUserIdentifierFromToken(String token) {
 
 		Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
 
@@ -106,16 +107,6 @@ public class JwtService {
                    .getBody()
                    .getSubject();
     }
-	
-	// Get email with JWT token.
-	public String getEmailFromToken(String token) {
-	    return Jwts.parserBuilder()
-	               .setSigningKey(jwtSecret.getBytes())
-	               .build()
-	               .parseClaimsJws(token)  
-	               .getBody()
-	               .getSubject(); 
-	}
 	
 	public long getExpirationTime(boolean isTemporary) {
 		
