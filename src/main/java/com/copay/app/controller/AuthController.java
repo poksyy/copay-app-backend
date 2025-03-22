@@ -45,7 +45,7 @@ public class AuthController {
 	// Update phone number of the user.
 	@PostMapping("/register/step-two")
 	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoDTO userRegisterStepTwoDTO,
-	        BindingResult result, @RequestHeader("Authorization") String authorizationHeader) {
+	        BindingResult result)  {
 
 	    // Validates user input.
 	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
