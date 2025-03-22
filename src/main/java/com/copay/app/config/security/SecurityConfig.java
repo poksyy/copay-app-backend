@@ -46,14 +46,14 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService);
+		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, customUserDetailsService);
 
 		// Disable CSRF protection.
 		http.csrf(csrf -> csrf.disable())
 				// Enable CORS with default settings.
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/response", "/api/auth/register", "/api/auth/login", "/api/users/**",
+						.requestMatchers("/api/response", "/api/auth/register/step-one", "/api/auth/register/step-two", "/api/auth/login", "/api/users/**",
 								"/api/fake-data/**")
 						// Allow public routes.
 						.permitAll()
