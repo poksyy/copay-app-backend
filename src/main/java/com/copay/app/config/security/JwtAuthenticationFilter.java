@@ -36,11 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String authorizationHeader = request.getHeader("Authorization");
 
 			if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-				
+
 				filterChain.doFilter(request, response);
 				return;
 			}
-			
+
 			// Extract the token and remove "Bearer " prefix.
 			String token = authorizationHeader.substring(7);
 
@@ -53,21 +53,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 
-			
 			// Get the identifier (phone number or email).
 			String userIdentifier = jwtService.getUserIdentifierFromToken(token);
 
 			UserDetails userDetails;
 
 			// Load user details using CustomUserDetailsService.
-			if (userIdentifier.contains("@")) {
-				userDetails = customUserDetailsService.loadUserByEmail(userIdentifier);
-			} else {
-				userDetails = customUserDetailsService.loadUserByPhoneNumber(userIdentifier);
-			}
-
-			UsernamePasswordAuthenticationToken authenticationToken =
-			        new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+			userDetails = customUserDetailsService.loadUserByUsername(userIdentifier);
+			
+			// Creates an authentication token using the retrieved user details.
+			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+					userDetails, token, userDetails.getAuthorities());
 
 			// Set authentication in the security context.
 			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
