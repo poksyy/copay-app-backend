@@ -8,6 +8,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import com.copay.app.dto.UserLoginRequest;
 import com.copay.app.dto.UserRegisterStepOneDTO;
 import com.copay.app.dto.UserRegisterStepTwoDTO;
 import com.copay.app.entity.User;
+import com.copay.app.exception.EmailAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
@@ -32,7 +35,6 @@ public class AuthService {
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final UserUniquenessValidator userValidationService;
 
 	@Autowired
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
@@ -43,18 +45,9 @@ public class AuthService {
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.userValidationService = userValidationService;
 	}
 
 	public JwtResponse loginUser(UserLoginRequest loginRequest) {
-
-		//		Create authentication token with phone number and password.
-		//		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
-		//				.orElseThrow(() -> new RuntimeException("User not found"));
-		//
-		//		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-		//			throw new RuntimeException("Invalid phone number or password");
-		//		}
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				loginRequest.getPhoneNumber(), loginRequest.getPassword());
@@ -81,6 +74,8 @@ public class AuthService {
 
 	public JwtResponse registerStepOne(UserRegisterStepOneDTO request) {
 
+		boolean emailExists = userRepository.existsByEmail(request.getEmail());
+
 		// Create user entity.
 		User user = new User();
 		user.setUsername(request.getUsername());
@@ -91,8 +86,12 @@ public class AuthService {
 		user.setPhoneNumber(null);
 		user.setCompleted(false);
 
-		// Verify if the phone number and/or email exists or not.
-		userValidationService.validateUserUniqueness(user);
+		// Verify if the email exists or not.
+		if (emailExists) {
+			throw new EmailAlreadyExistsException("Email <" + user.getEmail() + "> already exists.");
+		}
+
+		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Save user to DB.
 		userRepository.save(user);
@@ -105,24 +104,21 @@ public class AuthService {
 		return new JwtResponse(jwtToken, expiresIn);
 	}
 
-	@Transactional
 	public JwtResponse registerStepTwo(UserRegisterStepTwoDTO request, String token) {
 
-		String email = jwtService.getEmailFromToken(token);
+		boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
 
-		// Find user by email.
-		User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		// Phone number can not be updated to empty or null.
-		if (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank()) {
-			throw new IllegalArgumentException("Phone number cannot be empty");
+		// Verify if the phoneNumber exists or not.
+		if (phoneNumberExists) {
+			throw new EmailAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
 		}
+		
+		// Get the email from the current token.
+		String emailTemporaryToken = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
 
-		// Check if the phone number is already in use by another user.
-		Optional<User> existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
-		if (existingUser.isPresent() && !existingUser.get().getEmail().equals(email)) {
-			throw new IllegalArgumentException("Phone number is already registered");
-		}
+		// Find user by email trough the temporal token.
+		User user = userRepository.findByEmail(emailTemporaryToken)
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		// Update the user's phone number and mark user the registration as completed.
 		user.setPhoneNumber(request.getPhoneNumber());
@@ -131,8 +127,8 @@ public class AuthService {
 
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
 		long expiresIn = jwtService.getExpirationTime(true);
-		
-		// Generate a new JWT token (permanent token)
+
+		// Generate a new JWT token (permanent token).
 		return new JwtResponse(jwtToken, expiresIn);
 	}
 }
