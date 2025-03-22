@@ -37,32 +37,45 @@ public class JwtService {
 
 	@PostConstruct
 	public void init() {
+		
 	    if (jwtSecret == null || jwtSecret.isEmpty()) {
+	    	
 	        throw new IllegalStateException("JWT Secret key is not configured in the environment.");
 	    }
 	}
 	
 	// Validate JWT token.
 	public boolean validateToken(String token) {
+		
 	    try {
+	    	
 	        Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
 	        return true;
+	        
 	    } catch (ExpiredJwtException e) {
+	    	
 	        // Expired token
 	        System.out.println("Token expired");
 	        return false;
+	        
 	    } catch (UnsupportedJwtException e) {
+	    	
 	        // Unsupported token
 	        System.out.println("Unsupported token");
 	        return false;
+	        
 	    } catch (MalformedJwtException e) {
+	    	
 	        // Malformed token
 	        System.out.println("Malformed token");
 	        return false;
+	        
 	    } catch (SignatureException e) {
+	    	
 	        // Invalid signature
 	        System.out.println("Invalid signature");
 	        return false;
+	        
 	    } catch (Exception e) {
 	        // General catch-all exception
 	        return false;
@@ -71,7 +84,9 @@ public class JwtService {
 	
 	// Generate 1 hour token for the registerStepTwo()
 	public String generateToken(String phoneNumber) {
+		
 	    long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000); 
+	    
 	    return Jwts.builder()
 	        .setSubject(phoneNumber)
 	        .setIssuedAt(new Date())
@@ -82,7 +97,9 @@ public class JwtService {
 
 	// Genereate temporal 5 minutes token for the registerStepOne().
 	public String generateTemporaryToken(String email) {
+		
 	    long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
+	    
 	    return Jwts.builder()
 	        .setSubject(email)
 	        .setIssuedAt(new Date())
@@ -101,27 +118,32 @@ public class JwtService {
 
 	// Get phoneNumber with JWT token.
 	public String extractPhoneNumber(String token) {
+		
         return Jwts.parserBuilder()
-                   .setSigningKey(jwtSecret.getBytes())
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody()
-                   .getSubject();
+            .setSigningKey(jwtSecret.getBytes())
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .getSubject();
     }
 	
 	public String extractUserId(String token) {
+		
 		return Jwts.parserBuilder()
-				.setSigningKey(jwtSecret.getBytes())
-				.build().parseClaimsJws(token)
-				.getBody()
-				.getSubject();
+			.setSigningKey(jwtSecret.getBytes())
+			.build().parseClaimsJws(token)
+			.getBody()
+			.getSubject();
 	}
 	
 	public long getExpirationTime(boolean isTemporary) {
 		
 	    if (isTemporary) {
+	    	
 	        return REGULAR_JWT_EXPIRATION; 
+	        
 	    } else {
+	    	
 	        return TEMPORAL_JWT_EXPIRATION;  
 	    }
 	}
