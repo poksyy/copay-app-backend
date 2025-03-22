@@ -42,27 +42,6 @@ public class JwtService {
 	    }
 	}
 	
-	public String generateToken(String email) {
-	    long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000); 
-	    return Jwts.builder()
-	        .setSubject(email)
-	        .setIssuedAt(new Date())
-	        .setExpiration(new Date(expirationTimeMillis))
-	        .signWith(getSigningKey())
-	        .compact();
-	}
-
-	// Temporal token for the registerStepTwo().
-	public String generateTemporaryToken(String email) {
-	    long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
-	    return Jwts.builder()
-	        .setSubject(email)
-	        .setIssuedAt(new Date())
-	        .setExpiration(new Date(expirationTimeMillis))
-	        .signWith(getSigningKey())
-	        .compact();
-	}
-	
 	// Validate JWT token.
 	public boolean validateToken(String token) {
 	    try {
@@ -88,6 +67,28 @@ public class JwtService {
 	        // General catch-all exception
 	        return false;
 	    }
+	}
+	
+	// Generate 1 hour token trough the phoneNumber.
+	public String generateToken(String phoneNumber) {
+	    long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000); 
+	    return Jwts.builder()
+	        .setSubject(phoneNumber)
+	        .setIssuedAt(new Date())
+	        .setExpiration(new Date(expirationTimeMillis))
+	        .signWith(getSigningKey())
+	        .compact();
+	}
+
+	// Temporal token for the registerStepTwo().
+	public String generateTemporaryToken(String email) {
+	    long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
+	    return Jwts.builder()
+	        .setSubject(email)
+	        .setIssuedAt(new Date())
+	        .setExpiration(new Date(expirationTimeMillis))
+	        .signWith(getSigningKey())
+	        .compact();
 	}
 
 	// Identify the user through the token.
