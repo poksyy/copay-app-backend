@@ -114,7 +114,7 @@ public class AuthService {
 		}
 		
 		// Get the email from the current token.
-		String emailTemporaryToken = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+		String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
 
 		// Find user by email trough the temporal token.
 		User user = userRepository.findByEmail(emailTemporaryToken)
@@ -125,10 +125,11 @@ public class AuthService {
 		user.setCompleted(true);
 		userRepository.save(user);
 
+		// Create the 1 hour with the phone number.
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
 		long expiresIn = jwtService.getExpirationTime(true);
 
-		// Generate a new JWT token (permanent token).
+		// Return the token trought the DTO.
 		return new JwtResponse(jwtToken, expiresIn);
 	}
 }
