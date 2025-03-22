@@ -69,7 +69,7 @@ public class JwtService {
 	    }
 	}
 	
-	// Generate 1 hour token trough the phoneNumber.
+	// Generate 1 hour token for the registerStepTwo()
 	public String generateToken(String phoneNumber) {
 	    long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000); 
 	    return Jwts.builder()
@@ -80,7 +80,7 @@ public class JwtService {
 	        .compact();
 	}
 
-	// Temporal token for the registerStepTwo().
+	// Genereate temporal 5 minutes token for the registerStepOne().
 	public String generateTemporaryToken(String email) {
 	    long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
 	    return Jwts.builder()
@@ -108,6 +108,14 @@ public class JwtService {
                    .getBody()
                    .getSubject();
     }
+	
+	public String extractUserId(String token) {
+		return Jwts.parserBuilder()
+				.setSigningKey(jwtSecret.getBytes())
+				.build().parseClaimsJws(token)
+				.getBody()
+				.getSubject();
+	}
 	
 	public long getExpirationTime(boolean isTemporary) {
 		
