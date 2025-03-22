@@ -1,16 +1,46 @@
 {
 	"info": {
-		"_postman_id": "f2ebd4d4-20af-40c9-ae52-a189528acfcc",
+		"_postman_id": "0eb78f58-8f47-4e71-a8ab-b834ddb0b80f",
 		"name": "Copay",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38870746"
+		"_exporter_id": "38870768"
 	},
 	"item": [
 		{
 			"name": "Auth",
 			"item": [
 				{
-					"name": "Register",
+					"name": "Register Step One",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Test\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"password123\",\r\n    \"phoneNumber\": \"000000000\",\r\n    \"confirmPassword\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Step Two",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -285,11 +315,80 @@
 							"name": "List Users",
 							"request": {
 								"method": "GET",
-								"header": []
+								"header": [],
+								"url": {
+									"raw": ""
+								}
 							},
 							"response": []
 						}
 					]
+				}
+			]
+		},
+		{
+			"name": "Fake Data",
+			"item": [
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Fake User Data",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/fake-data/users?count=",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"fake-data",
+										"users"
+									],
+									"query": [
+										{
+											"key": "count",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User Data",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/users/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"users",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Groups",
+					"item": []
+				},
+				{
+					"name": "Plans",
+					"item": []
 				}
 			]
 		}
