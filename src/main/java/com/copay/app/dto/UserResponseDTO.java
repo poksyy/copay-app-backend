@@ -15,6 +15,7 @@ public class UserResponseDTO {
 		this.username = user.getUsername();
 		this.email = user.getEmail();
 		this.phone = user.getPhoneNumber();
+		this.password = user.getPassword();
 	}
 
 	public Long getUserId() {
@@ -40,6 +41,16 @@ public class UserResponseDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	private String password;
 
 	public String getPhoneNumber() {
 		return phone;

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class UserRegisterRequest {
+public class UserRegisterStepOneDTO {
 
 	@NotBlank(message = "Username cannot be empty")
 	@Size(min = 3, max = 15, message = "Username must be between 3 and 15 characters")
@@ -28,11 +28,11 @@ public class UserRegisterRequest {
 	}
 
 	// Constructor for deserialization.
-	public UserRegisterRequest() {
+	public UserRegisterStepOneDTO() {
 	}
 
 	// Constructor with parameters.
-	public UserRegisterRequest(String username, String email, String password, String confirmPassword) {
+	public UserRegisterStepOneDTO(String username, String email, String password, String confirmPassword) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

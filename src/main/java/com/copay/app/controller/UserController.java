@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.UpdatePhoneNumberRequest;
 import com.copay.app.dto.UserResponseDTO;
 import com.copay.app.dto.user.UserCreateRequest;
 import com.copay.app.dto.user.UserUpdateRequest;
@@ -130,15 +129,4 @@ public class UserController {
                                                   .collect(Collectors.toList());
         return ResponseEntity.ok(responseDTOs);
     }
-    
-	// Update phone number of the user.
-	@PostMapping("/update-phone-number")
-	public ResponseEntity<?> updatePhoneNumber(@RequestBody UpdatePhoneNumberRequest phoneNumberRequest) {
-		try {
-			userService.updatePhoneNumber(phoneNumberRequest.getEmail(), phoneNumberRequest.getPhoneNumber());
-			return ResponseEntity.ok("Phone number updated successfully");
-		} catch (RuntimeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
 }

@@ -26,7 +26,7 @@ public class User {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 	
-	@Column(name = "is_completed", nullable = false)
+	@Column(name = "is_completed", columnDefinition = "TINYINT(1)")
 	private boolean isCompleted = false;
 
 	// Constructor for fake data.
