@@ -112,7 +112,7 @@ public class AuthService {
 		if (phoneNumberExists) {
 			throw new EmailAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
 		}
-		
+
 		// Get the email from the current token.
 		String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
 
