@@ -2,8 +2,8 @@ package com.copay.app.controller;
 
 import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
-import com.copay.app.dto.UserRegisterStepTwoDTO;
-import com.copay.app.dto.UserRegisterStepOneDTO;
+import com.copay.app.dto.auth.UserRegisterStepOneDTO;
+import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.auth.AuthService;
 import com.copay.app.validation.ValidationErrorResponse;
@@ -37,6 +37,7 @@ public class AuthController {
 
 		// Registers the user and returns a JWT response.
 		JwtResponse jwtResponse = authService.registerStepOne(userRegisterStepOneDTO);
+		
 		return ResponseEntity.ok().body(jwtResponse);
 	}
 

@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.UserLoginRequest;
-import com.copay.app.dto.UserRegisterStepOneDTO;
-import com.copay.app.dto.UserRegisterStepTwoDTO;
+import com.copay.app.dto.auth.UserRegisterStepOneDTO;
+import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.EmailAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
@@ -53,6 +53,7 @@ public class AuthService {
 				loginRequest.getPhoneNumber(), loginRequest.getPassword());
 
 		try {
+			
 			// Authenticate user using AuthenticationManager.
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
@@ -75,6 +76,13 @@ public class AuthService {
 	public JwtResponse registerStepOne(UserRegisterStepOneDTO request) {
 
 		boolean emailExists = userRepository.existsByEmail(request.getEmail());
+		
+		// Verify if the email exists or not.
+		if (emailExists) {
+			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
+		}
+		
+		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Create user entity.
 		User user = new User();
@@ -85,13 +93,6 @@ public class AuthService {
 		user.setCreatedAt(LocalDateTime.now());
 		user.setPhoneNumber(null);
 		user.setCompleted(false);
-
-		// Verify if the email exists or not.
-		if (emailExists) {
-			throw new EmailAlreadyExistsException("Email <" + user.getEmail() + "> already exists.");
-		}
-
-		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Save user to DB.
 		userRepository.save(user);
@@ -120,9 +121,10 @@ public class AuthService {
 		User user = userRepository.findByEmail(emailTemporaryToken)
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
-		// Update the user's phone number and mark user the registration as completed.
+		// Update the user's phone number and mark user registration as completed.
 		user.setPhoneNumber(request.getPhoneNumber());
 		user.setCompleted(true);
+		
 		userRepository.save(user);
 
 		// Create the 1 hour with the phone number.

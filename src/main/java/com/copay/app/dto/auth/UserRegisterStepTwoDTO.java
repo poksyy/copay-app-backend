@@ -1,4 +1,4 @@
-package com.copay.app.dto;
+package com.copay.app.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 
