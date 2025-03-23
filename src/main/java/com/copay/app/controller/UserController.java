@@ -1,6 +1,5 @@
 package com.copay.app.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,9 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.UserResponseDTO;
-import com.copay.app.dto.user.UserCreateRequest;
-import com.copay.app.dto.user.UserUpdateRequest;
+import com.copay.app.dto.user.UserCreateDTO;
+import com.copay.app.dto.user.UserDeleteDTO;
+import com.copay.app.dto.user.UserResponseDTO;
+import com.copay.app.dto.user.UserUpdateDTO;
 import com.copay.app.entity.User;
 import com.copay.app.service.UserService;
 import com.copay.app.service.ValidationService;
@@ -30,103 +30,98 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
+	private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+	public UserController(UserService userService) {
+		this.userService = userService;
+	}
 
-    // Handles user creation with validation.
-    @PostMapping
-    public ResponseEntity<?> createUser(
-            @Valid @RequestBody UserCreateRequest userCreateRequest, 
-            BindingResult result) {
+	// Handles user creation with validation.
+	@PostMapping
+	public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult result) {
 
-        // If validation errors exist, handle them with ValidationService.
-        ValidationErrorResponse validationResponse = ValidationService.validate(result);
-        if (validationResponse != null) {
-            return ResponseEntity.badRequest().body(validationResponse);
-        }
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-        // Create user entity and set properties.
-        User user = new User();
-        user.setUsername(userCreateRequest.getUsername());
-        user.setEmail(userCreateRequest.getEmail());
-        user.setPassword(userCreateRequest.getPassword());
-        user.setPhoneNumber(userCreateRequest.getPhoneNumber());
-        user.setCreatedAt(LocalDateTime.now());
+		// Validates the DTO annotations. 
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
 
-        // Save the user to the database.
-        User savedUser = userService.createUser(user);
+		// Convert the saved entity to a response DTO.
+		UserResponseDTO userResponseDTO = userService.createUser(userCreateDTO);
 
-        // Convert the saved entity to a response DTO.
-        UserResponseDTO responseDTO = new UserResponseDTO(savedUser);
-        return ResponseEntity.ok(responseDTO);
-    }
+		return ResponseEntity.ok().body(userResponseDTO);
+	}
 
-    // Retrieves a user by their ID.
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        UserResponseDTO responseDTO = new UserResponseDTO(user);
-        return ResponseEntity.ok(responseDTO);
-    }
+	// Retrieves a user by their ID and returns it as a DTO.
+	@GetMapping("/{id}")
+	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
 
-//	  TODO - It must not have the same end point as the one above.
-//    // Retrieves a user by their phone number.
-//    @GetMapping("/{phone}")
-//    public ResponseEntity<UserResponseDTO> getUserByPhone(@PathVariable String phone) {
-//        User user = userService.getUserByPhone(phone);
-//        UserResponseDTO responseDTO = new UserResponseDTO(user);
-//        return ResponseEntity.ok(responseDTO);
-//    }
+		UserResponseDTO userResponseDTO = userService.getUserByIdDTO(id);
 
-  
-    // Updates a user with the provided ID.
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(
-            @PathVariable Long id, 
-            @Valid @RequestBody UserUpdateRequest userUpdateRequest, 
-            BindingResult result) {
+		return ResponseEntity.ok(userResponseDTO);
+	}
 
-        // If validation errors exist, handle them with ValidationService.
-        ValidationErrorResponse validationResponse = ValidationService.validate(result);
-        if (validationResponse != null) {
-            return ResponseEntity.badRequest().body(validationResponse);
-        }
+	// Retrieves a user by their phone number and returns it as a DTO.
+	@GetMapping("/phone/{phoneNumber}")
+	public ResponseEntity<UserResponseDTO> getUserByPhone(@PathVariable String phoneNumber) {
 
-        // Find the existing user.
-        User existingUser = userService.getUserById(id);
+		UserResponseDTO userResponseDTO = userService.getUserByPhoneDTO(phoneNumber);
 
-        // Update the user fields with the new data.
-        existingUser.setUsername(userUpdateRequest.getUsername());
-        existingUser.setEmail(userUpdateRequest.getEmail());
-        existingUser.setPassword(userUpdateRequest.getPassword());
-        existingUser.setPhoneNumber(userUpdateRequest.getPhoneNumber());
-        existingUser.setCreatedAt(existingUser.getCreatedAt());
+		return ResponseEntity.ok(userResponseDTO);
+	}
 
-        // Save the updated user.
-        User updatedUser = userService.updateUser(id, existingUser);
+	// Updates a user with the provided ID.
+	@PutMapping("/{id}")
+	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO,
+			BindingResult result) {
 
-        // Convert the updated entity to a response DTO.
-        UserResponseDTO responseDTO = new UserResponseDTO(updatedUser);
-        return ResponseEntity.ok(responseDTO);
-    }
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-    // Deletes a user by their ID.
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
-      String message = userService.deleteUser(id);
-      return ResponseEntity.ok(Map.of("message", message));
-    }
+		// Validates the DTO annotations. 
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
 
-    // Retrieves all users.
-    @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        List<UserResponseDTO> responseDTOs = users.stream()
-                                                  .map(UserResponseDTO::new)
-                                                  .collect(Collectors.toList());
-        return ResponseEntity.ok(responseDTOs);
-    }
+		// Delegate the update to the service.
+		UserResponseDTO userResponseDTO = userService.updateUser(id, userUpdateDTO);
+
+		return ResponseEntity.ok(userResponseDTO);
+	}
+
+	// Updates a user with the provided email.
+	@PutMapping("/email/{email}")
+	public ResponseEntity<?> updateUserByEmail(@PathVariable String email,
+			@Valid @RequestBody UserUpdateDTO userUpdateDTO, BindingResult result) {
+
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+		// Validates the DTO annotations. 
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
+
+		// Convert the updated entity to a response DTO.
+		UserResponseDTO userResponseDTO = userService.updateUser(email, userUpdateDTO);
+
+		return ResponseEntity.ok(userResponseDTO);
+	}
+
+	// Deletes a user by their ID and returns a response DTO (Used in the Controller)
+	@DeleteMapping("/{id}")
+	public ResponseEntity<UserDeleteDTO> deleteUser(@PathVariable Long id) {
+
+		UserDeleteDTO responseDTO = userService.deleteUser(id);
+
+		return ResponseEntity.ok(responseDTO);
+	}
+
+	// Retrieves all users.
+	@GetMapping
+	public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+
+		List<UserResponseDTO> userResponseDTOs = userService.getAllUsers();
+
+		return ResponseEntity.ok(userResponseDTOs);
+	}
 }
