@@ -1,23 +1,30 @@
 package com.copay.app.dto.user;
 
-public class UserCreateRequest {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
+public class UserCreateDTO {
+
+	@NotBlank(message = "Username cannot be empty")
     private String username;
+    
+    @NotBlank(message = "Email must not be blank")
+    @Email(message = "Invalid email format")
     private String email;
+    
     private String phoneNumber;
+    
+    @NotBlank(message = "Password must not be blank")
     private String password;
 
-    // Default constructor
-    public UserCreateRequest() {}
-
-    public UserCreateRequest(String username, String email, String phoneNumber, String password) {
+    public UserCreateDTO(String username, String email, String phoneNumber, String password) {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
-    // Getters and Setters
+    // Getters and Setters.
     public String getUsername() {
         return username;
     }

@@ -1,15 +1,29 @@
 package com.copay.app.dto.user;
 
-public class UserUpdateRequest {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public class UserUpdateDTO {
+	
+	@NotBlank(message = "Username cannot be empty")
     private String username;
+    
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format")
     private String email;
+    
+    @NotBlank(message = "Phone number cannot be empty")
     private String phoneNumber;
+    
+    @NotBlank(message = "Password cannot be empty")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
-    public UserUpdateRequest() {
+    public UserUpdateDTO() {
     }
 
-    public UserUpdateRequest(String username, String email, String phoneNumber, String password) {
+    public UserUpdateDTO(String username, String email, String phoneNumber, String password) {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;

@@ -1,4 +1,4 @@
-package com.copay.app.dto;
+package com.copay.app.dto.user;
 
 import com.copay.app.entity.User;
 
@@ -7,17 +7,21 @@ public class UserResponseDTO {
 	private Long id;
 	private String username;
 	private String email;
+	private String password;
 	private String phone;
-
-	// Converts user into UserResponseDTO.
+	private boolean isCompleted;
+	
+	// Json Response.
 	public UserResponseDTO(User user) {
 		this.id = user.getUserId();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
 		this.phone = user.getPhoneNumber();
 		this.password = user.getPassword();
+		this.isCompleted = user.isCompleted();
 	}
 
+	// Getters and Setters.
 	public Long getUserId() {
 		return id;
 	}
@@ -50,8 +54,6 @@ public class UserResponseDTO {
 		this.password = password;
 	}
 
-	private String password;
-
 	public String getPhoneNumber() {
 		return phone;
 	}
@@ -59,4 +61,13 @@ public class UserResponseDTO {
 	public void setPhoneNumber(String phone) {
 		this.phone = phone;
 	}
+	
+	public boolean isisCompleted() {
+		return isCompleted;
+	}
+
+	public void setisCompleted(boolean isCompleted) {
+		this.isCompleted = isCompleted;
+	}
+
 }
