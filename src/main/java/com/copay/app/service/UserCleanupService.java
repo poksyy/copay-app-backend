@@ -20,6 +20,7 @@ public class UserCleanupService {
 	@Transactional
 	@Scheduled(fixedRate = 300000)
 	public void deleteIncompleteUsers() {
+		
 		int deletedUsers = userRepository.deleteIncompleteUsers();
 		System.out.println(deletedUsers + " Users were removed due to incomplete registration.");
 	}
