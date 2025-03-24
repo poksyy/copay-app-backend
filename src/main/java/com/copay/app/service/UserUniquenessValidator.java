@@ -17,6 +17,7 @@ public class UserUniquenessValidator {
 	}
 
 	public void validateUserUniqueness(User user) {
+		
 		boolean phoneExists = userRepository.existsByPhoneNumber(user.getPhoneNumber());
 		boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
