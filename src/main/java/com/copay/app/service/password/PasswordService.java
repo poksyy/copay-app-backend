@@ -41,17 +41,17 @@ public class PasswordService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Check if the authenticated user can change the password
+        // Check if the authenticated user can change the password.
         if (!user.getPhoneNumber().equals(phoneNumber)) {
             throw new UserPermissionException("You can only update your own password.");
         }
 
-        // Check if the current password is correct
+        // Check if the current password is correct.
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new IncorrectPasswordException("Current password is incorrect.");
         }
 
-        // Save new password with hash
+        // Save new password with hash.
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
@@ -62,7 +62,7 @@ public class PasswordService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
-        // Generate token and reset link
+        // Generate token and reset link.
         String token = jwtService.generateToken(user.getUserId().toString());
         String resetLink = "http://localhost:8080/reset-password.html?token=" + token;
 
@@ -75,7 +75,8 @@ public class PasswordService {
     }
 
     public ResponseEntity<?> forgotPasswordReset(String token, ForgotPasswordResetRequest request) {
-        // Validate token
+    	
+        // Validate token.
         if (!jwtService.validateToken(token)) {
             throw new InvalidTokenException("Invalid or expired token.");
         }
@@ -86,7 +87,7 @@ public class PasswordService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Update the password
+        // Update the password.
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
