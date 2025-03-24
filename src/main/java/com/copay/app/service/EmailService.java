@@ -106,7 +106,8 @@ public class EmailService {
                 + "</body>"
                 + "</html>";
 
-        helper.setText(emailContent, true); // True means it is HTML
+        // True means it is HTML.
+        helper.setText(emailContent, true); 
         helper.addInline("copayLogo", imageResource);
         mailSender.send(message);
         
