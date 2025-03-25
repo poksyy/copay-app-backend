@@ -115,26 +115,6 @@ public class JwtService {
 
 		return claims.getSubject();
 	}
-
-	// Get phoneNumber with JWT token.
-	public String extractPhoneNumber(String token) {
-		
-        return Jwts.parserBuilder()
-            .setSigningKey(jwtSecret.getBytes())
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getSubject();
-    }
-	
-	public String extractUserId(String token) {
-		
-		return Jwts.parserBuilder()
-			.setSigningKey(jwtSecret.getBytes())
-			.build().parseClaimsJws(token)
-			.getBody()
-			.getSubject();
-	}
 	
 	public long getExpirationTime(boolean isTemporary) {
 		
