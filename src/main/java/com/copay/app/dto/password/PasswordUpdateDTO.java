@@ -1,10 +1,10 @@
-package com.copay.app.dto;
+package com.copay.app.dto.password;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class PasswordUpdateRequest {
+public class PasswordUpdateDTO {
 
     @NotBlank(message = "Current password is required")
     private String currentPassword;

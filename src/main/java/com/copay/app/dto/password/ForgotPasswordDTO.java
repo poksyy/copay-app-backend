@@ -1,6 +1,6 @@
 package com.copay.app.dto.password;
 
-public class ForgotPasswordRequest {
+public class ForgotPasswordDTO {
 	
     private String email;
 

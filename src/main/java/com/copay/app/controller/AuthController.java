@@ -1,7 +1,7 @@
 package com.copay.app.controller;
 
 import com.copay.app.dto.JwtResponse;
-import com.copay.app.dto.UserLoginRequest;
+import com.copay.app.dto.auth.UserLoginRequest;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.service.ValidationService;

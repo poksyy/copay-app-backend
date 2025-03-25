@@ -3,7 +3,7 @@ package com.copay.app.dto.password;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 
-public class ForgotPasswordResetRequest {
+public class ForgotPasswordResetDTO {
 
 	@NotBlank(message = "New password is required")
 	private String newPassword;
@@ -12,8 +12,8 @@ public class ForgotPasswordResetRequest {
 	private String confirmNewPassword;
 
 	@AssertTrue(message = "Passwords must match")
-	public boolean isNewPasswordMatching() {
-		return newPassword.equals(confirmNewPassword);
+	public boolean isPasswordsMatching() {
+		return newPassword != null && newPassword.equals(confirmNewPassword);
 	}
 
 	// Getters y setters

@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.copay.app.dto.JwtResponse;
-import com.copay.app.dto.UserLoginRequest;
+import com.copay.app.dto.auth.UserLoginRequest;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.entity.User;

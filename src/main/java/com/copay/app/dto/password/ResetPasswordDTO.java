@@ -4,7 +4,7 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class ResetPasswordRequest {
+public class ResetPasswordDTO {
 
     @NotBlank(message = "Current password is required")
     private String currentPassword;

@@ -6,9 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.copay.app.dto.password.ForgotPasswordResetRequest;
-import com.copay.app.dto.password.ResetPasswordRequest;
+import com.copay.app.dto.JwtResponse;
+import com.copay.app.dto.password.ForgotPasswordDTO;
+import com.copay.app.dto.password.ForgotPasswordResetDTO;
+import com.copay.app.dto.password.ForgotPasswordResponseDTO;
+import com.copay.app.dto.password.ResetPasswordDTO;
 import com.copay.app.entity.User;
+import com.copay.app.exception.EmailAlreadyExistsException;
 import com.copay.app.exception.EmailSendingException;
 import com.copay.app.exception.IncorrectPasswordException;
 import com.copay.app.exception.InvalidTokenException;
@@ -34,8 +38,8 @@ public class PasswordService {
         this.emailService = emailService;
     }
 
-    public ResponseEntity<?> resetPassword(Long id, ResetPasswordRequest request, String token) {
-        String phoneNumber = jwtService.extractPhoneNumber(token);
+    public ResponseEntity<?> resetPassword(Long id, ResetPasswordDTO request, String token) {
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
 
         // Find user by ID
         User user = userRepository.findById(id)
@@ -58,39 +62,59 @@ public class PasswordService {
         return ResponseEntity.ok().body(Map.of("message", "Password updated successfully!"));
     }
 
-    public ResponseEntity<?> forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+    public ResponseEntity<?> forgotPassword(ForgotPasswordDTO request) {
 
-        // Generate token and reset link.
-        String token = jwtService.generateToken(user.getUserId().toString());
-        String resetLink = "http://localhost:8080/reset-password.html?token=" + token;
+        boolean emailExists = userRepository.existsByEmail(request.getEmail());
+
+        // Verify if the email exists or not.
+        if (!emailExists) {
+            throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> does not exist.");
+        }
+
+        // Generate JWT token for the password reset.
+        String jwtToken = jwtService.generateTemporaryToken(request.getEmail());
+
+        // Generate reset link.
+        String resetLink = "http://localhost:8080/reset-password.html?token=" + jwtToken;
+        String email = request.getEmail();
 
         try {
             emailService.sendResetPasswordEmail(email, resetLink);
-            return ResponseEntity.ok().body(Map.of("message", "Email sent successfully!"));
+
+            // Create response object with message and email
+            ForgotPasswordResponseDTO responseDTO = new ForgotPasswordResponseDTO();
+            responseDTO.setMessage("Password reset email sent successfully.");
+            responseDTO.setEmail(email);
+            responseDTO.setToken(jwtToken);
+
+            return ResponseEntity.ok(responseDTO);
+
         } catch (MessagingException e) {
-            throw new EmailSendingException("Error sending the email.");
+            throw new EmailSendingException("Error sending the email. " + e);
         }
     }
 
-    public ResponseEntity<?> forgotPasswordReset(String token, ForgotPasswordResetRequest request) {
+    public ResponseEntity<?> forgotPasswordReset(String token, ForgotPasswordResetDTO request) {
     	
         // Validate token.
         if (!jwtService.validateToken(token)) {
             throw new InvalidTokenException("Invalid or expired token.");
         }
 
-        String userId = jwtService.extractUserId(token);
-        Long id = Long.parseLong(userId);
+        String email = jwtService.getUserIdentifierFromToken(token);
 
-        User user = userRepository.findById(id)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Update the password.
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        return ResponseEntity.ok().body(Map.of("message", "Password reset successfully!"));
+        // Create response object with message and email
+        ForgotPasswordResponseDTO responseDTO = new ForgotPasswordResponseDTO();
+        responseDTO.setMessage("Password reset updated successfully.");
+        responseDTO.setEmail(email);
+        
+        return ResponseEntity.ok(responseDTO);
     }
 }
