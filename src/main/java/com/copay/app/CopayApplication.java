@@ -6,8 +6,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.copay.app.config.env.EnvLoader;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 @SpringBootApplication
 @EnableScheduling
 public class CopayApplication {
