@@ -2,6 +2,7 @@ package com.copay.app.dto.password;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class PasswordUpdateDTO {
@@ -10,8 +11,11 @@ public class PasswordUpdateDTO {
     private String currentPassword;
 
     @NotBlank(message = "New password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
-    private String newPassword;
+	@Pattern(
+			regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$",
+			message = "Password must be at least 8 characters long, contain at least one uppercase letter and one number."
+	)
+	private String newPassword;
 
     @NotBlank(message = "Confirm password is required")
     private String confirmNewPassword;
