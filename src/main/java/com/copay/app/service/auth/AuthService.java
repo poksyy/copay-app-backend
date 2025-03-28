@@ -2,6 +2,7 @@ package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
 
+import com.copay.app.exception.PhoneAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -107,7 +108,7 @@ public class AuthService {
 
 		// Verify if the phoneNumber exists or not.
 		if (phoneNumberExists) {
-			throw new EmailAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
+			throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
 		}
 
 		// Get the email from the current token.
