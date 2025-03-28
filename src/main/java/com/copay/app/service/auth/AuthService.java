@@ -1,15 +1,12 @@
 package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,12 +18,10 @@ import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.EmailAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
+import com.copay.app.repository.RevokedTokenRepository;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.UserUniquenessValidator;
-
-import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
-import jakarta.transaction.Transactional;
 
 @Service
 public class AuthService {
@@ -38,7 +33,8 @@ public class AuthService {
 
 	@Autowired
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
-			JwtService jwtService, UserRepository userRepository, UserUniquenessValidator userValidationService) {
+			JwtService jwtService, UserRepository userRepository, RevokedTokenRepository revokedTokenRepository,
+			UserUniquenessValidator userValidationService) {
 
 		// Constructor to initialize dependencies.
 		this.authenticationManager = authenticationManager;
@@ -127,11 +123,20 @@ public class AuthService {
 		
 		userRepository.save(user);
 
+		// Revoke the step-one token.
+		jwtService.revokeToken(token);
+		
 		// Create the 1 hour with the phone number.
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
 		long expiresIn = jwtService.getExpirationTime(true);
 
-		// Return the token trought the DTO.
+		// Return the token brought the DTO.
 		return new JwtResponse(jwtToken, expiresIn);
+	}
+
+	public void logout(String token) {
+		
+        // Revoke the token when the user logs out
+        jwtService.revokeToken(token);
 	}
 }
