@@ -78,4 +78,16 @@ public class AuthController {
 
 		return ResponseEntity.ok(jwtToken);
 	}
+	
+    // Handles user logout request.
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser() {
+		// Get the authentication thought the JwtAuthenticationFilter class.
+    	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+    	
+        // Call the service to handle the token invalidation
+        authService.logout(token);
+
+        return ResponseEntity.ok("User logged out successfully");
+    }
 }
