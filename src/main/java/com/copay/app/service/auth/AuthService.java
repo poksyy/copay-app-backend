@@ -1,9 +1,20 @@
 package com.copay.app.service.auth;
 
-import java.time.LocalDateTime;
-
+import com.copay.app.dto.JwtResponse;
+import com.copay.app.dto.auth.UserLoginRequest;
+import com.copay.app.dto.auth.UserRegisterStepOneDTO;
+import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
+import com.copay.app.entity.User;
+import com.copay.app.exception.EmailAlreadyExistsException;
+import com.copay.app.exception.InvalidTokenException;
 import com.copay.app.exception.PhoneAlreadyExistsException;
+import com.copay.app.exception.UserNotFoundException;
+import com.copay.app.repository.RevokedTokenRepository;
+import com.copay.app.repository.UserRepository;
+import com.copay.app.service.JwtService;
+import com.copay.app.service.UserUniquenessValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,17 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.copay.app.dto.JwtResponse;
-import com.copay.app.dto.auth.UserLoginRequest;
-import com.copay.app.dto.auth.UserRegisterStepOneDTO;
-import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
-import com.copay.app.entity.User;
-import com.copay.app.exception.EmailAlreadyExistsException;
-import com.copay.app.exception.UserNotFoundException;
-import com.copay.app.repository.RevokedTokenRepository;
-import com.copay.app.repository.UserRepository;
-import com.copay.app.service.JwtService;
-import com.copay.app.service.UserUniquenessValidator;
+import java.time.LocalDateTime;
 
 @Service
 public class AuthService {
@@ -114,7 +115,7 @@ public class AuthService {
 		// Get the email from the current token.
 		String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
 
-		// Find user by email trough the temporal token.
+		// Find user by email through the temporal token.
 		User user = userRepository.findByEmail(emailTemporaryToken)
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -136,8 +137,18 @@ public class AuthService {
 	}
 
 	public void logout(String token) {
-		
-        // Revoke the token when the user logs out
-        jwtService.revokeToken(token);
+
+		try {
+
+			// Revoke the token when the user logs out
+			jwtService.revokeToken(token);
+		} catch (DataIntegrityViolationException e) {
+
+			throw new InvalidTokenException("This token has already been revoked.");
+		} catch (Exception e) {
+
+			throw new RuntimeException("An error occurred while logging out.");
+		}
+
 	}
 }
