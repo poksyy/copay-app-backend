@@ -101,7 +101,7 @@ public class EmailService {
                 + "        </div>"
                 + "    </div>"
                 + "    <div class='email-footer'>"
-                + "        <p>&copy; 2024 Copay. All rights reserved.</p>"
+                + "        <p>&copy; 2025 Copay. All rights reserved.</p>"
                 + "    </div>"
                 + "</body>"
                 + "</html>";
