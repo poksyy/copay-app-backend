@@ -1,18 +1,18 @@
-package com.copay.app.dto;
+package com.copay.app.dto.responses;
 
-public class JwtResponse {
+public class JwtResponseDTO {
 
 	private String token;
 	private String type = "Bearer";
 	private long expiresIn;
 
-	// Constructor
-	public JwtResponse(String token, long expiresIn) {
+	// Constructor.
+	public JwtResponseDTO(String token, long expiresIn) {
 		this.token = token;
 		this.expiresIn = expiresIn;
 	}
 
-	// Getters y Setters
+	// Getters and Setters.
 	public String getToken() {
 		return token;
 	}
