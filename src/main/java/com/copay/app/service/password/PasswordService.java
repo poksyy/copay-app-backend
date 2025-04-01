@@ -1,28 +1,21 @@
 package com.copay.app.service.password;
 
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.password.ForgotPasswordDTO;
 import com.copay.app.dto.password.ForgotPasswordResetDTO;
 import com.copay.app.dto.password.ForgotPasswordResponseDTO;
 import com.copay.app.dto.password.ResetPasswordDTO;
+import com.copay.app.dto.responses.ResetPasswordResponseDTO;
 import com.copay.app.entity.User;
-import com.copay.app.exception.EmailAlreadyExistsException;
-import com.copay.app.exception.EmailSendingException;
-import com.copay.app.exception.IncorrectPasswordException;
-import com.copay.app.exception.InvalidTokenException;
-import com.copay.app.exception.UserNotFoundException;
-import com.copay.app.exception.UserPermissionException;
+import com.copay.app.exception.*;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.EmailService;
 import com.copay.app.service.JwtService;
-
 import jakarta.mail.MessagingException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PasswordService {
@@ -38,28 +31,29 @@ public class PasswordService {
         this.emailService = emailService;
     }
 
-    public ResponseEntity<?> resetPassword(Long id, ResetPasswordDTO request, String token) {
-        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+    public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO resetPasswordDTO, String token) {
 
-        // Find user by ID
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+            String phoneNumberToken = jwtService.getUserIdentifierFromToken(token);
 
-        // Check if the authenticated user can change the password.
-        if (!user.getPhoneNumber().equals(phoneNumber)) {
-            throw new UserPermissionException("You can only update your own password.");
-        }
+            // Find user by email through the temporal token.
+            User user = userRepository.findByPhoneNumber(phoneNumberToken)
+                    .orElseThrow(() -> new UserNotFoundException("User not found" ));
 
-        // Check if the current password is correct.
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new IncorrectPasswordException("Current password is incorrect.");
-        }
+            System.out.println(user.getPassword());
 
-        // Save new password with hash.
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
+            // Check if the current password is correct.
+            if (!passwordEncoder.matches(resetPasswordDTO.getCurrentPassword(), user.getPassword())) {
+                System.out.println(resetPasswordDTO.getCurrentPassword() + "-" + user.getPassword());
+                throw new IncorrectPasswordException("Current password is incorrect.");
+            }
 
-        return ResponseEntity.ok().body(Map.of("message", "Password updated successfully!"));
+            // Save the new password with hash
+            user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+
+            userRepository.save(user);
+
+            return ResponseEntity.ok(new ResetPasswordResponseDTO("Password updated successfully."));
+
     }
 
     public ResponseEntity<?> forgotPassword(ForgotPasswordDTO request) {
@@ -95,7 +89,7 @@ public class PasswordService {
     }
 
     public ResponseEntity<?> forgotPasswordReset(String token, ForgotPasswordResetDTO request) {
-    	
+
         // Validate token.
         if (!jwtService.validateToken(token)) {
             throw new InvalidTokenException("Invalid or expired token.");
@@ -114,7 +108,7 @@ public class PasswordService {
         ForgotPasswordResponseDTO responseDTO = new ForgotPasswordResponseDTO();
         responseDTO.setMessage("Password reset updated successfully.");
         responseDTO.setEmail(email);
-        
+
         return ResponseEntity.ok(responseDTO);
     }
 }
