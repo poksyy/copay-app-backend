@@ -53,8 +53,8 @@ public class SecurityConfig {
 				// Enable CORS with default settings.
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/response", "/api/auth/register/step-one", "/api/auth/register/step-two", "/api/auth/login", "/api/users/**",
-								"/api/fake-data/**", "/reset-password.html", "/api/forgot-password", "/api/forgot-password-reset", "/js/**", "/img/**")
+						.requestMatchers("/api/response","/api/auth/register/step-one", "/api/auth/login", "/api/users/**",
+								"/api/fake-data/**", "/reset-password.html", "/api/forgot-password-reset", "/static/**")
 						// Allow public routes.
 						.permitAll()
 						// Require authentication for all other endpoints.

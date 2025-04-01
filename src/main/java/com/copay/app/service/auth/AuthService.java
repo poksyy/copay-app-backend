@@ -1,32 +1,36 @@
 package com.copay.app.service.auth;
 
+
+
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.copay.app.dto.JwtResponse;
+
 import com.copay.app.dto.auth.UserLoginRequest;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
+
+import com.copay.app.dto.responses.RegisterStepOneResponseDTO;
+import com.copay.app.dto.responses.RegisterStepTwoResponseDTO;
+import com.copay.app.dto.responses.LoginResponseDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.EmailAlreadyExistsException;
+import com.copay.app.exception.InvalidTokenException;
+import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
+import com.copay.app.repository.RevokedTokenRepository;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.UserUniquenessValidator;
-
-import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
-import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 public class AuthService {
@@ -38,7 +42,8 @@ public class AuthService {
 
 	@Autowired
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
-			JwtService jwtService, UserRepository userRepository, UserUniquenessValidator userValidationService) {
+			JwtService jwtService, UserRepository userRepository, RevokedTokenRepository revokedTokenRepository,
+			UserUniquenessValidator userValidationService) {
 
 		// Constructor to initialize dependencies.
 		this.authenticationManager = authenticationManager;
@@ -47,21 +52,32 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public JwtResponse loginUser(UserLoginRequest loginRequest) {
+	public LoginResponseDTO loginUser(UserLoginRequest loginRequest) {
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				loginRequest.getPhoneNumber(), loginRequest.getPassword());
 
 		try {
-			
+
 			// Authenticate user using AuthenticationManager.
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+			// Find the user by phone number.
+			User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
+					.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 			// Generate JWT token if authentication is successful.
 			String jwtToken = jwtService.generateToken(authentication.getName());
 			long expiresIn = jwtService.getExpirationTime(true);
 
-			return new JwtResponse(jwtToken, expiresIn);
+			   return new LoginResponseDTO(
+		                jwtToken, 
+		                expiresIn, 
+		                user.getPhoneNumber(),
+		                user.getUsername(),
+		                user.getEmail(),
+		                "true"  
+		        );
 
 		} catch (BadCredentialsException e) {
 
@@ -69,19 +85,19 @@ public class AuthService {
 
 		} catch (UsernameNotFoundException e) {
 
-			throw new RuntimeException("User not found");
+			throw new UserNotFoundException("User not found");
 		}
 	}
 
-	public JwtResponse registerStepOne(UserRegisterStepOneDTO request) {
+	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneDTO request) {
 
 		boolean emailExists = userRepository.existsByEmail(request.getEmail());
-		
+
 		// Verify if the email exists or not.
 		if (emailExists) {
 			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
 		}
-		
+
 		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Create user entity.
@@ -102,36 +118,66 @@ public class AuthService {
 		// Get the expiration time of the JWT token.
 		long expiresIn = jwtService.getExpirationTime(false);
 
-		return new JwtResponse(jwtToken, expiresIn);
+		  return new RegisterStepOneResponseDTO(
+	                jwtToken, 
+	                expiresIn, 
+	                user.getUsername(),
+	                user.getEmail()
+	        );
 	}
 
-	public JwtResponse registerStepTwo(UserRegisterStepTwoDTO request, String token) {
+	public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
 
 		boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
 
 		// Verify if the phoneNumber exists or not.
 		if (phoneNumberExists) {
-			throw new EmailAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
+			throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
 		}
 
 		// Get the email from the current token.
 		String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
 
-		// Find user by email trough the temporal token.
+		// Find user by email through the temporal token.
 		User user = userRepository.findByEmail(emailTemporaryToken)
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		// Update the user's phone number and mark user registration as completed.
 		user.setPhoneNumber(request.getPhoneNumber());
 		user.setCompleted(true);
-		
+
 		userRepository.save(user);
 
+		// Revoke the step-one token.
+		jwtService.revokeToken(token);
+		
 		// Create the 1 hour with the phone number.
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
 		long expiresIn = jwtService.getExpirationTime(true);
 
-		// Return the token trought the DTO.
-		return new JwtResponse(jwtToken, expiresIn);
+		// Return the token trough the DTO.
+		 return new RegisterStepTwoResponseDTO(
+	                jwtToken, 
+	                expiresIn, 
+	                user.getUsername(),
+	                user.getEmail(),
+	                user.getPhoneNumber()
+	        );
+	}
+
+	public void logout(String token) {
+
+		try {
+
+			// Revoke the token when the user logs out
+			jwtService.revokeToken(token);
+		} catch (DataIntegrityViolationException e) {
+
+			throw new InvalidTokenException("This token has already been revoked.");
+		} catch (Exception e) {
+
+			throw new RuntimeException("An error occurred while logging out.");
+		}
+
 	}
 }

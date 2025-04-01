@@ -26,24 +26,6 @@ The project is carried out by three team members: **Pau Carrera Nonales**, **Dyl
 
 ---
 
-## How to Set Up
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/poksyy/copay-app-backend.git
-
-2. Install dependencies:
-   ```bash
-    cd copay-backend
-    npm install
-3. Set up the database using the provided schema in the database/ folder.
-4. Configure the .env file for environment variables, including database credentials.
-5. Start the server:
-   ```bash
-   npm start
-
----
-
 ## Contributing
 
 We welcome contributions! If you'd like to improve or add features to the project, feel free to fork the repository and create a pull request.

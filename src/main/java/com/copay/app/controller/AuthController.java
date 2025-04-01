@@ -1,9 +1,11 @@
 package com.copay.app.controller;
 
-import com.copay.app.dto.JwtResponse;
 import com.copay.app.dto.auth.UserLoginRequest;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
+import com.copay.app.dto.responses.RegisterStepOneResponseDTO;
+import com.copay.app.dto.responses.RegisterStepTwoResponseDTO;
+import com.copay.app.dto.responses.LoginResponseDTO;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.auth.AuthService;
 import com.copay.app.validation.ValidationErrorResponse;
@@ -36,9 +38,9 @@ public class AuthController {
 		}
 
 		// Registers the user and returns a JWT response.
-		JwtResponse jwtResponse = authService.registerStepOne(userRegisterStepOneDTO);
+		RegisterStepOneResponseDTO registerStepOneResponseDTO = authService.registerStepOne(userRegisterStepOneDTO);
 		
-		return ResponseEntity.ok().body(jwtResponse);
+		return ResponseEntity.ok().body(registerStepOneResponseDTO);
 	}
 
 	// Update phone number of the user.
@@ -57,9 +59,9 @@ public class AuthController {
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Registers the user and returns a JWT response.
-		JwtResponse jwtResponse = authService.registerStepTwo(userRegisterStepTwoDTO, token);
+		RegisterStepTwoResponseDTO registerStepTwoResponseDTO = authService.registerStepTwo(userRegisterStepTwoDTO, token);
 
-		return ResponseEntity.ok().body(jwtResponse);
+		return ResponseEntity.ok().body(registerStepTwoResponseDTO);
 	}
 
 	// Handles user login request.
@@ -74,8 +76,20 @@ public class AuthController {
 		}
 
 		// Authenticates the user and returns a JWT token.
-		JwtResponse jwtToken = authService.loginUser(loginRequest);
+		LoginResponseDTO loginResponseDTO = authService.loginUser(loginRequest);
 
-		return ResponseEntity.ok(jwtToken);
+		return ResponseEntity.ok(loginResponseDTO);
 	}
+	
+    // Handles user logout request.
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser() {
+		// Get the authentication thought the JwtAuthenticationFilter class.
+    	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+    	
+        // Call the service to handle the token invalidation
+        authService.logout(token);
+
+        return ResponseEntity.ok("User logged out successfully");
+    }
 }

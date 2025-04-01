@@ -1,9 +1,6 @@
 package com.copay.app.dto.auth;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public class UserRegisterStepOneDTO {
 
@@ -16,7 +13,10 @@ public class UserRegisterStepOneDTO {
 	private String email;
 
 	@NotBlank(message = "Password cannot be empty")
-	@Size(min = 8, message = "Password must be at least 8 characters long")
+	@Pattern(
+			regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$",
+			message = "Password must be at least 8 characters long, contain at least one uppercase letter and one number."
+	)
 	private String password;
 
 	@NotBlank(message = "Confirm password cannot be empty")
