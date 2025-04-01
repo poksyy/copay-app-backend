@@ -30,11 +30,11 @@ public class User {
 	private boolean isCompleted = false;
 
 	// Constructor for fake data.
-    public User(String username, String email, String phoneNumber) {
+    public User(String username, String email, String password, String phoneNumber) {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.password = "test"; 
+        this.password = password;
         this.createdAt = LocalDateTime.now();
         this.isCompleted = true;
     }
