@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.copay.app.entity.relations.GroupMember;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -30,15 +32,10 @@ public class User {
 	@Column(name = "is_completed", columnDefinition = "TINYINT(1)")
 	private boolean isCompleted = false;
 
-    // ManyToMany Relation with group table.
-    @ManyToMany
-    @JoinTable(
-        name = "group_members", 
-        joinColumns = @JoinColumn(name = "user_id"), 
-        inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
+    // OneToMany Relation with GroupMember table.
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
     
-    private Set<Group> groups;
+    private Set<GroupMember> groupMembers;
 	
 	// Constructor for fake data.
     public User(String username, String email, String phoneNumber) {
@@ -112,11 +109,11 @@ public class User {
 		isCompleted = completed;
 	}
 	
-    public Set<Group> getGroups() {
-        return groups;
+    public Set<GroupMember> getGroupMembers() {
+        return groupMembers;
     }
 
-    public void setGroups(Set<Group> groups) {
-        this.groups = groups;
+    public void setGroupMembers(Set<GroupMember> groupMembers) {
+        this.groupMembers = groupMembers;
     }
 }
