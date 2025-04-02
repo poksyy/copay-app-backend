@@ -39,8 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
 
-				filterChain.doFilter(request, response);
-				return;
+				throw new InvalidTokenException("Token cannot be null or empty");
 			}
 
 			// Extract the token and remove "Bearer " prefix.
@@ -49,7 +48,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// Validate the token.
 			if (!jwtService.validateToken(token)) {
 
-				System.err.println("---------------- VALIDATING TOKEN IN PROCESS ----------------");
 				throw new InvalidTokenException("Invalid or expired token");
 			}
 
