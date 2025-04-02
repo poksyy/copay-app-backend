@@ -35,6 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		}
 	}
 
+	// Method used in --> RegisterStepTwo and LoginUser endpoints
 	public UserDetails loadUserByPhoneNumber(String phoneNumber) {
 		// Finds the user by phone number.
 		return userRepository.findByPhoneNumber(phoneNumber).map(user ->
@@ -44,6 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		new UsernameNotFoundException("Phone not found"));
 	}
 
+	// Method used in --> RegisterStepOne endpoint.
 	public UserDetails loadUserByEmail(String email) {
 		// Finds the user by email.
 		return userRepository.findByEmail(email).map(user ->
