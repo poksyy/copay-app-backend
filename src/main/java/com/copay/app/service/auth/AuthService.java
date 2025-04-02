@@ -23,6 +23,7 @@ import com.copay.app.dto.responses.RegisterStepTwoResponseDTO;
 import com.copay.app.dto.responses.LoginResponseDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.EmailAlreadyExistsException;
+import com.copay.app.exception.IncorrectPasswordException;
 import com.copay.app.exception.InvalidTokenException;
 import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
@@ -54,38 +55,35 @@ public class AuthService {
 
 	public LoginResponseDTO loginUser(UserLoginRequest loginRequest) {
 
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getPhoneNumber(), loginRequest.getPassword());
+		// Find the user by phone number before executing try-catch block.
+		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		try {
 
-			// Authenticate user using AuthenticationManager.
-			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+			// Encapsulates the user's provided credentials.
+			UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(
+					loginRequest.getPhoneNumber(), loginRequest.getPassword());
 
-			// Find the user by phone number.
-			User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
-					.orElseThrow(() -> new UserNotFoundException("User not found"));
+			// Authenticates encapsulated credentials with the AuthenticationManager.
+			Authentication authentication = authenticationManager.authenticate(authenticationRequest);
 
-			// Generate JWT token if authentication is successful.
+			// Generates a JWT token with the phone number if authentication is successful.
 			String jwtToken = jwtService.generateToken(authentication.getName());
+
 			long expiresIn = jwtService.getExpirationTime(true);
 
-			   return new LoginResponseDTO(
-		                jwtToken, 
-		                expiresIn, 
-		                user.getPhoneNumber(),
-		                user.getUsername(),
-		                user.getEmail(),
-		                "true"  
-		        );
+			return new LoginResponseDTO(
+					jwtToken, 
+					expiresIn, 
+					user.getPhoneNumber(), 
+					user.getUsername(), 
+					user.getEmail(),
+					"true"
+			);
 
 		} catch (BadCredentialsException e) {
-
-			throw new RuntimeException("Invalid phone number or password");
-
-		} catch (UsernameNotFoundException e) {
-
-			throw new UserNotFoundException("User not found");
+			throw new IncorrectPasswordException("Invalid password");
 		}
 	}
 
