@@ -56,14 +56,14 @@ public class AuthService {
 	public LoginResponseDTO loginUser(UserLoginRequest request) {
 
 		// Find the user by phone number before executing try-catch block.
-		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
+		User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		try {
 
 			// Encapsulates the user's provided credentials.
 			UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(
-					loginRequest.getPhoneNumber(), loginRequest.getPassword());
+					request.getPhoneNumber(), request.getPassword());
 
 			// Authenticates encapsulated credentials with the AuthenticationManager.
 			Authentication authentication = authenticationManager.authenticate(authenticationRequest);
