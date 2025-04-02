@@ -102,7 +102,7 @@ public class JwtService {
 				.setExpiration(new Date(expirationTimeMillis)).signWith(getSigningKey()).compact();
 	}
 
-	// Genereate temporal 5 minutes token for the registerStepOne().
+	// Generate temporal 5 minutes token for the registerStepOne().
 	public String generateTemporaryToken(String email) {
 
 		long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
