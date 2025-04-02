@@ -84,6 +84,7 @@ public class AuthController {
     // Handles user logout request.
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser() {
+
 		// Get the authentication thought the JwtAuthenticationFilter class.
     	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
     	

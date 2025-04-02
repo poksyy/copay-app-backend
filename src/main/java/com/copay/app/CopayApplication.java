@@ -11,6 +11,7 @@ import com.copay.app.config.env.EnvLoader;
 public class CopayApplication {
 
 	public static void main(String[] args) {
+
 		// Load the .env file through EnvLoad class.
 		EnvLoader.loadEnvVariables();
 

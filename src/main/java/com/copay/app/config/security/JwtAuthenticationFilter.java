@@ -2,6 +2,7 @@ package com.copay.app.config.security;
 
 import java.io.IOException;
 
+import com.copay.app.exception.InvalidTokenException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 
 		try {
+
 			// Get the Authorization header.
 			String authorizationHeader = request.getHeader("Authorization");
 
@@ -47,10 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// Validate the token.
 			if (!jwtService.validateToken(token)) {
 
-				System.err.println("VALIDATING TOKEN IN PROCESS");
-
-				filterChain.doFilter(request, response);
-				return;
+				System.err.println("---------------- VALIDATING TOKEN IN PROCESS ----------------");
+				throw new InvalidTokenException("Invalid or expired token");
 			}
 
 			// Get the identifier (phone number or email).
@@ -68,8 +68,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// Set authentication in the security context.
 			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
+		} catch (InvalidTokenException e) {
+
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
+			response.getWriter().write(
+					"{\"error\": \"" + e.getMessage() + "\", \"status\": 401}"
+			);
+			return;
 		} catch (Exception e) {
-			System.out.println("JWT authentication failed: " + e.getMessage());
+
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json");
+			response.getWriter().write(
+					"{\"error\": \"Authentication failed\", \"status\": 500}"
+			);
+			return;
 		}
 
 		// Continue with the request.

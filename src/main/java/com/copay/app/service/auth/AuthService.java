@@ -53,7 +53,7 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public LoginResponseDTO loginUser(UserLoginRequest loginRequest) {
+	public LoginResponseDTO loginUser(UserLoginRequest request) {
 
 		// Find the user by phone number before executing try-catch block.
 		User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
@@ -83,6 +83,7 @@ public class AuthService {
 			);
 
 		} catch (BadCredentialsException e) {
+      
 			throw new IncorrectPasswordException("Invalid password");
 		}
 	}
@@ -95,8 +96,6 @@ public class AuthService {
 		if (emailExists) {
 			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
 		}
-
-		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Create user entity.
 		User user = new User();
@@ -171,7 +170,7 @@ public class AuthService {
 			jwtService.revokeToken(token);
 		} catch (DataIntegrityViolationException e) {
 
-			throw new InvalidTokenException("This token has already been revoked.");
+			throw new InvalidTokenException("This has already been revoked.");
 		} catch (Exception e) {
 
 			throw new RuntimeException("An error occurred while logging out.");

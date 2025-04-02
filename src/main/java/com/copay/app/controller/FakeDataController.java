@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/fake-data")
 public class FakeDataController {
+
 	private final FakeDataService fakeDataService;
 
 	public FakeDataController(FakeDataService fakeDataService) {
@@ -19,11 +20,13 @@ public class FakeDataController {
 
 	@PostMapping("/users")
 	public ResponseEntity<List<User>> generateUsers(@RequestParam(defaultValue = "10") int count) {
+
 		return ResponseEntity.ok(fakeDataService.generateFakeUsers(count));
 	}
 
-	@DeleteMapping("/clear-users")
+	@DeleteMapping("/users")
 	public ResponseEntity<String> clearUsersFakeData() {
+
 		fakeDataService.clearUsersFakeData();
 		return ResponseEntity.ok("User data deleted");
 	}

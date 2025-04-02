@@ -11,9 +11,7 @@ import com.copay.app.repository.UserRepository;
 import com.copay.app.service.EmailService;
 import com.copay.app.service.JwtService;
 import jakarta.mail.MessagingException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +29,7 @@ public class PasswordService {
         this.emailService = emailService;
     }
 
-    public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO resetPasswordDTO, String token) {
+    public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO request, String token) {
 
             String phoneNumberToken = jwtService.getUserIdentifierFromToken(token);
 
@@ -42,13 +40,12 @@ public class PasswordService {
             System.out.println(user.getPassword());
 
             // Check if the current password is correct.
-            if (!passwordEncoder.matches(resetPasswordDTO.getCurrentPassword(), user.getPassword())) {
-                System.out.println(resetPasswordDTO.getCurrentPassword() + "-" + user.getPassword());
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
                 throw new IncorrectPasswordException("Current password is incorrect.");
             }
 
             // Save the new password with hash
-            user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
             userRepository.save(user);
 

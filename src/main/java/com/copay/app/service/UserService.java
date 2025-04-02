@@ -16,8 +16,6 @@ import com.copay.app.entity.User;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class UserService {
 
@@ -93,19 +91,19 @@ public class UserService {
 	}
 
 	// Update user trough User ID.
-	public UserResponseDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
+	public UserResponseDTO updateUser(Long id, UserUpdateDTO request) {
 
 		User existingUser = getUserById(id);
 
-		return updateUserDetails(existingUser, userUpdateDTO);
+		return updateUserDetails(existingUser, request);
 	}
 
 	// Update user trough User email.
-	public UserResponseDTO updateUser(String email, UserUpdateDTO userUpdateDTO) {
+	public UserResponseDTO updateUser(String email, UserUpdateDTO request) {
 
 		User existingUser = getUserByEmail(email);
 
-		return updateUserDetails(existingUser, userUpdateDTO);
+		return updateUserDetails(existingUser, request);
 	}
 
 	private UserResponseDTO updateUserDetails(User existingUser, UserUpdateDTO userUpdateDTO) {

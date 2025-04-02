@@ -22,15 +22,18 @@ public class UserUniquenessValidator {
 		boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
 		if (phoneExists && emailExists) {
+
 			throw new UserUniquenessException(
 					"Phone number <" + user.getPhoneNumber() + "> and Email <" + user.getEmail() + "> already exist.");
 		}
 
 		if (phoneExists) {
+
 			throw new PhoneAlreadyExistsException("Phone number <" + user.getPhoneNumber() + "> already exists.");
 		}
 
 		if (emailExists) {
+
 			throw new EmailAlreadyExistsException("Email <" + user.getEmail() + "> already exists.");
 		}
 	}

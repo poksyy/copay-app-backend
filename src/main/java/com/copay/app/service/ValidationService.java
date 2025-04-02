@@ -23,7 +23,7 @@ public class ValidationService {
 				errorMessages.add(error.getDefaultMessage());
 			}
 			
-			// Return the errorrs to the AuthController.
+			// Return the errors to the AuthController.
 			return new ValidationErrorResponse(errorMessages, "Validation failed", HttpStatus.BAD_REQUEST.value());
 		}
 
