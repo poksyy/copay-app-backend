@@ -52,18 +52,16 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public LoginResponseDTO loginUser(UserLoginRequest loginRequest) {
+	public LoginResponseDTO loginUser(UserLoginRequest request) {
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getPhoneNumber(), loginRequest.getPassword());
-
-		try {
+				request.getPhoneNumber(), request.getPassword());
 
 			// Authenticate user using AuthenticationManager.
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
 			// Find the user by phone number.
-			User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
+			User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
 					.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 			// Generate JWT token if authentication is successful.
@@ -79,14 +77,6 @@ public class AuthService {
 		                "true"  
 		        );
 
-		} catch (BadCredentialsException e) {
-
-			throw new RuntimeException("Invalid phone number or password");
-
-		} catch (UsernameNotFoundException e) {
-
-			throw new UserNotFoundException("User not found");
-		}
 	}
 
 	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneDTO request) {
@@ -97,8 +87,6 @@ public class AuthService {
 		if (emailExists) {
 			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
 		}
-
-		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Create user entity.
 		User user = new User();
@@ -173,7 +161,7 @@ public class AuthService {
 			jwtService.revokeToken(token);
 		} catch (DataIntegrityViolationException e) {
 
-			throw new InvalidTokenException("This token has already been revoked.");
+			throw new InvalidTokenException("This has already been revoked.");
 		} catch (Exception e) {
 
 			throw new RuntimeException("An error occurred while logging out.");

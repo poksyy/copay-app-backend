@@ -24,6 +24,7 @@ public class FakeDataService {
 	}
 
 	public List<User> generateFakeUsers(int count) {
+
 		List<User> users = IntStream.range(0, count).mapToObj(i -> new User(
 				faker.name().fullName(),
 				faker.internet().emailAddress(),

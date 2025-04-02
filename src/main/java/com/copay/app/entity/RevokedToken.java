@@ -17,7 +17,6 @@ public class RevokedToken {
     @Column(nullable = false)
     private LocalDateTime revokedAt = LocalDateTime.now();
 
-
     // Constructor.
     public RevokedToken(String token) {
         this.token = token;

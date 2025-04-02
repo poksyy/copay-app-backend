@@ -8,4 +8,6 @@ import com.copay.app.entity.RevokedToken;
 
 public interface RevokedTokenRepository extends JpaRepository<RevokedToken, Long> {
     Optional<RevokedToken> findByToken(String token);
+
+    boolean existsByToken(String token);
 }
