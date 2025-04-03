@@ -12,6 +12,7 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
+    @Autowired
     private JavaMailSender mailSender;
 
     public void sendResetPasswordEmail(String toEmail, String resetLink) throws MessagingException {
