@@ -3,7 +3,6 @@ package com.copay.app.dto.password;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public class ResetPasswordDTO {
 

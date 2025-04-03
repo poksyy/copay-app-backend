@@ -1,4 +1,4 @@
-package com.copay.app.dto.password;
+package com.copay.app.dto.responses;
 
 public class ForgotPasswordResetResponseDTO {
     private String message;

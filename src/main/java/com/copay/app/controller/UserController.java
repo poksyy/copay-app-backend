@@ -1,8 +1,6 @@
 package com.copay.app.controller;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,8 +17,7 @@ import com.copay.app.dto.user.UserCreateDTO;
 import com.copay.app.dto.user.UserDeleteDTO;
 import com.copay.app.dto.user.UserResponseDTO;
 import com.copay.app.dto.user.UserUpdateDTO;
-import com.copay.app.entity.User;
-import com.copay.app.service.UserService;
+import com.copay.app.service.user.UserService;
 import com.copay.app.service.ValidationService;
 import com.copay.app.validation.ValidationErrorResponse;
 
@@ -38,7 +35,7 @@ public class UserController {
 
 	// Handles user creation with validation.
 	@PostMapping
-	public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult result) {
+	public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDTO request, BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
@@ -48,32 +45,32 @@ public class UserController {
 		}
 
 		// Convert the saved entity to a response DTO.
-		UserResponseDTO userResponseDTO = userService.createUser(userCreateDTO);
+		UserResponseDTO response = userService.createUser(request);
 
-		return ResponseEntity.ok().body(userResponseDTO);
+		return ResponseEntity.ok().body(response);
 	}
 
 	// Retrieves a user by their ID and returns it as a DTO.
 	@GetMapping("/{id}")
 	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
 
-		UserResponseDTO userResponseDTO = userService.getUserByIdDTO(id);
+		UserResponseDTO response = userService.getUserByIdDTO(id);
 
-		return ResponseEntity.ok(userResponseDTO);
+		return ResponseEntity.ok(response);
 	}
 
 	// Retrieves a user by their phone number and returns it as a DTO.
 	@GetMapping("/phone/{phoneNumber}")
 	public ResponseEntity<UserResponseDTO> getUserByPhone(@PathVariable String phoneNumber) {
 
-		UserResponseDTO userResponseDTO = userService.getUserByPhoneDTO(phoneNumber);
+		UserResponseDTO response = userService.getUserByPhoneDTO(phoneNumber);
 
-		return ResponseEntity.ok(userResponseDTO);
+		return ResponseEntity.ok(response);
 	}
 
 	// Updates a user with the provided ID.
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO,
+	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO request,
 			BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
@@ -84,15 +81,15 @@ public class UserController {
 		}
 
 		// Delegate the update to the service.
-		UserResponseDTO userResponseDTO = userService.updateUser(id, userUpdateDTO);
+		UserResponseDTO response = userService.updateUser(id, request);
 
-		return ResponseEntity.ok(userResponseDTO);
+		return ResponseEntity.ok(response);
 	}
 
 	// Updates a user with the provided email.
 	@PutMapping("/email/{email}")
 	public ResponseEntity<?> updateUserByEmail(@PathVariable String email,
-			@Valid @RequestBody UserUpdateDTO userUpdateDTO, BindingResult result) {
+			@Valid @RequestBody UserUpdateDTO request, BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
@@ -102,9 +99,9 @@ public class UserController {
 		}
 
 		// Convert the updated entity to a response DTO.
-		UserResponseDTO userResponseDTO = userService.updateUser(email, userUpdateDTO);
+		UserResponseDTO response = userService.updateUser(email, request);
 
-		return ResponseEntity.ok(userResponseDTO);
+		return ResponseEntity.ok(response);
 	}
 
 	// Deletes a user by their ID and returns a response DTO (Used in the Controller)

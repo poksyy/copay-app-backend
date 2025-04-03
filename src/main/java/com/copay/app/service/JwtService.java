@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import com.copay.app.exception.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -58,38 +59,38 @@ public class JwtService {
 	// Validate JWT token.
 	public boolean validateToken(String token) {
 
+		if (revokedTokenRepository.existsByToken(token)) {
+
+			throw new InvalidTokenException("Token has been revoked");
+		}
+
 		try {
 
-			Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
+			Jwts.parserBuilder()
+					.setSigningKey(getSigningKey())
+					.build()
+					.parseClaimsJws(token);
 			return true;
 
 		} catch (ExpiredJwtException e) {
-
 			// Expired token
-			System.out.println("Token expired");
-			return false;
+			throw new InvalidTokenException("Token expired");
 
 		} catch (UnsupportedJwtException e) {
-
 			// Unsupported token
-			System.out.println("Unsupported token");
-			return false;
+			throw new InvalidTokenException("Unsupported token format");
 
 		} catch (MalformedJwtException e) {
-
 			// Malformed token
-			System.out.println("Malformed token");
-			return false;
+			throw new InvalidTokenException("Malformed token");
 
 		} catch (SignatureException e) {
-
 			// Invalid signature
-			System.out.println("Invalid signature");
-			return false;
+			throw new InvalidTokenException("Invalid token signature");
 
 		} catch (Exception e) {
 			// General catch-all exception
-			return false;
+			throw new InvalidTokenException("Invalid token");
 		}
 	}
 

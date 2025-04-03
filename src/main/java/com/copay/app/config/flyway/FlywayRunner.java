@@ -16,6 +16,7 @@ public class FlywayRunner implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+
 		// Commented --> No Flyway migrations on server start.
 		// Uncommented --> Flyway migrations will run on server start.
 		// flyway.migrate();

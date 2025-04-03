@@ -24,7 +24,7 @@ public class ValidationService {
 			}
 			
 			// Return the errorrs to the AuthController.
-			return new ValidationErrorResponse(errorMessages, "Validation failed", HttpStatus.BAD_REQUEST.value());
+			return new ValidationErrorResponse(errorMessages, "Basic DTO validation failed", HttpStatus.BAD_REQUEST.value());
 		}
 
 		return null;

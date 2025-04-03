@@ -1,7 +1,5 @@
 package com.copay.app.service.auth;
 
-
-
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +7,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 import com.copay.app.dto.auth.UserLoginRequest;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
@@ -23,13 +19,14 @@ import com.copay.app.dto.responses.RegisterStepTwoResponseDTO;
 import com.copay.app.dto.responses.LoginResponseDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.EmailAlreadyExistsException;
+import com.copay.app.exception.IncorrectPasswordException;
 import com.copay.app.exception.InvalidTokenException;
 import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.RevokedTokenRepository;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
-import com.copay.app.service.UserUniquenessValidator;
+import com.copay.app.service.user.UserAvailabilityService;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
@@ -43,7 +40,7 @@ public class AuthService {
 	@Autowired
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
 			JwtService jwtService, UserRepository userRepository, RevokedTokenRepository revokedTokenRepository,
-			UserUniquenessValidator userValidationService) {
+			UserAvailabilityService userValidationService) {
 
 		// Constructor to initialize dependencies.
 		this.authenticationManager = authenticationManager;
@@ -52,40 +49,39 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public LoginResponseDTO loginUser(UserLoginRequest loginRequest) {
+	public LoginResponseDTO loginUser(UserLoginRequest request) {
 
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getPhoneNumber(), loginRequest.getPassword());
+		// Find the user by phone number before executing try-catch block.
+		User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		try {
 
-			// Authenticate user using AuthenticationManager.
-			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+			// Encapsulates the user's provided credentials.
+			UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(
+					request.getPhoneNumber(), request.getPassword());
 
-			// Find the user by phone number.
-			User user = userRepository.findByPhoneNumber(loginRequest.getPhoneNumber())
-					.orElseThrow(() -> new UserNotFoundException("User not found"));
+			// Authenticates encapsulated credentials with the AuthenticationManager.
+			Authentication authentication = authenticationManager.authenticate(authenticationRequest);
 
-			// Generate JWT token if authentication is successful.
+			// Generates a JWT token with the phone number if authentication is successful.
 			String jwtToken = jwtService.generateToken(authentication.getName());
+
 			long expiresIn = jwtService.getExpirationTime(true);
 
-			   return new LoginResponseDTO(
-		                jwtToken, 
-		                expiresIn, 
-		                user.getPhoneNumber(),
-		                user.getUsername(),
-		                user.getEmail(),
-		                "true"  
-		        );
+			return new LoginResponseDTO(
+					jwtToken, 
+					expiresIn,
+					user.getUserId(),
+					user.getPhoneNumber(), 
+					user.getUsername(), 
+					user.getEmail(),
+					"true"
+			);
 
 		} catch (BadCredentialsException e) {
-
-			throw new RuntimeException("Invalid phone number or password");
-
-		} catch (UsernameNotFoundException e) {
-
-			throw new UserNotFoundException("User not found");
+      
+			throw new IncorrectPasswordException("Invalid password");
 		}
 	}
 
@@ -97,8 +93,6 @@ public class AuthService {
 		if (emailExists) {
 			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
 		}
-
-		// TODO: CREATE PASSWORD CUSTOM VALIDATIONS
 
 		// Create user entity.
 		User user = new User();
@@ -118,12 +112,11 @@ public class AuthService {
 		// Get the expiration time of the JWT token.
 		long expiresIn = jwtService.getExpirationTime(false);
 
-		  return new RegisterStepOneResponseDTO(
-	                jwtToken, 
-	                expiresIn, 
-	                user.getUsername(),
-	                user.getEmail()
-	        );
+		return new RegisterStepOneResponseDTO(
+				jwtToken, 
+				expiresIn,
+				user.getUsername(), 
+				user.getEmail());
 	}
 
 	public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
@@ -150,19 +143,19 @@ public class AuthService {
 
 		// Revoke the step-one token.
 		jwtService.revokeToken(token);
-		
+
 		// Create the 1 hour with the phone number.
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
 		long expiresIn = jwtService.getExpirationTime(true);
 
 		// Return the token trough the DTO.
-		 return new RegisterStepTwoResponseDTO(
-	                jwtToken, 
-	                expiresIn, 
-	                user.getUsername(),
-	                user.getEmail(),
-	                user.getPhoneNumber()
-	        );
+		return new RegisterStepTwoResponseDTO(
+				jwtToken, 
+				expiresIn, 
+				user.getUserId(), 
+				user.getUsername(),
+				user.getEmail(), 
+				user.getPhoneNumber());
 	}
 
 	public void logout(String token) {
@@ -171,9 +164,11 @@ public class AuthService {
 
 			// Revoke the token when the user logs out
 			jwtService.revokeToken(token);
+
 		} catch (DataIntegrityViolationException e) {
 
 			throw new InvalidTokenException("This token has already been revoked.");
+			
 		} catch (Exception e) {
 
 			throw new RuntimeException("An error occurred while logging out.");
