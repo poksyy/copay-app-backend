@@ -1,9 +1,6 @@
 package com.copay.app.service.password;
 
-import com.copay.app.dto.password.ForgotPasswordDTO;
-import com.copay.app.dto.password.ForgotPasswordResetDTO;
-import com.copay.app.dto.password.ForgotPasswordResponseDTO;
-import com.copay.app.dto.password.ResetPasswordDTO;
+import com.copay.app.dto.password.*;
 import com.copay.app.dto.responses.ResetPasswordResponseDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.*;
@@ -36,8 +33,6 @@ public class PasswordService {
             // Find user by email through the temporal token.
             User user = userRepository.findByPhoneNumber(phoneNumberToken)
                     .orElseThrow(() -> new UserNotFoundException("User not found" ));
-
-            System.out.println(user.getPassword());
 
             // Check if the current password is correct.
             if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
@@ -87,11 +82,6 @@ public class PasswordService {
 
     public ResponseEntity<?> forgotPasswordReset(String token, ForgotPasswordResetDTO request) {
 
-        // Validate token.
-        if (!jwtService.validateToken(token)) {
-            throw new InvalidTokenException("Invalid or expired token.");
-        }
-
         String email = jwtService.getUserIdentifierFromToken(token);
 
         User user = userRepository.findByEmail(email)
@@ -102,10 +92,10 @@ public class PasswordService {
         userRepository.save(user);
 
         // Create response object with message and email
-        ForgotPasswordResponseDTO responseDTO = new ForgotPasswordResponseDTO();
-        responseDTO.setMessage("Password reset updated successfully.");
-        responseDTO.setEmail(email);
+        ForgotPasswordResetResponseDTO response = new ForgotPasswordResetResponseDTO();
+        response.setMessage("Password reset updated successfully.");
+        response.setEmail(email);
 
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(response);
     }
 }

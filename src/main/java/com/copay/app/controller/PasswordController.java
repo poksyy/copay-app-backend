@@ -47,32 +47,25 @@ public class PasswordController {
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
         // Delegate to the service
-        ResponseEntity<ResetPasswordResponseDTO> responseEntity = passwordService.resetPassword(resetPasswordDTO, token);
 
-        return responseEntity;
+        return passwordService.resetPassword(resetPasswordDTO, token);
 
     }
 
 
     // Sends a password reset link to the user's email for the "Forgot Password" Login flow.
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request, BindingResult result) {
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request) {
 
-        ResponseEntity<?> response = passwordService.forgotPassword(request);
-
-        return response;
+        return passwordService.forgotPassword(request);
     }
 
     // Resets the user's password via a token from the "Forgot Password" email link.
     @PutMapping("/forgot-password-reset")
-    public ResponseEntity<?> forgotPasswordReset(@RequestBody @Valid ForgotPasswordResetDTO passwordResetRequest,
-                                                 @RequestHeader("Authorization") String authorizationHeader, BindingResult result) {
+    public ResponseEntity<?> forgotPasswordReset(@RequestBody @Valid ForgotPasswordResetDTO passwordResetRequest) {
 
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-        // Registers the user and returns a JWT response.
-        ResponseEntity<?> response = passwordService.forgotPasswordReset(token, passwordResetRequest);
-
-        return response;
+        return passwordService.forgotPasswordReset(token, passwordResetRequest);
     }
 }

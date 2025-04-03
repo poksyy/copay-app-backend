@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,7 @@ import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.RevokedTokenRepository;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
-import com.copay.app.service.UserUniquenessValidator;
+import com.copay.app.service.user.UserAvailabilityService;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
@@ -44,7 +43,7 @@ public class AuthService {
 	@Autowired
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
 			JwtService jwtService, UserRepository userRepository, RevokedTokenRepository revokedTokenRepository,
-			UserUniquenessValidator userValidationService) {
+			UserAvailabilityService userValidationService) {
 
 		// Constructor to initialize dependencies.
 		this.authenticationManager = authenticationManager;
