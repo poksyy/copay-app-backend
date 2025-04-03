@@ -71,40 +71,31 @@ public class GlobalExceptionHandler {
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
-	
-    // HTTP 401: Invalid or expired token.
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ValidationErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
-        ValidationErrorResponse errorResponse = new ValidationErrorResponse(
-            List.of(ex.getMessage()),
-            "Invalid or expired token.",
-            HttpStatus.UNAUTHORIZED.value()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
-    }
 
-    // HTTP 500: Error sending email.
-    @ExceptionHandler(EmailSendingException.class)
-    public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
-        ValidationErrorResponse errorResponse = new ValidationErrorResponse(
-            List.of(ex.getMessage()),
-            "Error sending the email.",
-            HttpStatus.INTERNAL_SERVER_ERROR.value()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    
-     // HTTP 409: Conflict when adding existing member to the group.
-    @ExceptionHandler(UserAlreadyMemberException.class)
-    public ResponseEntity<ValidationErrorResponse> UserAlreadyMemberException(UserAlreadyMemberException ex) {
-        ValidationErrorResponse errorResponse = new ValidationErrorResponse(
-            List.of(ex.getMessage()),
-            "User is already on the group.",
-            HttpStatus.CONFLICT.value()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-	
+	// HTTP 401: Invalid or expired token.
+	@ExceptionHandler(InvalidTokenException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Invalid or expired token.", HttpStatus.UNAUTHORIZED.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+	}
+
+	// HTTP 500: Error sending email.
+	@ExceptionHandler(EmailSendingException.class)
+	public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Error sending the email.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	// HTTP 409: Conflict when adding existing member to the group.
+	@ExceptionHandler(UserAlreadyMemberException.class)
+	public ResponseEntity<ValidationErrorResponse> UserAlreadyMemberException(UserAlreadyMemberException ex) {
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"User is already on the group.", HttpStatus.CONFLICT.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+	}
+
 	// Handle other generic exceptions.
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<ValidationErrorResponse> handleRuntimeException(RuntimeException ex) {
