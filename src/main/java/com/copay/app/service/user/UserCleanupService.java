@@ -1,4 +1,4 @@
-package com.copay.app.service;
+package com.copay.app.service.user;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
