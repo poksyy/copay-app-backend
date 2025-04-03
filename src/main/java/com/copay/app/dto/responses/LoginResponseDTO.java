@@ -3,16 +3,17 @@ package com.copay.app.dto.responses;
 public class LoginResponseDTO {
 
     private String token;
-    private String type = "Bearer";
     private long expiresIn;
+    private Long userId;
     private String username;  
     private String phoneNumber;  
     private String email;
 	private String isLogin;
 
     // Constructor.
-    public LoginResponseDTO(String token, long expiresIn, String phoneNumber, String username, String email, String isLogin) {
+    public LoginResponseDTO(String token, long expiresIn, Long userId, String phoneNumber, String username, String email, String isLogin) {
         this.token = token;
+        this.userId = userId;
         this.expiresIn = expiresIn;
         this.username = username;
         this.phoneNumber = phoneNumber;
@@ -29,12 +30,12 @@ public class LoginResponseDTO {
         this.token = token;
     }
 
-    public String getType() {
-        return type;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public long getExpiresIn() {
@@ -44,7 +45,6 @@ public class LoginResponseDTO {
     public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
     }
-
     
     public String getUsername() {
         return username;
