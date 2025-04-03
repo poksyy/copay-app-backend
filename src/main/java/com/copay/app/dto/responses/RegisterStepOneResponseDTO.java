@@ -3,7 +3,6 @@ package com.copay.app.dto.responses;
 public class RegisterStepOneResponseDTO {
 
     private String token;
-    private String type = "Bearer";
     private long expiresIn;
     private String username;  
     private String email;
@@ -24,14 +23,6 @@ public class RegisterStepOneResponseDTO {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public long getExpiresIn() {

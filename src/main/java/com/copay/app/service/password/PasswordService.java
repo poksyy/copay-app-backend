@@ -1,6 +1,8 @@
 package com.copay.app.service.password;
 
 import com.copay.app.dto.password.*;
+import com.copay.app.dto.responses.ForgotPasswordResetResponseDTO;
+import com.copay.app.dto.responses.ForgotPasswordResponseDTO;
 import com.copay.app.dto.responses.ResetPasswordResponseDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.*;

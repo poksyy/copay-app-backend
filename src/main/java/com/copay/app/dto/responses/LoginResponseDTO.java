@@ -3,7 +3,6 @@ package com.copay.app.dto.responses;
 public class LoginResponseDTO {
 
     private String token;
-    private String type = "Bearer";
     private long expiresIn;
     private String username;  
     private String phoneNumber;  
@@ -27,14 +26,6 @@ public class LoginResponseDTO {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public long getExpiresIn() {
