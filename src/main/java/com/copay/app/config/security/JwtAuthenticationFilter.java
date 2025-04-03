@@ -38,8 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String authorizationHeader = request.getHeader("Authorization");
 
 			if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-
-				throw new InvalidTokenException("Token cannot be null or empty");
+				filterChain.doFilter(request, response);
+				return;
 			}
 
 			// Extract the token and remove "Bearer " prefix.
