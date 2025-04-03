@@ -7,7 +7,6 @@ public class RegisterStepOneResponseDTO {
     private String username;  
     private String email;
 
-
     // Constructor.
     public RegisterStepOneResponseDTO(String token, long expiresIn, String username, String email) {
         this.token = token;
@@ -32,7 +31,6 @@ public class RegisterStepOneResponseDTO {
     public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
     }
-
     
     public String getUsername() {
         return username;
@@ -40,5 +38,13 @@ public class RegisterStepOneResponseDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

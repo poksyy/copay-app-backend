@@ -1,7 +1,5 @@
 package com.copay.app.service.auth;
 
-
-
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 import com.copay.app.dto.auth.UserLoginRequest;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
@@ -74,7 +71,8 @@ public class AuthService {
 
 			return new LoginResponseDTO(
 					jwtToken, 
-					expiresIn, 
+					expiresIn,
+					user.getUserId(),
 					user.getPhoneNumber(), 
 					user.getUsername(), 
 					user.getEmail(),
@@ -114,12 +112,11 @@ public class AuthService {
 		// Get the expiration time of the JWT token.
 		long expiresIn = jwtService.getExpirationTime(false);
 
-		  return new RegisterStepOneResponseDTO(
-	                jwtToken, 
-	                expiresIn, 
-	                user.getUsername(),
-	                user.getEmail()
-	        );
+		return new RegisterStepOneResponseDTO(
+				jwtToken, 
+				expiresIn,
+				user.getUsername(), 
+				user.getEmail());
 	}
 
 	public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
@@ -146,19 +143,19 @@ public class AuthService {
 
 		// Revoke the step-one token.
 		jwtService.revokeToken(token);
-		
+
 		// Create the 1 hour with the phone number.
 		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
 		long expiresIn = jwtService.getExpirationTime(true);
 
 		// Return the token trough the DTO.
-		 return new RegisterStepTwoResponseDTO(
-	                jwtToken, 
-	                expiresIn, 
-	                user.getUsername(),
-	                user.getEmail(),
-	                user.getPhoneNumber()
-	        );
+		return new RegisterStepTwoResponseDTO(
+				jwtToken, 
+				expiresIn, 
+				user.getUserId(), 
+				user.getUsername(),
+				user.getEmail(), 
+				user.getPhoneNumber());
 	}
 
 	public void logout(String token) {
@@ -167,9 +164,11 @@ public class AuthService {
 
 			// Revoke the token when the user logs out
 			jwtService.revokeToken(token);
+
 		} catch (DataIntegrityViolationException e) {
 
-			throw new InvalidTokenException("This has already been revoked.");
+			throw new InvalidTokenException("This token has already been revoked.");
+			
 		} catch (Exception e) {
 
 			throw new RuntimeException("An error occurred while logging out.");

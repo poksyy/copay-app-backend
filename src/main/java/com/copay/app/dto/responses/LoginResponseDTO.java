@@ -4,14 +4,16 @@ public class LoginResponseDTO {
 
     private String token;
     private long expiresIn;
+    private Long userId;
     private String username;  
     private String phoneNumber;  
     private String email;
 	private String isLogin;
 
     // Constructor.
-    public LoginResponseDTO(String token, long expiresIn, String phoneNumber, String username, String email, String isLogin) {
+    public LoginResponseDTO(String token, long expiresIn, Long userId, String phoneNumber, String username, String email, String isLogin) {
         this.token = token;
+        this.userId = userId;
         this.expiresIn = expiresIn;
         this.username = username;
         this.phoneNumber = phoneNumber;
@@ -28,6 +30,14 @@ public class LoginResponseDTO {
         this.token = token;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public long getExpiresIn() {
         return expiresIn;
     }
@@ -35,7 +45,6 @@ public class LoginResponseDTO {
     public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
     }
-
     
     public String getUsername() {
         return username;

@@ -4,14 +4,16 @@ public class RegisterStepTwoResponseDTO {
 
     private String token;
     private long expiresIn;
+	private long userId;
     private String username;  
     private String phoneNumber;  
     private String email;
 
     // Constructor.
-    public RegisterStepTwoResponseDTO(String token, long expiresIn, String phoneNumber, String username, String email) {
+    public RegisterStepTwoResponseDTO(String token, long expiresIn, Long userId, String phoneNumber, String username, String email) {
         this.token = token;
         this.expiresIn = expiresIn;
+        this.userId = userId;
         this.username = username;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -34,6 +36,13 @@ public class RegisterStepTwoResponseDTO {
         this.expiresIn = expiresIn;
     }
 
+    public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
     
     public String getUsername() {
         return username;
