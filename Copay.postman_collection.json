@@ -1,219 +1,11 @@
 {
 	"info": {
-		"_postman_id": "0eb78f58-8f47-4e71-a8ab-b834ddb0b80f",
+		"_postman_id": "550d098b-3e72-4b7b-8efe-3ee6c22e83be",
 		"name": "Copay",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38870768"
+		"_exporter_id": "38870746"
 	},
 	"item": [
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Register Step One",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"Test\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"password123\",\r\n    \"phoneNumber\": \"000000000\",\r\n    \"confirmPassword\": \"password123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/auth/register",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Register Step Two",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"Test\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"password123\",\r\n    \"phone_number\": \"000000000\",\r\n    \"confirmPassword\": \"password123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/auth/register",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"phoneNumber\": \"123123123\",\r\n    \"password\": \"password123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/auth/login",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Password",
-			"item": [
-				{
-					"name": "Profile Update password",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MDA2MDA2MDAiLCJpYXQiOjE3NDE5NjI2MjEsImV4cCI6MTc0MTk2NjIyMX0.1CIGUsgvguEKVfijE30DDCCq9P997jYvK5lRHIK8WhjSSpOZ1se1Y_aS4WFKHKPvYlELTvLtOULd6zL8ZbTYvA",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"currentPassword\": \"password123\",\r\n  \"newPassword\": \"pass12345\",\r\n  \"confirmNewPassword\": \"pass12345\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/1/reset-password",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"1",
-								"reset-password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "s1 - Email Forgot password",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\" : \"test@example.com\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/forgot-password",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"forgot-password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "s2 - Update Forgot password",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MDA2MDA2MDAiLCJpYXQiOjE3NDE5NjI2MjEsImV4cCI6MTc0MTk2NjIyMX0.1CIGUsgvguEKVfijE30DDCCq9P997jYvK5lRHIK8WhjSSpOZ1se1Y_aS4WFKHKPvYlELTvLtOULd6zL8ZbTYvA",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"password\": \"password12345\",\r\n    \"confirmPassword\": \"password12345\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/forgot-password-reset",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"forgot-password-reset"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
 		{
 			"name": "CRUD",
 			"item": [
@@ -225,6 +17,15 @@
 							"request": {
 								"method": "POST",
 								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\" : \"CRUDtest\",\r\n    \"email\" : \"CRUDtest@example.com\",\r\n    \"password\" : \"Password123\",\r\n    \"phoneNumber\" : \"phonenumbertest\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "http://localhost:8080/api/users",
 									"protocol": "http",
@@ -246,7 +47,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/response",
+									"raw": "http://localhost:8080/api/users/1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -254,20 +55,43 @@
 									"port": "8080",
 									"path": [
 										"api",
-										"response"
+										"users",
+										"1"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Update User",
+							"name": "Read User by Phone Number",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/users/phone/phonenumbertest",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"users",
+										"phone",
+										"phonenumbertest"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User by Id",
 							"request": {
 								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"username\" : \"CRUDtest\",\r\n    \"email\" : \"changedCRUDtest@example.com\",\r\n    \"password\" : \"password123\",\r\n    \"phoneNumber\" : \"phonenumbertest\"\r\n}",
+									"raw": "{\r\n    \"username\" : \"updateCRUDtest\",\r\n    \"email\" : \"updatechangedCRUDtest@example.com\",\r\n    \"password\" : \"updatePassword123\",\r\n    \"phoneNumber\" : \"updatephonenumbertest\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -285,6 +109,37 @@
 										"api",
 										"users",
 										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User by Email",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\" : \"CRUDtest\",\r\n    \"email\" : \"changedCRUDtest@example.com\",\r\n    \"password\" : \"Password123\",\r\n    \"phoneNumber\" : \"phonenumbertest\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/users/email/updatechangedCRUDtest@example.com",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"users",
+										"email",
+										"updatechangedCRUDtest@example.com"
 									]
 								}
 							},
@@ -317,12 +172,271 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": ""
+									"raw": "http://localhost:8080/api/users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"users"
+									]
 								}
 							},
 							"response": []
 						}
 					]
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register Step One",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"test\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"Password123\",\r\n    \"phoneNumber\": \"000000000\",\r\n    \"confirmPassword\": \"Password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/register/step-one",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"register",
+								"step-one"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Step Two",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phoneNumber\": \"111111111\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/register/step-two",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"register",
+								"step-two"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phoneNumber\": \"111111111\",\r\n    \"password\": \"Password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0dGVlc3N0dEBleGFtcGxlLmNvbSIsImlhdCI6MTc0MzE4MjAyMSwiZXhwIjoxNzQzMTgyMzIxfQ.SF8P-36pzcpXBqmflCQCZ4JwAekzHrT8LMx4YPQQaCk4Oiuf-nchnC3V8xydj5dS-eIdEu3ZL3AFwr38_rVoCQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Password",
+			"item": [
+				{
+					"name": "Profile Update password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3MzAyNDE0MjMyIiwiaWF0IjoxNzQzNTI0MzgwLCJleHAiOjE3NDM1Mjc5ODB9.UmDhd5gbVymx-HssYlLkumGc6PBb2bptyJxrfVza3XfrfuvKFgF4AK5J3MoXY4VeI2P4H5qPd0wqygFXrvT-dQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"currentPassword\": \"Test12345\",\r\n  \"newPassword\": \"Pass12345\",\r\n  \"confirmNewPassword\": \"Pass12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Email Forgot password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"test@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/forgot-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[WWW] Update Forgot password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newPassword\": \"NewPassword123\",\r\n    \"confirmNewPassword\": \"NewPassword123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/forgot-password-reset",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"forgot-password-reset"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -338,7 +452,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/fake-data/users?count=",
+									"raw": "http://localhost:8080/api/fake-data/users?count=5",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -352,7 +466,7 @@
 									"query": [
 										{
 											"key": "count",
-											"value": ""
+											"value": "5"
 										}
 									]
 								}
@@ -365,7 +479,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/users/1",
+									"raw": "http://localhost:8080/api/fake-data/clear-users",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -373,8 +487,8 @@
 									"port": "8080",
 									"path": [
 										"api",
-										"users",
-										"1"
+										"fake-data",
+										"clear-users"
 									]
 								}
 							},
@@ -389,6 +503,32 @@
 				{
 					"name": "Plans",
 					"item": []
+				}
+			]
+		},
+		{
+			"name": "Database",
+			"item": [
+				{
+					"name": "Reset Database",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/db/reset-users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"db",
+								"reset-users"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
