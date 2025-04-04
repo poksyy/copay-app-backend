@@ -83,10 +83,10 @@ public class AuthController {
 	
     // Handles user logout request.
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser() {
+    public ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authHeader) {
 
-		// Get the authentication thought the JwtAuthenticationFilter class.
-    	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+		// Extract token from header "Bearer".
+    	String token = authHeader.replace("Bearer ", "");
     	
         // Call the service to handle the token invalidation
         authService.logout(token);
