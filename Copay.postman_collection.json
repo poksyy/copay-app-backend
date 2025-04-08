@@ -191,6 +191,37 @@
 			]
 		},
 		{
+			"name": "Utils",
+			"item": [
+				{
+					"name": "Database",
+					"item": [
+						{
+							"name": "Reset Database",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "Auth",
 			"item": [
 				{
@@ -303,7 +334,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0dGVlc3N0dEBleGFtcGxlLmNvbSIsImlhdCI6MTc0MzE4MjAyMSwiZXhwIjoxNzQzMTgyMzIxfQ.SF8P-36pzcpXBqmflCQCZ4JwAekzHrT8LMx4YPQQaCk4Oiuf-nchnC3V8xydj5dS-eIdEu3ZL3AFwr38_rVoCQ",
+									"value": "",
 									"type": "string"
 								}
 							]
@@ -339,7 +370,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3MzAyNDE0MjMyIiwiaWF0IjoxNzQzNTI0MzgwLCJleHAiOjE3NDM1Mjc5ODB9.UmDhd5gbVymx-HssYlLkumGc6PBb2bptyJxrfVza3XfrfuvKFgF4AK5J3MoXY4VeI2P4H5qPd0wqygFXrvT-dQ",
+									"value": "",
 									"type": "string"
 								}
 							]
@@ -348,7 +379,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"currentPassword\": \"Test12345\",\r\n  \"newPassword\": \"Pass12345\",\r\n  \"confirmNewPassword\": \"Pass12345\"\r\n}",
+							"raw": "{\r\n  \"currentPassword\": \"Password123\",\r\n  \"newPassword\": \"Pass12345\",\r\n  \"confirmNewPassword\": \"Pass12345\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -503,32 +534,6 @@
 				{
 					"name": "Plans",
 					"item": []
-				}
-			]
-		},
-		{
-			"name": "Database",
-			"item": [
-				{
-					"name": "Reset Database",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/db/reset-users",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"db",
-								"reset-users"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		}
