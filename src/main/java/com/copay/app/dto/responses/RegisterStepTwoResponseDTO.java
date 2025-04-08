@@ -14,8 +14,8 @@ public class RegisterStepTwoResponseDTO {
         this.token = token;
         this.expiresIn = expiresIn;
         this.userId = userId;
-        this.username = username;
         this.phoneNumber = phoneNumber;
+        this.username = username;
         this.email = email;
     }
 

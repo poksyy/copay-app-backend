@@ -68,7 +68,7 @@ public class AuthService {
 			String jwtToken = jwtService.generateToken(authentication.getName());
 
 			long expiresIn = jwtService.getExpirationTime(true);
-
+		
 			return new LoginResponseDTO(
 					jwtToken, 
 					expiresIn,
@@ -153,9 +153,9 @@ public class AuthService {
 				jwtToken, 
 				expiresIn, 
 				user.getUserId(), 
+				user.getPhoneNumber(),
 				user.getUsername(),
-				user.getEmail(), 
-				user.getPhoneNumber());
+				user.getEmail());
 	}
 
 	public void logout(String token) {

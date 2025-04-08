@@ -55,7 +55,7 @@ public class AuthController {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		// Get the authentication thought the JwtAuthenticationFilter class.
+		// Get the authentication though the JwtAuthenticationFilter class.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Registers the user and returns a JWT response.
@@ -85,7 +85,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser() {
 
-		// Get the authentication thought the JwtAuthenticationFilter class.
+		// Get the authentication though the JwtAuthenticationFilter class.
     	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
     	
         // Call the service to handle the token invalidation
