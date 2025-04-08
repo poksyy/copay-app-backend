@@ -10,5 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface GroupMemberRepository extends JpaRepository<GroupMember, GroupMemberId> {
 
 	// Retrieves all GroupMember records for the given user id.
+	// The method follows Spring Data JPA conventions to access the `userId`
+	// within the embedded `GroupMemberId` object.
 	List<GroupMember> findByIdUserUserId(Long userId);
 }
