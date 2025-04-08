@@ -28,8 +28,8 @@ public class GroupController {
 	@Autowired
 	private GroupService groupService;
 
-	// Endpoint to create a new group
-	@PostMapping
+	// Endpoint to create a new group.
+	@PostMapping("/create/{groupId}")
 	public ResponseEntity<?> createGroup(@RequestBody @Valid GroupRequestDTO groupRequestDTO, BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
@@ -44,15 +44,16 @@ public class GroupController {
 	}
 
 	// Endpoint to retrieve groups for a given user (for HomeScreen display).
-	@GetMapping("/user/{userId}")
+	@GetMapping("/{userId}")
 	public ResponseEntity<?> getGroupsByUser(@PathVariable Long userId) {
 
 		List<GroupResponseDTO> responseDTOs = groupService.getGroupsByUser(userId);
+		
 		return ResponseEntity.ok(responseDTOs);
 	}
 
 	// Endpoint to join a group.
-	@PostMapping("/{groupId}/join")
+	@PostMapping("/join/{groupId}")
 	public ResponseEntity<?> joinGroup(@PathVariable Long groupId, @RequestBody @Valid GroupJoinRequestDTO joinRequest,
 			BindingResult result) {
 		
