@@ -11,63 +11,118 @@ import jakarta.persistence.*;
 @Table(name = "groups")
 public class Group {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "group_id")
-	private Long groupId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id")
+    private Long groupId;
 
-	@Column(name = "group_name", nullable = false, length = 100)
-	private String groupName;
+    @Column(name = "group_name", nullable = false, length = 25)
+    private String groupName;
 
-	@ManyToOne
-	@JoinColumn(name = "created_by", nullable = false)
-	private User createdBy;
+    @ManyToOne
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-	// OneToMany relation with GroupMember table.
-	@OneToMany(mappedBy = "id.group", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<GroupMember> groupMembers;
+    @Column(name = "currency", nullable = false, length = 10)
+    private String currency;
 
-	// Getter and Setters.
-	public Long getGroupId() {
-		return groupId;
-	}
+    @Column(name = "description", length = 50)
+    private String description;
 
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
-	}
+    @Column(name = "estimated_price", nullable = false)
+    private Float estimatedPrice;
 
-	public String getGroupName() {
-		return groupName;
-	}
+    @Column(name = "image_url", nullable = true, columnDefinition = "VARCHAR(255) DEFAULT NULL")
+    private String imageUrl;
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
-	}
+    @Column(name = "image_provider", length = 50)
+    private String imageProvider;
 
-	public User getCreatedBy() {
-		return createdBy;
-	}
+    // OneToMany relation with GroupMember table.
+    @OneToMany(mappedBy = "id.group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GroupMember> groupMembers;
 
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
-	}
+    // Getter and Setters.
+    public Long getGroupId() {
+        return groupId;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public String getGroupName() {
+        return groupName;
+    }
 
-	public Set<GroupMember> getGroupMembers() {
-		return groupMembers;
-	}
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
 
-	public void setGroupMembers(Set<GroupMember> groupMembers) {
-		this.groupMembers = groupMembers;
-	}
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Float getEstimatedPrice() {
+        return estimatedPrice;
+    }
+
+    public void setEstimatedPrice(Float estimatedPrice) {
+        this.estimatedPrice = estimatedPrice;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageProvider() {
+        return imageProvider;
+    }
+
+    public void setImageProvider(String imageProvider) {
+        this.imageProvider = imageProvider;
+    }
+
+    public Set<GroupMember> getGroupMembers() {
+        return groupMembers;
+    }
+
+    public void setGroupMembers(Set<GroupMember> groupMembers) {
+        this.groupMembers = groupMembers;
+    }
 }
