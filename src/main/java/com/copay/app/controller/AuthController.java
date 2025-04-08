@@ -5,11 +5,9 @@ import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.dto.responses.RegisterStepOneResponseDTO;
 import com.copay.app.dto.responses.RegisterStepTwoResponseDTO;
-import com.copay.app.dto.auth.CountryDialCodeDTO;
 import com.copay.app.dto.responses.LoginResponseDTO;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.auth.AuthService;
-import com.copay.app.service.auth.CountryCodeService;
 import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
@@ -20,8 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -29,40 +25,37 @@ public class AuthController {
 	@Autowired
 	private AuthService authService;
 
-	@Autowired
-	private CountryCodeService countryCodeService;
-
 	// Handles user registration request.
 	@PostMapping("/register/step-one")
 	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneDTO userRegisterStepOneDTO,
-											 BindingResult result) {
+			BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-		// Validates the DTO annotations.
+		// Validates the DTO annotations. 
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
 		// Registers the user and returns a JWT response.
 		RegisterStepOneResponseDTO registerStepOneResponseDTO = authService.registerStepOne(userRegisterStepOneDTO);
-
+		
 		return ResponseEntity.ok().body(registerStepOneResponseDTO);
 	}
 
 	// Update phone number of the user.
 	@PostMapping("/register/step-two")
 	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoDTO userRegisterStepTwoDTO,
-											 BindingResult result) {
+			BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-		// Validates the DTO annotations.
+		// Validates the DTO annotations. 
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		// Get the authentication through the JwtAuthenticationFilter class.
+		// Get the authentication thought the JwtAuthenticationFilter class.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Registers the user and returns a JWT response.
@@ -71,19 +64,13 @@ public class AuthController {
 		return ResponseEntity.ok().body(registerStepTwoResponseDTO);
 	}
 
-	// Defines the prefix of the register two telephone number.
-	@GetMapping("/register/country-codes")
-	public ResponseEntity<List<CountryDialCodeDTO>> getCountryDialCodes() {
-		return ResponseEntity.ok(countryCodeService.getAllDialCodes());
-	}
-
 	// Handles user login request.
 	@PostMapping("/login")
 	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest loginRequest, BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-		// Validates the DTO annotations.
+		// Validates the DTO annotations. 
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
@@ -93,17 +80,17 @@ public class AuthController {
 
 		return ResponseEntity.ok(loginResponseDTO);
 	}
+	
+    // Handles user logout request.
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser() {
 
-	// Handles user logout request.
-	@PostMapping("/logout")
-	public ResponseEntity<?> logoutUser() {
+		// Get the authentication thought the JwtAuthenticationFilter class.
+    	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+    	
+        // Call the service to handle the token invalidation
+        authService.logout(token);
 
-		// Get the authentication through the JwtAuthenticationFilter class.
-		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
-		// Call the service to handle the token invalidation.
-		authService.logout(token);
-
-		return ResponseEntity.ok("User logged out successfully");
-	}
+        return ResponseEntity.ok("User logged out successfully");
+    }
 }
