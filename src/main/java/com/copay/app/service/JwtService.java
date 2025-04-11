@@ -62,7 +62,7 @@ public class JwtService {
 		if (revokedTokenRepository.existsByToken(token)) {
 
 			System.err.println("Trying to do HTTP requests with revoked token");
-			throw new InvalidTokenException("Your account account is already created");
+			throw new InvalidTokenException("This token has already been revoked.");
 		}
 
 		try {
