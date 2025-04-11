@@ -91,14 +91,6 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
 	}
 
-	// HTTP 500: Error sending email.
-	@ExceptionHandler(EmailSendingException.class)
-	public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
-		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Error sending the email.", HttpStatus.INTERNAL_SERVER_ERROR.value());
-		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-
 	// HTTP 409: Conflict when adding existing member to the group.
 	@ExceptionHandler(UserAlreadyMemberException.class)
 	public ResponseEntity<ValidationErrorResponse> UserAlreadyMemberException(UserAlreadyMemberException ex) {
