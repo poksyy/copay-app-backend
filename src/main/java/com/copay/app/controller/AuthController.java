@@ -73,24 +73,24 @@ public class AuthController {
 		// Validates the DTO annotations. 
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
-		}
+    }
 
 		// Authenticates the user and returns a JWT token.
 		LoginResponseDTO loginResponseDTO = authService.loginUser(loginRequest);
 
 		return ResponseEntity.ok(loginResponseDTO);
-	}
+  }
 	
     // Handles user logout request.
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser() {
+    public ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authHeader) {
 
-		// Get the authentication though the JwtAuthenticationFilter class.
-    	String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-    	
-        // Call the service to handle the token invalidation
-        authService.logout(token);
+		// Extract token from header "Bearer".
+    String token = authHeader.replace("Bearer ", "");
 
-        return ResponseEntity.ok("User logged out successfully");
-    }
+    // Call the service to handle the token invalidation
+    authService.logout(token);
+
+    return ResponseEntity.ok("User logged out successfully");
+  }
 }
