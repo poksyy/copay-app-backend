@@ -13,10 +13,9 @@ public class UserRegisterStepOneDTO {
 	private String email;
 
 	@NotBlank(message = "Password cannot be empty")
-	@Pattern(
-			regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$",
-			message = "Password must be at least 8 characters long, contain at least one uppercase letter and one number."
-	)
+	@Size(min = 8, message = "Password must be at least 8 characters long")
+	@Pattern(regexp = ".*[A-Z].*", message = "Password must contain at least one uppercase letter")
+	@Pattern(regexp = ".*\\d.*", message = "Password must contain at least one number")
 	private String password;
 
 	@NotBlank(message = "Confirm password cannot be empty")

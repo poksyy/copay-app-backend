@@ -23,8 +23,8 @@ public class ValidationService {
 				errorMessages.add(error.getDefaultMessage());
 			}
 			
-			// Return the errorrs to the AuthController.
-			return new ValidationErrorResponse(errorMessages, "Basic DTO validation failed", HttpStatus.BAD_REQUEST.value());
+			// Return the errors to the AuthController.
+			return new ValidationErrorResponse(errorMessages, errorMessages.getFirst(), HttpStatus.BAD_REQUEST.value());
 		}
 
 		return null;
