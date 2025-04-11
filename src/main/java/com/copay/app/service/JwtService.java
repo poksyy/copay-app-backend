@@ -61,36 +61,21 @@ public class JwtService {
 
 		if (revokedTokenRepository.existsByToken(token)) {
 
-			throw new InvalidTokenException("Token has been revoked");
+			System.err.println("Trying to do HTTP requests with revoked token");
+			throw new InvalidTokenException("Your account account is already created");
 		}
 
 		try {
 
-			Jwts.parserBuilder()
-					.setSigningKey(getSigningKey())
-					.build()
-					.parseClaimsJws(token);
+			Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
+
 			return true;
 
-		} catch (ExpiredJwtException e) {
-			// Expired token
-			throw new InvalidTokenException("Token expired");
+		} catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException
+				| IllegalArgumentException e) {
 
-		} catch (UnsupportedJwtException e) {
-			// Unsupported token
-			throw new InvalidTokenException("Unsupported token format");
-
-		} catch (MalformedJwtException e) {
-			// Malformed token
-			throw new InvalidTokenException("Malformed token");
-
-		} catch (SignatureException e) {
-			// Invalid signature
-			throw new InvalidTokenException("Invalid token signature");
-
-		} catch (Exception e) {
-			// General catch-all exception
-			throw new InvalidTokenException("Invalid token");
+			System.err.println("Trying to do HTTP requests with invalid token");
+			throw new InvalidTokenException("Your register time has been expired, try again from the beginning");
 		}
 	}
 
@@ -134,9 +119,9 @@ public class JwtService {
 
 	// Method to revoke token.
 	public void revokeToken(String token) {
-		
+
 		RevokedToken revokedToken = new RevokedToken();
-		
+
 		revokedToken.setToken(token);
 		revokedTokenRepository.save(revokedToken);
 	}

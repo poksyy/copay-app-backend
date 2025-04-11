@@ -71,6 +71,17 @@ public class GlobalExceptionHandler {
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
+  
+  // HTTP 500: Error sending email.
+  @ExceptionHandler(EmailSendingException.class)
+  public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
+      ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+          List.of(ex.getMessage()),
+          "Error sending the email.",
+          HttpStatus.INTERNAL_SERVER_ERROR.value()
+      );
+      return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
 	// HTTP 401: Invalid or expired token.
 	@ExceptionHandler(InvalidTokenException.class)

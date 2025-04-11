@@ -45,11 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// Extract the token and remove "Bearer " prefix.
 			String token = authorizationHeader.substring(7);
 
-			// Validate the token.
-			if (!jwtService.validateToken(token)) {
-
-				throw new InvalidTokenException("Invalid or expired token");
-			}
+			// Validate the token trough jwtService.
+			jwtService.validateToken(token);
 
 			// Get the identifier (phone number or email).
 			String userIdentifier = jwtService.getUserIdentifierFromToken(token);
@@ -58,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			// Load user details using CustomUserDetailsService.
 			userDetails = customUserDetailsService.loadUserByUsername(userIdentifier);
-			
+
 			// Creates an authentication token using the retrieved user details.
 			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 					userDetails, token, userDetails.getAuthorities());
@@ -70,17 +67,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setContentType("application/json");
-			response.getWriter().write(
-					"{\"error\": \"" + e.getMessage() + "\", \"status\": 401}"
-			);
+			response.getWriter().write("{\"error\": \"" + e.getMessage() + "\", \"message\": \"" + e.getMessage()
+					+ "\", \"status\": 401}");
 			return;
+
 		} catch (Exception e) {
 
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.setContentType("application/json");
-			response.getWriter().write(
-					"{\"error\": \"Authentication failed\", \"status\": 500}"
-			);
+			response.getWriter().write("{\"error\": JwtAuthenticationFilter try catch block\"" + "Internal Server error, try again later" + "\", \"message\": \"" + e.getMessage()
+			+ "\", \"status\": 500}");
 			return;
 		}
 
