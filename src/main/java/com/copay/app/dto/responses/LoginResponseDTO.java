@@ -13,10 +13,10 @@ public class LoginResponseDTO {
     // Constructor.
     public LoginResponseDTO(String token, long expiresIn, Long userId, String phoneNumber, String username, String email, String isLogin) {
         this.token = token;
-        this.userId = userId;
         this.expiresIn = expiresIn;
-        this.username = username;
+        this.userId = userId;
         this.phoneNumber = phoneNumber;
+        this.username = username;
         this.email = email;
         this.isLogin = isLogin;
     }

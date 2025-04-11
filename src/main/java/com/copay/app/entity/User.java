@@ -2,6 +2,9 @@ package com.copay.app.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
+
+import com.copay.app.entity.relations.GroupMember;
 
 @Entity
 @Table(name = "users")
@@ -29,6 +32,11 @@ public class User {
 	@Column(name = "is_completed", columnDefinition = "TINYINT(1)")
 	private boolean isCompleted = false;
 
+    // OneToMany Relation with GroupMember table.
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
+    
+    private Set<GroupMember> groupMembers;
+	
 	// Constructor for fake data.
     public User(String username, String email, String password, String phoneNumber) {
         this.username = username;
@@ -100,4 +108,12 @@ public class User {
 	public void setCompleted(boolean completed) {
 		isCompleted = completed;
 	}
+	
+    public Set<GroupMember> getGroupMembers() {
+        return groupMembers;
+    }
+
+    public void setGroupMembers(Set<GroupMember> groupMembers) {
+        this.groupMembers = groupMembers;
+    }
 }
