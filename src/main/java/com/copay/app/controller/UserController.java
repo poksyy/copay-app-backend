@@ -13,12 +13,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.copay.app.dto.responses.profile.EmailResponseDTO;
+import com.copay.app.dto.responses.profile.PhoneNumberResponseDTO;
+import com.copay.app.dto.responses.profile.UsernameResponseDTO;
 import com.copay.app.dto.user.UserCreateDTO;
 import com.copay.app.dto.user.UserDeleteDTO;
 import com.copay.app.dto.user.UserResponseDTO;
 import com.copay.app.dto.user.UserUpdateDTO;
-import com.copay.app.service.user.UserService;
+import com.copay.app.dto.user.profile.UpdateEmailDTO;
+import com.copay.app.dto.user.profile.UpdatePhoneNumberDTO;
+import com.copay.app.dto.user.profile.UpdateUsernameDTO;
 import com.copay.app.service.ValidationService;
+import com.copay.app.service.user.UserService;
 import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
@@ -121,4 +127,56 @@ public class UserController {
 
 		return ResponseEntity.ok(userResponseDTOs);
 	}
+	
+	// Updates only the username of a user by ID.
+	@PutMapping("/edit-username/{id}")
+	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO request, BindingResult result) {
+
+	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+	    // Validates the DTO annotations.
+	    if (validationResponse != null) {
+	        return ResponseEntity.badRequest().body(validationResponse);
+	    }
+
+	    // Delegate the username update to the service.
+	    UsernameResponseDTO response = userService.updateUsername(id, request);
+
+	    return ResponseEntity.ok(response);
+	}
+	
+	// Updates only the phone number of a user by ID.
+	@PutMapping("/edit-phone/{id}")
+	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO request, BindingResult result) {
+
+	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+	    // Validates the DTO annotations.
+	    if (validationResponse != null) {
+	        return ResponseEntity.badRequest().body(validationResponse);
+	    }
+
+	    // Delegate the phone number update to the service.
+	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, request);
+
+	    return ResponseEntity.ok(response);
+	}
+
+	// Updates only the email of a user by ID.
+	@PutMapping("/edit-email/{id}")
+	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailDTO request, BindingResult result) {
+
+	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+	    // Validates the DTO annotations.
+	    if (validationResponse != null) {
+	        return ResponseEntity.badRequest().body(validationResponse);
+	    }
+
+	    // Delegate the email update to the service.
+	    EmailResponseDTO response = userService.updateEmail(id, request);
+
+	    return ResponseEntity.ok(response);
+	}
+
 }
