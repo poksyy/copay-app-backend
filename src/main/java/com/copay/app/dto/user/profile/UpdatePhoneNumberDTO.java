@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Pattern;
 public class UpdatePhoneNumberDTO {
     
     @NotBlank(message = "Phone number cannot be empty")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits")
     private String phoneNumber;
 
     public UpdatePhoneNumberDTO() {
