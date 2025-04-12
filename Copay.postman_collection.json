@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "550d098b-3e72-4b7b-8efe-3ee6c22e83be",
+		"_postman_id": "cf7ddea8-4949-4556-b3bf-8f92b65dc262",
 		"name": "Copay",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38870746"
+		"_exporter_id": "38870815"
 	},
 	"item": [
 		{
@@ -12,6 +12,104 @@
 				{
 					"name": "User",
 					"item": [
+						{
+							"name": "Edit specific fields",
+							"item": [
+								{
+									"name": "Update Username",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"username\": \"newTest\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/users/edit-username/9",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users",
+												"edit-username",
+												"9"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Phone Number",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"phoneNumber\": \"+34123456789\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/users/edit-phone/14",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users",
+												"edit-phone",
+												"14"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Mail",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"email\": \"testa@gmail.com\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/users/edit-email/9",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users",
+												"edit-email",
+												"9"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
 						{
 							"name": "Create User",
 							"request": {
