@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.copay.app.repository.UserRepository;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserCleanupService {
 
@@ -15,13 +17,14 @@ public class UserCleanupService {
 		this.userRepository = userRepository;
 	}
 
-    // Scheduled task that runs automatically every 5 minutes.
-    // This method removes users who have not completed the registration process.
+    // Scheduled task that runs automatically every 2 minutes.
+    // This method removes users who have not completed the registration process within the last 5 minutes.
 	@Transactional
-	@Scheduled(fixedRate = 300000)
+	@Scheduled(fixedRate = 120000)
 	public void deleteIncompleteUsers() {
-		
-		int deletedUsers = userRepository.deleteIncompleteUsers();
+
+		LocalDateTime cutoffTime = LocalDateTime.now().minusMinutes(5);
+		int deletedUsers = userRepository.deleteIncompleteUsers(cutoffTime);
 		System.out.println(deletedUsers + " Users were removed due to incomplete registration.");
 	}
 }

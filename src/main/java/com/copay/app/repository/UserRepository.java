@@ -1,10 +1,12 @@
 package com.copay.app.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.copay.app.entity.User;
 
@@ -33,6 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	// Deletes all users who have not completed the registration process.
 	@Transactional
 	@Modifying
-	@Query("DELETE FROM User u WHERE u.isCompleted = false")
-	int deleteIncompleteUsers();
+	@Query("DELETE FROM User u WHERE u.createdAt < :now AND u.isCompleted = false")
+	int deleteIncompleteUsers(@Param("now") LocalDateTime now);
 }
