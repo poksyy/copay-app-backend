@@ -9,16 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.copay.app.dto.group.CreateGroupRequestDTO;
+import com.copay.app.dto.group.DeleteGroupRequestDTO;
 import com.copay.app.dto.group.auxiliary.CopayMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 import com.copay.app.dto.responses.GetGroupResponseDTO;
 import com.copay.app.dto.responses.CreateGroupResponseDTO;
+import com.copay.app.dto.responses.DeleteGroupResponseDTO;
 import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.GroupMember;
 import com.copay.app.entity.relations.GroupMemberId;
+import com.copay.app.exception.GroupNotFoundException;
+import com.copay.app.exception.InvalidGroupCreatorException;
 import com.copay.app.exception.InvitedMemberNotFoundException;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.ExternalMemberRepository;
@@ -44,6 +48,9 @@ public class GroupService {
 
 	@Autowired
 	private ExternalMemberRepository externalMemberRepository;
+
+	@Autowired
+	private JwtService jwtService;
 
 	// Use EntityManager to obtain a reference to the User entity
 	@PersistenceContext
@@ -204,5 +211,27 @@ public class GroupService {
 		getGroupResponseDTO.setGroups(createGroupResponseDTO);
 
 		return getGroupResponseDTO;
+	}
+
+	public DeleteGroupResponseDTO deleteGroup(Long groupId, String token) {
+		
+		Group group = groupRepository.findById(groupId).orElseThrow(() -> new GroupNotFoundException("Group with id " + groupId + " not found."));
+
+		// Get the email from the current token.
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Find user by email through the temporal token.
+		User user = userRepository.findByPhoneNumber(userPhoneNumber)
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		// Validate that the deletion is being done by the group creator.
+		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
+			throw new InvalidGroupCreatorException("User " + user.getUserId() + " has no permissions to delete group " + group.getGroupId());
+		}
+
+		// Deletes the group.
+		groupRepository.delete(group);
+		
+		return new DeleteGroupResponseDTO("Group " + group.getGroupName() + " deleted successfully.");
 	}
 }
