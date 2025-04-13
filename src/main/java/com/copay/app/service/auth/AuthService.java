@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.copay.app.dto.auth.UserLoginRequest;
+import com.copay.app.dto.auth.UserLoginRequestDTO;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 
@@ -49,7 +49,7 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public LoginResponseDTO loginUser(UserLoginRequest request) {
+	public LoginResponseDTO loginUser(UserLoginRequestDTO request) {
 
 		// Find the user by phone number before executing try-catch block.
 		User user = userRepository.findByPhoneNumber(request.getPhoneNumber())

@@ -1,6 +1,6 @@
 package com.copay.app.controller;
 
-import com.copay.app.dto.auth.UserLoginRequest;
+import com.copay.app.dto.auth.UserLoginRequestDTO;
 import com.copay.app.dto.auth.UserRegisterStepOneDTO;
 import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
 import com.copay.app.dto.responses.RegisterStepOneResponseDTO;
@@ -66,7 +66,7 @@ public class AuthController {
 
 	// Handles user login request.
 	@PostMapping("/login")
-	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequest loginRequest, BindingResult result) {
+	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequestDTO loginRequest, BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
