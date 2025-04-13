@@ -30,4 +30,34 @@ public class DatabaseController {
 
 		return "User reset successful!";
 	}
+
+	@PostMapping("/reset-group-members")
+	public String resetGroupMembersTable() {
+
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.execute("TRUNCATE TABLE group_members");
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+		return "Group members reset successful!";
+	}
+
+	@PostMapping("/reset-external-members")
+	public String resetExternalMembersTable() {
+
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.execute("TRUNCATE TABLE external_members");
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+		return "External members reset successful!";
+	}
+
+	@PostMapping("/reset-groups")
+	public String resetGroupsTable() {
+
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.execute("TRUNCATE TABLE `groups`");
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+		return "Groups reset successful!";
+	}
 }
