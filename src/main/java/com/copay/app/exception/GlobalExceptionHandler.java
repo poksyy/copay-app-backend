@@ -58,8 +58,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(UserUniquenessException.class)
 
 	public ResponseEntity<ValidationErrorResponse> handleUserUniquenessException(UserUniquenessException ex) {
+
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Phone number and email already exist.", HttpStatus.BAD_REQUEST.value());
+		
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
@@ -75,8 +77,7 @@ public class GlobalExceptionHandler {
 
 	// HTTP 404: Invited member doesn't have a Copay account.
 	@ExceptionHandler(InvitedMemberNotFoundException.class)
-	public ResponseEntity<ValidationErrorResponse> handleInvitedMemberNotFoundException(
-			InvitedMemberNotFoundException ex) {
+	public ResponseEntity<ValidationErrorResponse> handleInvitedMemberNotFoundException(InvitedMemberNotFoundException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()), ex.getMessage(),
 				HttpStatus.NOT_FOUND.value());
@@ -86,28 +87,50 @@ public class GlobalExceptionHandler {
 
 	// HTTP 401: Invalid or expired token.
 	@ExceptionHandler(InvalidTokenException.class)
-	
+
 	public ResponseEntity<ValidationErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
+		
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Invalid or expired token.", HttpStatus.UNAUTHORIZED.value());
+		
 		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
 	}
 
 	// HTTP 500: Error sending email.
 	@ExceptionHandler(EmailSendingException.class)
-	
+
 	public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
+		
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Error sending the email.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+		
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// HTTP 409: Conflict when adding existing member to the group.
 	@ExceptionHandler(UserAlreadyMemberException.class)
-	public ResponseEntity<ValidationErrorResponse> UserAlreadyMemberException(UserAlreadyMemberException ex) {
+	public ResponseEntity<ValidationErrorResponse> handleUserAlreadyExistsException(UserAlreadyMemberException ex) {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"User is already on the group.", HttpStatus.CONFLICT.value());
 		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+	}
+
+	// HTTP 403: Invalid user trying to delete a group.
+	@ExceptionHandler(InvalidGroupCreatorException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidGroupCreatorException(InvalidGroupCreatorException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"You don't have the permissions to delete this group.", HttpStatus.FORBIDDEN.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+	}
+	
+	// HTTP 404: Group not found with the provided ID.
+	@ExceptionHandler(GroupNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleGroupNotFoundException(GroupNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Specified group doesn't exist.", HttpStatus.NOT_FOUND.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
 	// Handle other generic exceptions.
