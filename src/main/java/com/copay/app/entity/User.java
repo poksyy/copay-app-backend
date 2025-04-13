@@ -2,6 +2,7 @@ package com.copay.app.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.copay.app.entity.relations.GroupMember;
@@ -12,6 +13,7 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
 	private Long userId;
 
 	@Column(nullable = false)
@@ -28,28 +30,29 @@ public class User {
 
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
-	
+
 	@Column(name = "is_completed", columnDefinition = "TINYINT(1)")
 	private boolean isCompleted = false;
 
-    // OneToMany Relation with GroupMember table.
-    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
-    
-    private Set<GroupMember> groupMembers;
-	
+	// CascadeType.ALL propagates all persistence operations to GroupMember.
+	// orphanRemoval ensures deletion of GroupMember when removed from the Set.
+	// "id.user" is used because GroupMember has a composite key via the @Embeddable GroupMemberId.
+	@OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<GroupMember> groupMembers = new HashSet<>();
+
 	// Constructor for fake data.
-    public User(String username, String email, String password, String phoneNumber) {
-        this.username = username;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-        this.createdAt = LocalDateTime.now();
-        this.isCompleted = true;
-    }
-	
-    // Empty constructor.
+	public User(String username, String email, String password, String phoneNumber) {
+		this.username = username;
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.password = password;
+		this.createdAt = LocalDateTime.now();
+		this.isCompleted = true;
+	}
+
+	// Empty constructor.
 	public User() {
-		
+
 	}
 
 	// Getters and Setters.
@@ -100,7 +103,7 @@ public class User {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-	
+
 	public boolean isCompleted() {
 		return isCompleted;
 	}
@@ -108,12 +111,12 @@ public class User {
 	public void setCompleted(boolean completed) {
 		isCompleted = completed;
 	}
-	
-    public Set<GroupMember> getGroupMembers() {
-        return groupMembers;
-    }
 
-    public void setGroupMembers(Set<GroupMember> groupMembers) {
-        this.groupMembers = groupMembers;
-    }
+	public Set<GroupMember> getGroupMembers() {
+		return groupMembers;
+	}
+
+	public void setGroupMembers(Set<GroupMember> groupMembers) {
+		this.groupMembers = groupMembers;
+	}
 }
