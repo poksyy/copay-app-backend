@@ -56,6 +56,7 @@ public class GlobalExceptionHandler {
 
 	// HTTP 400: User uniqueness violation (Phone number and email already exist).
 	@ExceptionHandler(UserUniquenessException.class)
+
 	public ResponseEntity<ValidationErrorResponse> handleUserUniquenessException(UserUniquenessException ex) {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Phone number and email already exist.", HttpStatus.BAD_REQUEST.value());
@@ -64,31 +65,41 @@ public class GlobalExceptionHandler {
 
 	// HTTP 404: User not found with the provided ID.
 	@ExceptionHandler(UserNotFoundException.class)
-	public ResponseEntity<ValidationErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+	public ResponseEntity<ValidationErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"User does not exist.", HttpStatus.NOT_FOUND.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
-  
-  // HTTP 500: Error sending email.
-  @ExceptionHandler(EmailSendingException.class)
-  public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
-      ValidationErrorResponse errorResponse = new ValidationErrorResponse(
-          List.of(ex.getMessage()),
-          "Error sending the email.",
-          HttpStatus.INTERNAL_SERVER_ERROR.value()
-      );
-      return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
+
+	// HTTP 404: Invited member doesn't have a Copay account.
+	@ExceptionHandler(InvitedMemberNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvitedMemberNotFoundException(
+			InvitedMemberNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()), ex.getMessage(),
+				HttpStatus.NOT_FOUND.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
 
 	// HTTP 401: Invalid or expired token.
 	@ExceptionHandler(InvalidTokenException.class)
+	
 	public ResponseEntity<ValidationErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Invalid or expired token.", HttpStatus.UNAUTHORIZED.value());
 		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+	}
+
+	// HTTP 500: Error sending email.
+	@ExceptionHandler(EmailSendingException.class)
+	
+	public ResponseEntity<ValidationErrorResponse> handleEmailSendingException(EmailSendingException ex) {
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Error sending the email.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// HTTP 409: Conflict when adding existing member to the group.
