@@ -70,4 +70,25 @@ public class GroupController {
 
 		return ResponseEntity.ok(getGroupResponseDTO);
 	}
+
+	@DeleteMapping("/{groupId}")
+	public ResponseEntity<?> deleteGroup(@PathVariable Long groupId,
+			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO, BindingResult result) {
+
+		// The groupId is manually added to the DTO for validation.
+		deleteGroupRequestDTO.setGroupId(groupId);
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+
+		// Validates the DTO annotations. 
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
+
+		// Get the token from the SecurityContextHolder (set by JwtAuthenticationFilter)
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		DeleteGroupResponseDTO response = groupService.deleteGroup(groupId, token);
+
+		return ResponseEntity.ok(response);
+	}
 }
