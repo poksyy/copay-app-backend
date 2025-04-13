@@ -46,15 +46,18 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, customUserDetailsService);
+		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService,
+				customUserDetailsService);
 
 		// Disable CSRF protection.
 		http.csrf(csrf -> csrf.disable())
 				// Enable CORS with default settings.
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/response","/api/auth/register/step-one", "/api/auth/login", "/api/users/**",
-								"/api/fake-data/**", "/reset-password.html", "/api/forgot-password","/api/forgot-password-reset", "/static/**", "/api/db/**")
+						.requestMatchers("/api/response", "/api/auth/register/step-one", "/api/auth/login",
+								"/api/users/**", "/api/fake-data/**", "/reset-password.html", "/api/forgot-password",
+								"/api/forgot-password-reset", "/static/**", "/api/groups", "/api/groups/**",
+								"/api/db/**")
 						// Allow public routes.
 						.permitAll()
 						// Require authentication for all other endpoints.
