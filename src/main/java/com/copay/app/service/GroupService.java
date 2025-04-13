@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.copay.app.dto.group.CreateGroupRequestDTO;
-import com.copay.app.dto.group.GetGroupRequestDTO;
 import com.copay.app.dto.group.auxiliary.CopayMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
