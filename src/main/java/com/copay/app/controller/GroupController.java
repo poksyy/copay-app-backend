@@ -2,7 +2,9 @@ package com.copay.app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.copay.app.dto.group.GetGroupRequestDTO;
 import com.copay.app.dto.group.CreateGroupRequestDTO;
+import com.copay.app.dto.group.DeleteGroupRequestDTO;
 import com.copay.app.dto.responses.CreateGroupResponseDTO;
+import com.copay.app.dto.responses.DeleteGroupResponseDTO;
 import com.copay.app.dto.responses.GetGroupResponseDTO;
 import com.copay.app.service.GroupService;
 import com.copay.app.service.ValidationService;
@@ -49,22 +53,21 @@ public class GroupController {
 
 	// Endpoint to retrieve groups for a given user (HomeScreen display).
 	@GetMapping("/{userId}")
-	public ResponseEntity<?> getGroupsByUser(
-			@PathVariable Long userId,
-			@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO,
-	        BindingResult result) {
+	public ResponseEntity<?> getGroupsByUser(@PathVariable Long userId,
+			@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO, BindingResult result) {
 
-		// Thee userId is manually added to the DTO for validation.
-	    getGroupRequestDTO.setUserId(userId); 
-	    
-	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
+		// The userId is manually added to the DTO for validation.
+		getGroupRequestDTO.setUserId(userId);
 
-	    if (validationResponse != null) {
-	        return ResponseEntity.badRequest().body(validationResponse);
-	    }
+		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
-	    GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
+		// Validates the DTO annotations. 
+		if (validationResponse != null) {
+			return ResponseEntity.badRequest().body(validationResponse);
+		}
 
-	    return ResponseEntity.ok(getGroupResponseDTO);
+		GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
+
+		return ResponseEntity.ok(getGroupResponseDTO);
 	}
 }
