@@ -10,6 +10,20 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+/**
+ * @Embeddable class representing the composite key for the 'GroupMember' 
+ * entity, centralizing the many-to-one relationships between 'Group' and 'User'.
+ * 
+ * This class simplifies the many-to-many relationship by:
+ * - Managing the relationships within the composite key itself.
+ * - Allowing 'User' and 'Group' to reference the relationship through 'id.group' and 'id.user'.
+ * - The 'GroupMember' entity uses the embedded key (GroupMemberId) to handle the many-to-one
+ *   mappings without redundant definitions in the entity class.
+ * 
+ * Advantages:
+ * - Cleaner and more maintainable mapping.
+ * - Reduces redundancy in database relationships and entity definitions.
+ */
 @Embeddable
 public class GroupMemberId implements Serializable {
 
@@ -23,15 +37,17 @@ public class GroupMemberId implements Serializable {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Default constructor.
-    public GroupMemberId() {}
-
-    // Constructor.
+    // Constructor used to create composite key using 'group' and 'user'.
     public GroupMemberId(Group group, User user) {
         this.group = group;
         this.user = user;
     }
 
+    // Empty constructor.
+    public GroupMemberId() {
+    	
+    }
+    
     // Getters and Setters.
     public Group getGroup() {
         return group;
