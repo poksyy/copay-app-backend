@@ -20,7 +20,7 @@ public class GroupMember {
 	public GroupMember() {
 	}
 
-	// Constructor.
+	// Constructor that initializes the group-member relationship with joinedAt.
 	public GroupMember(GroupMemberId id) {
 		this.id = id;
 		this.joinedAt = LocalDateTime.now();
