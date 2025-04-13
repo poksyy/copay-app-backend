@@ -76,8 +76,9 @@ public class GroupService {
 
 		// Persists the group details in the database.
 		group = groupRepository.save(group);
-		
-		// Create the composite key for the group-member relationship with the group and user.
+
+		// Create the composite key for the group-member relationship with the group and
+		// user.
 		GroupMemberId creatorMemberId = new GroupMemberId(group, creator);
 		// Instantiate the GroupMember entity using the composite key.
 		GroupMember creatorGroupMember = new GroupMember(creatorMemberId);
@@ -119,8 +120,13 @@ public class GroupService {
 			group.getExternalMembers().add(externalMember);
 		}
 
-		// Explicitly merge the group to flush the changes and resolve potential
-		// conflicts.
+		/*
+		 * Explicitly merge the 'group' entity to flush changes and synchronize them
+		 * with the database. This is necessary because we avoid using
+		 * 'groupMemberRepository.save()' and 'externalMemberRepository.save()' in favor
+		 * of adding members directly to the group using the 'add()' method, which
+		 * relies on cascading.
+		 */
 		entityManager.merge(group);
 
 		// Map the group instance to GroupResponseDTO.
@@ -144,7 +150,7 @@ public class GroupService {
 		// Map group owner details (GroupOwnerDTO-> includes id and username).
 		GroupOwnerDTO groupOwnerDTO = new GroupOwnerDTO();
 
-		// Is possible to use the getters of Group and User entity thanks to the relations.
+		// Accessing Group and User data through their established relationship.
 		groupOwnerDTO.setOwnerId(group.getCreatedBy().getUserId());
 		groupOwnerDTO.setOwnerName(group.getCreatedBy().getUsername());
 		groupResponseDTO.setGroupOwner(groupOwnerDTO);
@@ -174,7 +180,30 @@ public class GroupService {
 			// Set the mapped list of ExternalMemberDTOs in the response DTO.
 			groupResponseDTO.setExternalMembers(externalList);
 		}
-		
+
 		return groupResponseDTO;
+	}
+
+	// readOnly since it's a GET request.
+	@Transactional(readOnly = true)
+	public GetGroupResponseDTO getGroupsByUserId(Long userId) {
+
+		// Fetch groups where the user is a member.
+		List<GroupMember> groupMembers = groupMemberRepository.findByIdUserUserId(userId);
+
+		// Transform GroupMembers into unique groups and map data for response.
+		List<Group> groups = groupMembers.stream().map(gm -> gm.getId().getGroup()).distinct()
+				.collect(Collectors.toList());
+
+		// Map groups to response DTO format, including external members.
+		List<CreateGroupResponseDTO> createGroupResponseDTO = groups.stream().map(this::mapToGroupResponseDTO)
+				.collect(Collectors.toList());
+
+		GetGroupResponseDTO getGroupResponseDTO = new GetGroupResponseDTO();
+
+		// Set the mapped groups list in the response DTO.
+		getGroupResponseDTO.setGroups(createGroupResponseDTO);
+
+		return getGroupResponseDTO;
 	}
 }
