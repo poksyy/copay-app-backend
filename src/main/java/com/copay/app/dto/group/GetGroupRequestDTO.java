@@ -2,12 +2,12 @@ package com.copay.app.dto.group;
 
 import jakarta.validation.constraints.NotNull;
 
-public class GroupJoinRequestDTO {
+public class GetGroupRequestDTO {
 
     @NotNull(message = "User ID is required")
     private Long userId;
 
-    // Getters y Setters
+    // Getters y Setters.
     public Long getUserId() {
         return userId;
     }
