@@ -19,7 +19,7 @@ public class Group {
 	private Long groupId;
 
 	@Column(name = "group_name", nullable = false, length = 25)
-	private String groupName;
+	private String name;
 
 	// 'created_by' is a foreign key referencing the 'user_id' in the 'users' table.
 	@ManyToOne
@@ -64,12 +64,12 @@ public class Group {
 		this.groupId = groupId;
 	}
 
-	public String getGroupName() {
-		return groupName;
+	public String getName() {
+		return name;
 	}
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public User getCreatedBy() {
