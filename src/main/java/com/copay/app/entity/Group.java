@@ -48,7 +48,7 @@ public class Group {
 	// orphanRemoval ensures deletion of GroupMember when removed from the Set.
 	// "id.group" is used because GroupMember has a composite key via the @Embeddable GroupMemberId.
 	@OneToMany(mappedBy = "id.group", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<GroupMember> groupMembers = new HashSet<>();
+	private Set<GroupMember> registeredMembers = new HashSet<>();
 
 	// CascadeType.ALL propagates all persistence operations to ExternalMember.
 	// orphanRemoval ensures deletion of ExternalMember when removed from the Set.
@@ -128,12 +128,12 @@ public class Group {
 		this.imageProvider = imageProvider;
 	}
 
-	public Set<GroupMember> getGroupMembers() {
-		return groupMembers;
+	public Set<GroupMember> getRegisteredMembers() {
+		return registeredMembers;
 	}
 
-	public void setGroupMembers(Set<GroupMember> groupMembers) {
-		this.groupMembers = groupMembers;
+	public void setRegisteredMembers(Set<GroupMember> registeredMembers) {
+		this.registeredMembers = registeredMembers;
 	}
 
 	public Set<ExternalMember> getExternalMembers() {
