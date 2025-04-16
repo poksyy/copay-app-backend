@@ -3,7 +3,7 @@ package com.copay.app.dto.responses;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.copay.app.dto.group.auxiliary.CopayMemberDTO;
+import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 
@@ -15,12 +15,13 @@ public class CreateGroupResponseDTO {
 	private Float estimatedPrice;
 	private String currency;
 	private LocalDateTime createdAt;
+	private boolean userIsOwner;
 
 	// Populated with GroupOwnerDTO data representing group groupOwner.
 	private GroupOwnerDTO groupOwner;
 
 	// Populated with CopayMemberDTO data representing the Copay members.
-	private List<CopayMemberDTO> copayMembers;
+	private List<RegisteredMemberDTO> registeredMembers;
 	// Populated with ExternalMemberDTO data representing the external members.
 	private List<ExternalMemberDTO> externalMembers;
 
@@ -69,6 +70,14 @@ public class CreateGroupResponseDTO {
 		return currency;
 	}
 
+	public boolean isUserIsOwner() {
+	    return userIsOwner;
+	}
+
+	public void setUserIsOwner(boolean userIsOwner) {
+	    this.userIsOwner = userIsOwner;
+	}
+	
 	public GroupOwnerDTO getGroupOwner() {
 		return groupOwner;
 	}
@@ -81,12 +90,12 @@ public class CreateGroupResponseDTO {
 		this.currency = currency;
 	}
 
-	public List<CopayMemberDTO> getCopayMembers() {
-		return copayMembers;
+	public List<RegisteredMemberDTO> getRegisteredMembers() {
+		return registeredMembers;
 	}
 
-	public void setCopayMembers(List<CopayMemberDTO> copayMembers) {
-		this.copayMembers = copayMembers;
+	public void setRegisteredMembers(List<RegisteredMemberDTO> registeredMembers) {
+		this.registeredMembers = registeredMembers;
 	}
 
 	public List<ExternalMemberDTO> getExternalMembers() {
