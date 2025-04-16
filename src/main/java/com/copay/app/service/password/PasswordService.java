@@ -13,6 +13,7 @@ import jakarta.mail.MessagingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PasswordService {
@@ -28,6 +29,7 @@ public class PasswordService {
         this.emailService = emailService;
     }
 
+    @Transactional
     public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO request, String token) {
 
             String phoneNumberToken = jwtService.getUserIdentifierFromToken(token);
@@ -82,6 +84,7 @@ public class PasswordService {
         }
     }
 
+    @Transactional
     public ResponseEntity<?> forgotPasswordReset(String token, ForgotPasswordResetDTO request) {
 
         String email = jwtService.getUserIdentifierFromToken(token);

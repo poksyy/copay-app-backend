@@ -28,6 +28,7 @@ import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.user.UserAvailabilityService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -85,6 +86,7 @@ public class AuthService {
 		}
 	}
 
+	@Transactional
 	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneDTO request) {
 
 		boolean emailExists = userRepository.existsByEmail(request.getEmail());
@@ -119,6 +121,7 @@ public class AuthService {
 				user.getEmail());
 	}
 
+	@Transactional
     public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
 
         try {

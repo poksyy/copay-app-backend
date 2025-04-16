@@ -11,6 +11,7 @@ import com.copay.app.entity.User;
 import com.copay.app.repository.UserRepository;
 
 import net.datafaker.Faker;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FakeDataService {
@@ -23,6 +24,7 @@ public class FakeDataService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Transactional
 	public List<User> generateFakeUsers(int count) {
 
 		List<User> users = IntStream.range(0, count).mapToObj(i -> new User(
@@ -34,7 +36,8 @@ public class FakeDataService {
 
 		return userRepository.saveAll(users);
 	}
-	
+
+	@Transactional
 	public void clearUsersFakeData() {
 	    userRepository.deleteAll();
 	}
