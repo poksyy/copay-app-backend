@@ -1,5 +1,7 @@
 package com.copay.app.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +20,7 @@ import com.copay.app.dto.group.CreateGroupRequestDTO;
 import com.copay.app.dto.group.DeleteGroupRequestDTO;
 import com.copay.app.dto.group.GetGroupRequestDTO;
 import com.copay.app.dto.group.UpdateGroupCopayMembersRequestDTO;
-import com.copay.app.dto.group.UpdateGroupDescriptionRequestDTO;
-import com.copay.app.dto.group.UpdateGroupEstimatedPriceRequestDTO;
 import com.copay.app.dto.group.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.group.UpdateGroupNameRequestDTO;
 import com.copay.app.dto.responses.CreateGroupResponseDTO;
 import com.copay.app.dto.responses.DeleteGroupResponseDTO;
 import com.copay.app.dto.responses.GetGroupResponseDTO;
@@ -84,6 +83,7 @@ public class GroupController {
 
 		// The groupId is manually added to the DTO for validation.
 		deleteGroupRequestDTO.setGroupId(groupId);
+		
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
 		// Validates the DTO annotations.
@@ -98,53 +98,43 @@ public class GroupController {
 
 		return ResponseEntity.ok(response);
 	}
+	
+	@DeleteMapping("/{groupId}/leave")
+	public ResponseEntity<?> leaveGroup(@PathVariable Long groupId,
+			@RequestBody @Valid DeleteGroupRequestDTO deleteGroupRequestDTO, BindingResult result) {
 
-	@PatchMapping("/{groupId}/name")
-	public ResponseEntity<?> updateGroupName(@PathVariable Long groupId,
-			@RequestBody @Valid UpdateGroupNameRequestDTO request, BindingResult result) {
-
+		// The groupId is manually added to the DTO for validation.
+		deleteGroupRequestDTO.setGroupId(groupId);
+		
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
 		// Validates the DTO annotations.
 		if (validationResponse != null) {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
-
-		UpdateGroupResponseDTO response = groupService.updateGroupName(groupId, request);
+		
+		// Get the token from the SecurityContextHolder (set by JwtAuthenticationFilter)
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+		
+		UpdateGroupResponseDTO response = groupService.leaveGroup(groupId, token);
 
 		return ResponseEntity.ok(response);
 	}
 
-	@PatchMapping("/{groupId}/description")
-	public ResponseEntity<?> updateGroupDescription(@PathVariable Long groupId,
-			@RequestBody @Valid UpdateGroupDescriptionRequestDTO request, BindingResult result) {
+	@PatchMapping("/{groupId}")
+	public ResponseEntity<?> updateGroup(@PathVariable Long groupId,
+	                                     @RequestBody Map<String, Object> updates, 
+	                                     BindingResult result) {
 
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
+	    // Validación de errores en el cuerpo de la solicitud.
+	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
+	    if (validationResponse != null) {
+	        return ResponseEntity.badRequest().body(validationResponse);
+	    }
 
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
-
-		UpdateGroupResponseDTO response = groupService.updateGroupDescription(groupId, request);
-
-		return ResponseEntity.ok(response);
-	}
-
-	@PatchMapping("/{groupId}/estimatedprice")
-	public ResponseEntity<?> updateGroupEstimatedPrice(@PathVariable Long groupId,
-			@RequestBody @Valid UpdateGroupEstimatedPriceRequestDTO request, BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
-
-		UpdateGroupResponseDTO response = groupService.updateGroupEstimatedPrice(groupId, request);
-
-		return ResponseEntity.ok(response);
+	    // Llamar al servicio para actualizar el grupo.
+	    UpdateGroupResponseDTO response = groupService.updateGroup(groupId, updates);
+	    return ResponseEntity.ok(response);
 	}
 
 	@PatchMapping("/{groupId}/copaymembers")
@@ -158,7 +148,7 @@ public class GroupController {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		UpdateGroupResponseDTO response = groupService.updateGroupCopayMembers(groupId, request);
+		UpdateGroupResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
 
 		return ResponseEntity.ok(response);
 	}

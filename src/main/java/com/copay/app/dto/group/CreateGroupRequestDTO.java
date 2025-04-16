@@ -32,13 +32,13 @@ public class CreateGroupRequestDTO {
 	private String imageProvider;
 
 	// Initialize the ArrayLists null by default.
+	private List<String> invitedRegisteredMembers = new ArrayList<>();
 	private List<String> invitedExternalMembers = new ArrayList<>();
-	private List<String> invitedCopayMembers = new ArrayList<>();
 
 	@AssertTrue(message = "At least one list of members must be provided")
 	public boolean isAtLeastOneMemberProvided() {
 		// Validates that at least 1 of both variables are not null or empty
-		return !invitedExternalMembers.isEmpty() || !invitedCopayMembers.isEmpty();
+		return !invitedExternalMembers.isEmpty() || !invitedRegisteredMembers.isEmpty();
 	}
 
 	// Getters and Setters.
@@ -106,12 +106,12 @@ public class CreateGroupRequestDTO {
 		this.invitedExternalMembers = invitedExternalMembers;
 	}
 
-	public List<String> getInvitedCopayMembers() {
-		return invitedCopayMembers;
+	public List<String> getInvitedRegisteredMembers() {
+		return invitedRegisteredMembers;
 	}
 
-	public void setInvitedCopayMembers(List<String> invitedCopayMembers) {
-		this.invitedCopayMembers = invitedCopayMembers;
+	public void setInvitedRegisteredMembers(List<String> invitedRegisteredMembers) {
+		this.invitedRegisteredMembers = invitedRegisteredMembers;
 	}
 
 	// toString method with debug purposes.
@@ -122,7 +122,7 @@ public class CreateGroupRequestDTO {
                ", description='" + description + '\'' +
                ", currency='" + currency + '\'' +
                ", estimatedPrice=" + estimatedPrice +
-               ", invitedCopayMembers=" + invitedCopayMembers +
+               ", invitedCopayMembers=" + invitedRegisteredMembers +
                ", invitedExternalMembers=" + invitedExternalMembers +
                ", createdBy=" + createdBy +
                '}';
