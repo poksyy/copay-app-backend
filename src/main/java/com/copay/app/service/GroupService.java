@@ -227,6 +227,7 @@ public class GroupService {
 		return getGroupResponseDTO;
 	}
 
+	@Transactional
 	public DeleteGroupResponseDTO deleteGroup(Long groupId, String token) {
 
 		// Find the group by ID or throw exception if not found.

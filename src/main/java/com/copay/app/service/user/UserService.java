@@ -22,6 +22,7 @@ import com.copay.app.exception.EmailAlreadyExistsException;
 import com.copay.app.exception.PhoneAlreadyExistsException;
 import com.copay.app.exception.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -60,6 +61,7 @@ public class UserService {
 				.orElseThrow(() -> new UserNotFoundException("User not found with provided email."));
 	}
 
+	@Transactional
 	public UserResponseDTO createUser(UserCreateDTO request) {
 		User newUser = new User();
 		newUser.setEmail(request.getEmail());
@@ -76,10 +78,12 @@ public class UserService {
 		return new UserResponseDTO(userRepository.save(newUser));
 	}
 
+	@Transactional
 	public UserResponseDTO updateUser(Long id, UserUpdateDTO request) {
 		return updateUserDetails(getUserById(id), request);
 	}
 
+	@Transactional
 	public UserResponseDTO updateUser(String email, UserUpdateDTO request) {
 		return updateUserDetails(getUserByEmail(email), request);
 	}
@@ -100,6 +104,7 @@ public class UserService {
 		return new UserResponseDTO(userRepository.save(existingUser));
 	}
 
+	@Transactional
 	public UserDeleteDTO deleteUser(Long userId) {
 		User user = getUserById(userId);
 		userRepository.delete(user);
@@ -110,6 +115,7 @@ public class UserService {
 		return userRepository.findAll().stream().map(UserResponseDTO::new).collect(Collectors.toList());
 	}
 
+	@Transactional
 	public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
 		User user = getUserById(id);
 
@@ -118,6 +124,7 @@ public class UserService {
 		return new UsernameResponseDTO(userRepository.save(user));
 	}
 
+	@Transactional
 	public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
 		User user = getUserById(id);
 
@@ -134,6 +141,7 @@ public class UserService {
 		return new PhoneNumberResponseDTO(userRepository.save(user));
 	}
 
+	@Transactional
 	public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
 		User user = getUserById(id);
 
