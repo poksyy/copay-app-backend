@@ -42,6 +42,9 @@ import java.util.Objects;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 @Service
 public class GroupService {
@@ -276,6 +279,14 @@ public class GroupService {
 				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
 				.orElseThrow(() -> new UserNotFoundException("User not found in the group"));
 
+		 // Check if the user is the owner (creator) of the group.
+	    if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
+	        // If the user is the owner, delete the group entirely.
+	        groupRepository.delete(group);
+	        
+	        return new UpdateGroupResponseDTO("Group left and deleted successfully.");
+	    }
+	    
 		// Remove the Copay member from the group.
 		group.getRegisteredMembers().remove(groupMember);
 
@@ -283,39 +294,58 @@ public class GroupService {
 		groupRepository.save(group);
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("User successfully left the group.");
+		return new UpdateGroupResponseDTO("Left the group successfully.");
 	}
 
 	@Transactional
 	public UpdateGroupResponseDTO updateGroup(Long groupId, Map<String, Object> fields) {
-
-	    // Encuentra el grupo o lanza excepción si no existe.
+		
+	    // Find the group or throw an exception if not found.
 	    Group group = findGroupOrThrow(groupId);
 
-	    // ObjectMapper para convertir valores al tipo del campo
+	    // Update only the fields present in the Map.
+	    updateGroupFields(group, fields);
+
+	    // Validate the group using annotations in the entity.
+	    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	    Set<ConstraintViolation<Group>> violations = validator.validate(group);
+
+	    if (!violations.isEmpty()) {
+	        // If there are validation errors, throw an exception with the messages.
+	        String errorMessages = violations.stream()
+	                                         .map(ConstraintViolation::getMessage)
+	                                         .collect(Collectors.joining(", "));
+	        throw new IllegalArgumentException("Validation errors: " + errorMessages);
+	    }
+
+	    // Save the group with the updated fields.
+	    groupRepository.save(group);
+
+	    return new UpdateGroupResponseDTO("Group updated successfully.");
+	}
+
+	private void updateGroupFields(Group group, Map<String, Object> fields) {
+		
 	    ObjectMapper mapper = new ObjectMapper();
 
 	    fields.forEach((key, value) -> {
-	        // Buscar el campo correspondiente en la clase Group
+	        // Find the corresponding field in the Group class.
 	        Field field = ReflectionUtils.findField(Group.class, f -> f.getName().equals(key));
 
 	        if (field != null) {
 	            field.setAccessible(true);
 
-	            // Convertir el valor al tipo del campo
+	            // Convert the value to the field's type.
 	            Object convertedValue = mapper.convertValue(value, field.getType());
 
-	            // Establecer el valor convertido en el campo correspondiente
+	            // Set the converted value into the corresponding field.
 	            ReflectionUtils.setField(field, group, convertedValue);
+	            
 	        } else {
+	        	// TODO: ADD CUSTOM VALIDATION.
 	            throw new IllegalArgumentException("Field '" + key + "' does not exist in Group entity.");
 	        }
 	    });
-
-	    // Persists the group details in the database.
-	    groupRepository.save(group);
-
-	    return new UpdateGroupResponseDTO("Group updated successfully.");
 	}
 
 	@Transactional
