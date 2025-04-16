@@ -1,24 +1,17 @@
 package com.copay.app.controller;
 
-import com.copay.app.dto.responses.ResetPasswordResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.copay.app.dto.password.ForgotPasswordDTO;
 import com.copay.app.dto.password.ForgotPasswordResetDTO;
 import com.copay.app.dto.password.ResetPasswordDTO;
-import com.copay.app.repository.UserRepository;
-import com.copay.app.service.EmailService;
-import com.copay.app.service.JwtService;
-import com.copay.app.service.password.PasswordService;
+import com.copay.app.service.password.PasswordServiceImpl;
 
 import jakarta.validation.Valid;
 
@@ -26,11 +19,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/api")
 public class PasswordController {
 
-    private final PasswordService passwordService;
+    private final PasswordServiceImpl passwordServiceImpl;
 
     // Constructor
-    public PasswordController(PasswordService passwordService) {
-        this.passwordService = passwordService;
+    public PasswordController(PasswordServiceImpl passwordServiceImpl) {
+        this.passwordServiceImpl = passwordServiceImpl;
     }
 
     // Resets the user's password from within the app using a valid JWT token and current password.
@@ -42,7 +35,7 @@ public class PasswordController {
 
         // Delegate to the service
 
-        return passwordService.resetPassword(resetPasswordDTO, token);
+        return passwordServiceImpl.resetPassword(resetPasswordDTO, token);
 
     }
 
@@ -51,7 +44,7 @@ public class PasswordController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request) {
 
-        return passwordService.forgotPassword(request);
+        return passwordServiceImpl.forgotPassword(request);
     }
 
     // Resets the user's password via a token from the "Forgot Password" email link.
@@ -60,6 +53,6 @@ public class PasswordController {
 
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-        return passwordService.forgotPasswordReset(token, passwordResetRequest);
+        return passwordServiceImpl.forgotPasswordReset(token, passwordResetRequest);
     }
 }

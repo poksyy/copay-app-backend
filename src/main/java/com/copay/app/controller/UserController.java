@@ -24,7 +24,7 @@ import com.copay.app.dto.user.profile.UpdateEmailDTO;
 import com.copay.app.dto.user.profile.UpdatePhoneNumberDTO;
 import com.copay.app.dto.user.profile.UpdateUsernameDTO;
 import com.copay.app.service.ValidationService;
-import com.copay.app.service.user.UserService;
+import com.copay.app.service.user.UserServiceImpl;
 import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
@@ -33,11 +33,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/users")
 public class UserController {
 
-	private final UserService userService;
+	private final UserServiceImpl userServiceImpl;
 
 	// Constructor
-	public UserController(UserService userService) {
-		this.userService = userService;
+	public UserController(UserServiceImpl userServiceImpl) {
+		this.userServiceImpl = userServiceImpl;
 	}
 
 	// Handles user creation with validation.
@@ -52,7 +52,7 @@ public class UserController {
 		}
 
 		// Convert the saved entity to a response DTO.
-		UserResponseDTO response = userService.createUser(request);
+		UserResponseDTO response = userServiceImpl.createUser(request);
 
 		return ResponseEntity.ok().body(response);
 	}
@@ -61,7 +61,7 @@ public class UserController {
 	@GetMapping("/{id}")
 	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
 
-		UserResponseDTO response = userService.getUserByIdDTO(id);
+		UserResponseDTO response = userServiceImpl.getUserByIdDTO(id);
 
 		return ResponseEntity.ok(response);
 	}
@@ -70,7 +70,7 @@ public class UserController {
 	@GetMapping("/phone/{phoneNumber}")
 	public ResponseEntity<UserResponseDTO> getUserByPhone(@PathVariable String phoneNumber) {
 
-		UserResponseDTO response = userService.getUserByPhoneDTO(phoneNumber);
+		UserResponseDTO response = userServiceImpl.getUserByPhoneDTO(phoneNumber);
 
 		return ResponseEntity.ok(response);
 	}
@@ -88,7 +88,7 @@ public class UserController {
 		}
 
 		// Delegate the update to the service.
-		UserResponseDTO response = userService.updateUser(id, request);
+		UserResponseDTO response = userServiceImpl.updateUser(id, request);
 
 		return ResponseEntity.ok(response);
 	}
@@ -106,7 +106,7 @@ public class UserController {
 		}
 
 		// Convert the updated entity to a response DTO.
-		UserResponseDTO response = userService.updateUser(email, request);
+		UserResponseDTO response = userServiceImpl.updateUser(email, request);
 
 		return ResponseEntity.ok(response);
 	}
@@ -115,7 +115,7 @@ public class UserController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<UserDeleteDTO> deleteUser(@PathVariable Long id) {
 
-		UserDeleteDTO responseDTO = userService.deleteUser(id);
+		UserDeleteDTO responseDTO = userServiceImpl.deleteUser(id);
 
 		return ResponseEntity.ok(responseDTO);
 	}
@@ -124,7 +124,7 @@ public class UserController {
 	@GetMapping
 	public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
 
-		List<UserResponseDTO> userResponseDTOs = userService.getAllUsers();
+		List<UserResponseDTO> userResponseDTOs = userServiceImpl.getAllUsers();
 
 		return ResponseEntity.ok(userResponseDTOs);
 	}
@@ -141,7 +141,7 @@ public class UserController {
 	    }
 
 	    // Delegate the username update to the service.
-	    UsernameResponseDTO response = userService.updateUsername(id, request);
+	    UsernameResponseDTO response = userServiceImpl.updateUsername(id, request);
 
 	    return ResponseEntity.ok(response);
 	}
@@ -158,7 +158,7 @@ public class UserController {
 	    }
 
 	    // Delegate the phone number update to the service.
-	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, request);
+	    PhoneNumberResponseDTO response = userServiceImpl.updatePhoneNumber(id, request);
 
 	    return ResponseEntity.ok(response);
 	}
@@ -175,7 +175,7 @@ public class UserController {
 	    }
 
 	    // Delegate the email update to the service.
-	    EmailResponseDTO response = userService.updateEmail(id, request);
+	    EmailResponseDTO response = userServiceImpl.updateEmail(id, request);
 
 	    return ResponseEntity.ok(response);
 	}
