@@ -19,7 +19,7 @@ public class Group {
 	private Long groupId;
 
 	@Column(name = "group_name", nullable = false, length = 25)
-	private String groupName;
+	private String name;
 
 	// 'created_by' is a foreign key referencing the 'user_id' in the 'users' table.
 	@ManyToOne
@@ -48,7 +48,7 @@ public class Group {
 	// orphanRemoval ensures deletion of GroupMember when removed from the Set.
 	// "id.group" is used because GroupMember has a composite key via the @Embeddable GroupMemberId.
 	@OneToMany(mappedBy = "id.group", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<GroupMember> groupMembers = new HashSet<>();
+	private Set<GroupMember> registeredMembers = new HashSet<>();
 
 	// CascadeType.ALL propagates all persistence operations to ExternalMember.
 	// orphanRemoval ensures deletion of ExternalMember when removed from the Set.
@@ -64,12 +64,12 @@ public class Group {
 		this.groupId = groupId;
 	}
 
-	public String getGroupName() {
-		return groupName;
+	public String getName() {
+		return name;
 	}
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public User getCreatedBy() {
@@ -128,12 +128,12 @@ public class Group {
 		this.imageProvider = imageProvider;
 	}
 
-	public Set<GroupMember> getGroupMembers() {
-		return groupMembers;
+	public Set<GroupMember> getRegisteredMembers() {
+		return registeredMembers;
 	}
 
-	public void setGroupMembers(Set<GroupMember> groupMembers) {
-		this.groupMembers = groupMembers;
+	public void setRegisteredMembers(Set<GroupMember> registeredMembers) {
+		this.registeredMembers = registeredMembers;
 	}
 
 	public Set<ExternalMember> getExternalMembers() {

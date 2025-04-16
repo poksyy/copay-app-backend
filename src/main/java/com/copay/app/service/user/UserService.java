@@ -65,7 +65,7 @@ public class UserService {
 		newUser.setEmail(request.getEmail());
 		newUser.setPhoneNumber(request.getPhoneNumber());
 
-		// Validate uniqueness
+		// Validate user credentials availability.
 		userAvailabilityService.checkUserExistence(newUser);
 
 		newUser.setUsername(request.getUsername());
@@ -89,19 +89,19 @@ public class UserService {
 		tempUser.setEmail(request.getEmail());
 		tempUser.setPhoneNumber(request.getPhoneNumber());
 
-		// Validate uniqueness
+		// Validate user credentials availability.
 		userAvailabilityService.checkUserExistence(tempUser);
 
 		existingUser.setUsername(request.getUsername());
 		existingUser.setEmail(request.getEmail());
-		existingUser.setPassword(passwordEncoder.encode(request.getPassword())); // Fixed encoding
+		existingUser.setPassword(passwordEncoder.encode(request.getPassword())); 
 		existingUser.setPhoneNumber(request.getPhoneNumber());
 
 		return new UserResponseDTO(userRepository.save(existingUser));
 	}
 
-	public UserDeleteDTO deleteUser(Long id) {
-		User user = getUserById(id);
+	public UserDeleteDTO deleteUser(Long userId) {
+		User user = getUserById(userId);
 		userRepository.delete(user);
 		return new UserDeleteDTO("User account deleted successfully.");
 	}
