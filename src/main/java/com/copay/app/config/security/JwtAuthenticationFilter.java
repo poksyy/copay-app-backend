@@ -34,6 +34,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		try {
 
+			JwtService.TokenValidationContext context = inferContextFromRequest(request);
+			JwtService.setCurrentContext(context);
+
 			// Get the Authorization header.
 			String authorizationHeader = request.getHeader("Authorization");
 
@@ -78,9 +81,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			response.getWriter().write("{\"error\": JwtAuthenticationFilter try catch block\"" + "Internal Server error, try again later" + "\", \"message\": \"" + e.getMessage()
 			+ "\", \"status\": 500}");
 			return;
+		} finally {
+
+			JwtService.clearContext();
 		}
 
 		// Continue with the request.
 		filterChain.doFilter(request, response);
 	}
+
+	private JwtService.TokenValidationContext inferContextFromRequest(HttpServletRequest request) {
+		String path = request.getServletPath();
+
+		if (path.contains("/auth/logout")) {
+			return JwtService.TokenValidationContext.LOGOUT;
+		} else if (path.contains("/auth/register/step-two")) {
+			return JwtService.TokenValidationContext.REGISTER_STEP_TWO;
+		}
+
+		return JwtService.TokenValidationContext.DEFAULT;
+	}
+
 }

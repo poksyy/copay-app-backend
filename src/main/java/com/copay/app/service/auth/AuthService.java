@@ -119,60 +119,69 @@ public class AuthService {
 				user.getEmail());
 	}
 
-	public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
+    public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
 
-		boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
+        try {
 
-		// Verify if the phoneNumber exists or not.
-		if (phoneNumberExists) {
-			throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
-		}
+            JwtService.setCurrentContext(JwtService.TokenValidationContext.REGISTER_STEP_TWO);
 
-		// Get the email from the current token.
-		String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
+            jwtService.validateToken(token);
 
-		// Find user by email through the temporal token.
-		User user = userRepository.findByEmail(emailTemporaryToken)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
+            boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
 
-		// Update the user's phone number and mark user registration as completed.
-		user.setPhoneNumber(request.getPhoneNumber());
-		user.setCompleted(true);
+            // Verify if the phoneNumber exists or not.
+            if (phoneNumberExists) {
+                throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
+            }
 
-		userRepository.save(user);
+            // Get the email from the current token.
+            String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
 
-		// Revoke the step-one token.
-		jwtService.revokeToken(token);
+            // Find user by email through the temporal token.
+            User user = userRepository.findByEmail(emailTemporaryToken)
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-		// Create the 1 hour with the phone number.
-		String jwtToken = jwtService.generateToken(request.getPhoneNumber());
-		long expiresIn = jwtService.getExpirationTime(true);
+            // Update the user's phone number and mark user registration as completed.
+            user.setPhoneNumber(request.getPhoneNumber());
+            user.setCompleted(true);
 
-		// Return the token trough the DTO.
-		return new RegisterStepTwoResponseDTO(
-				jwtToken, 
-				expiresIn, 
-				user.getUserId(), 
-				user.getPhoneNumber(),
-				user.getUsername(),
-				user.getEmail());
-	}
+            userRepository.save(user);
 
-	public void logout(String token) {
+            // Revoke the step-one token.
+            jwtService.revokeToken(token);
 
-		try {
+            // Create the 1 hour with the phone number.
+            String jwtToken = jwtService.generateToken(request.getPhoneNumber());
+            long expiresIn = jwtService.getExpirationTime(true);
 
-			// Revoke the token when the user logs out
-			jwtService.revokeToken(token);
+            // Return the token trough the DTO.
+            return new RegisterStepTwoResponseDTO(
+                    jwtToken,
+                    expiresIn,
+                    user.getUserId(),
+                    user.getPhoneNumber(),
+                    user.getUsername(),
+                    user.getEmail());
+        } finally {
 
-		} catch (DataIntegrityViolationException e) {
+            JwtService.clearContext();
+        }
 
-			throw new InvalidTokenException("This token has already been revoked.");
-			
-		} catch (Exception e) {
+    }
 
-			throw new RuntimeException("An error occurred while logging out.");
-		}
+    public void logout(String token) {
+        try {
 
-	}
+            JwtService.setCurrentContext(JwtService.TokenValidationContext.LOGOUT);
+
+            jwtService.validateToken(token);
+
+            // Revoke the token when the user logs out
+            jwtService.revokeToken(token);
+
+        } finally {
+
+            JwtService.clearContext();
+        }
+    }
 }
