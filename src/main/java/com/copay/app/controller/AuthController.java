@@ -22,10 +22,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-	@Autowired
-	private AuthService authService;
+	private final AuthService authService;
 
-	// Handles user registration request.
+	// Constructor
+	public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    // Handles user registration request.
 	@PostMapping("/register/step-one")
 	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneDTO userRegisterStepOneDTO,
 			BindingResult result) {

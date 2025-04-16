@@ -25,16 +25,15 @@ public class SecurityConfig {
 
 	private final JwtService jwtService;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-
-	@Autowired
-	private CustomUserDetailsService customUserDetailsService;
+	private final CustomUserDetailsService customUserDetailsService;
 
 	// Constructor to initialize JwtService and CustomAuthenticationEntryPoint
 	// dependencies.
-	public SecurityConfig(JwtService jwtService, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+	public SecurityConfig(JwtService jwtService, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, CustomUserDetailsService customUserDetailsService) {
 		this.jwtService = jwtService;
 		this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
-	}
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
 	// Bean to create a password encoder using BCrypt algorithm.
 	@Bean

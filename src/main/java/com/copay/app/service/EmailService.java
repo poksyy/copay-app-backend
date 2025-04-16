@@ -12,8 +12,12 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    // Constructor
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     public void sendResetPasswordEmail(String toEmail, String resetLink) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();

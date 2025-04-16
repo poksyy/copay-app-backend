@@ -22,6 +22,7 @@ public class PasswordService {
     private final JwtService jwtService;
     private final EmailService emailService;
 
+    // Constructor
     public PasswordService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

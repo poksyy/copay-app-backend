@@ -26,17 +26,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/api")
 public class PasswordController {
 
-    private PasswordService passwordService;
-    private EmailService emailService;
-    private JwtService jwtService;
-    private UserRepository userRepository;
+    private final PasswordService passwordService;
 
-    @Autowired
-    public PasswordController(PasswordService passwordService, EmailService emailService, JwtService jwtService, UserRepository userRepository) {
+    // Constructor
+    public PasswordController(PasswordService passwordService) {
         this.passwordService = passwordService;
-        this.emailService = emailService;
-        this.jwtService = jwtService;
-        this.userRepository = userRepository;
     }
 
     // Resets the user's password from within the app using a valid JWT token and current password.
