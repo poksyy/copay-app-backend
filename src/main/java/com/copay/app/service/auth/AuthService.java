@@ -176,9 +176,7 @@ public class AuthService {
         try {
 
             JwtService.setCurrentContext(JwtService.TokenValidationContext.LOGOUT);
-
-            jwtService.validateToken(token);
-
+			
             // Revoke the token when the user logs out
             jwtService.revokeToken(token);
 
