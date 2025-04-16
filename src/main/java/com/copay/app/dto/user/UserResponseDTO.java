@@ -8,25 +8,25 @@ public class UserResponseDTO {
 	private String username;
 	private String email;
 	private String password;
-	private String phone;
-	private boolean isCompleted;
-	
-	// Json Response.
+	private String phoneNumber;
+	private boolean isProfileCompleted;
+
+	// Constructor
 	public UserResponseDTO(User user) {
 		this.id = user.getUserId();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
-		this.phone = user.getPhoneNumber();
+		this.phoneNumber = user.getPhoneNumber();
 		this.password = user.getPassword();
-		this.isCompleted = user.isCompleted();
+		this.isProfileCompleted = user.isCompleted();
 	}
 
-	// Getters and Setters.
-	public Long getUserId() {
+	// Getters and Setters
+	public Long getId() {
 		return id;
 	}
 
-	public void setUserId(Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -55,19 +55,18 @@ public class UserResponseDTO {
 	}
 
 	public String getPhoneNumber() {
-		return phone;
+		return phoneNumber;
 	}
 
-	public void setPhoneNumber(String phone) {
-		this.phone = phone;
-	}
-	
-	public boolean isisCompleted() {
-		return isCompleted;
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
 
-	public void setisCompleted(boolean isCompleted) {
-		this.isCompleted = isCompleted;
+	public boolean isProfileCompleted() {
+		return isProfileCompleted;
 	}
 
+	public void setProfileCompleted(boolean profileCompleted) {
+		isProfileCompleted = profileCompleted;
+	}
 }

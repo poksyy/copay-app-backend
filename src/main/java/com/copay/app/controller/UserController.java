@@ -35,6 +35,7 @@ public class UserController {
 
 	private final UserService userService;
 
+	// Constructor
 	public UserController(UserService userService) {
 		this.userService = userService;
 	}
@@ -76,7 +77,7 @@ public class UserController {
 
 	// Updates a user with the provided ID.
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateUserById(@PathVariable Long userId, @Valid @RequestBody UserUpdateDTO request,
+	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO request,
 			BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
@@ -87,7 +88,7 @@ public class UserController {
 		}
 
 		// Delegate the update to the service.
-		UserResponseDTO response = userService.updateUser(userId, request);
+		UserResponseDTO response = userService.updateUser(id, request);
 
 		return ResponseEntity.ok(response);
 	}
@@ -111,10 +112,10 @@ public class UserController {
 	}
 
 	// Deletes a user by their ID and returns a response DTO (Used in the Controller)
-	@DeleteMapping("/{userId}")
-	public ResponseEntity<UserDeleteDTO> deleteUser(@PathVariable Long userId) {
+	@DeleteMapping("/{id}")
+	public ResponseEntity<UserDeleteDTO> deleteUser(@PathVariable Long id) {
 
-		UserDeleteDTO responseDTO = userService.deleteUser(userId);
+		UserDeleteDTO responseDTO = userService.deleteUser(id);
 
 		return ResponseEntity.ok(responseDTO);
 	}
@@ -130,7 +131,7 @@ public class UserController {
 	
 	// Updates only the username of a user by ID.
 	@PutMapping("/edit-username/{id}")
-	public ResponseEntity<?> updateUsername(@PathVariable Long userId, @Valid @RequestBody UpdateUsernameDTO request, BindingResult result) {
+	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO request, BindingResult result) {
 
 	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
@@ -140,14 +141,14 @@ public class UserController {
 	    }
 
 	    // Delegate the username update to the service.
-	    UsernameResponseDTO response = userService.updateUsername(userId, request);
+	    UsernameResponseDTO response = userService.updateUsername(id, request);
 
 	    return ResponseEntity.ok(response);
 	}
 	
 	// Updates only the phone number of a user by ID.
 	@PutMapping("/edit-phone/{id}")
-	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long userId, @Valid @RequestBody UpdatePhoneNumberDTO request, BindingResult result) {
+	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO request, BindingResult result) {
 
 	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
@@ -157,7 +158,7 @@ public class UserController {
 	    }
 
 	    // Delegate the phone number update to the service.
-	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(userId, request);
+	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, request);
 
 	    return ResponseEntity.ok(response);
 	}

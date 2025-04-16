@@ -31,6 +31,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserAvailabilityService userAvailabilityService;
 
+	// Constructor
 	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
 			UserAvailabilityService userAvailabilityService) {
 		this.userRepository = userRepository;
@@ -80,28 +81,27 @@ public class UserService {
 
 	@Transactional
 	public UserResponseDTO updateUser(Long id, UserUpdateDTO request) {
-		return updateUserDetails(getUserById(id), request);
+		User user = getUserById(id);
+		return updateUserDetails(user, request);
 	}
 
 	@Transactional
 	public UserResponseDTO updateUser(String email, UserUpdateDTO request) {
-		return updateUserDetails(getUserByEmail(email), request);
+		User user = getUserByEmail(email);
+		return updateUserDetails(user, request);
 	}
 
-	private UserResponseDTO updateUserDetails(User existingUser, UserUpdateDTO request) {
-		User tempUser = new User();
-		tempUser.setEmail(request.getEmail());
-		tempUser.setPhoneNumber(request.getPhoneNumber());
+	private UserResponseDTO updateUserDetails(User user, UserUpdateDTO request) {
+		// Update logic here
+		user.setUsername(request.getUsername());
+		user.setEmail(request.getEmail());
+		user.setPhoneNumber(request.getPhoneNumber());
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-		// Validate user credentials availability.
-		userAvailabilityService.checkUserExistence(tempUser);
+		// Check user availability
+		userAvailabilityService.checkUserExistence(user);
 
-		existingUser.setUsername(request.getUsername());
-		existingUser.setEmail(request.getEmail());
-		existingUser.setPassword(passwordEncoder.encode(request.getPassword())); 
-		existingUser.setPhoneNumber(request.getPhoneNumber());
-
-		return new UserResponseDTO(userRepository.save(existingUser));
+		return new UserResponseDTO(userRepository.save(user));
 	}
 
 	@Transactional
