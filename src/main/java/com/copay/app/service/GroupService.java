@@ -1,22 +1,22 @@
 package com.copay.app.service;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.copay.app.dto.group.CreateGroupRequestDTO;
 import com.copay.app.dto.group.UpdateGroupCopayMembersRequestDTO;
-import com.copay.app.dto.group.UpdateGroupDescriptionRequestDTO;
-import com.copay.app.dto.group.UpdateGroupEstimatedPriceRequestDTO;
 import com.copay.app.dto.group.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.group.UpdateGroupNameRequestDTO;
-import com.copay.app.dto.group.auxiliary.CopayMemberDTO;
+import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 import com.copay.app.dto.responses.CreateGroupResponseDTO;
@@ -36,8 +36,9 @@ import com.copay.app.repository.ExternalMemberRepository;
 import com.copay.app.repository.GroupMemberRepository;
 import com.copay.app.repository.GroupRepository;
 import com.copay.app.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Objects;
-import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -71,7 +72,7 @@ public class GroupService {
 				.orElseThrow(() -> new UserNotFoundException("User with ID " + request.getCreatedBy() + " not found"));
 
 		// Loop to check if the invited Copay members have an account.
-		for (String phoneNumber : request.getInvitedCopayMembers()) {
+		for (String phoneNumber : request.getInvitedRegisteredMembers()) {
 			userRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> new InvitedMemberNotFoundException(
 					"This phone number owner doesn't have an account: " + phoneNumber));
 		}
@@ -100,7 +101,7 @@ public class GroupService {
 		groupMemberRepository.save(creatorGroupMember);
 
 		// Excludes the creator of the group from the invitedMembers list.
-		List<String> invitedMembers = request.getInvitedCopayMembers().stream()
+		List<String> invitedMembers = request.getInvitedRegisteredMembers().stream()
 				.filter(phone -> !phone.equals(creator.getPhoneNumber())).collect(Collectors.toList());
 
 		// Loop to persist invited copay members into the database.
@@ -121,7 +122,7 @@ public class GroupService {
 			GroupMember invitedGroupMember = new GroupMember(invitedMemberId);
 
 			// Add the user to the group
-			group.getGroupMembers().add(invitedGroupMember);
+			group.getRegisteredMembers().add(invitedGroupMember);
 		}
 
 		// Loop to interact with the List of the externalMembers.
@@ -147,11 +148,11 @@ public class GroupService {
 		entityManager.merge(group);
 
 		// Map the group instance to GroupResponseDTO.
-		return mapToGroupResponseDTO(group);
+		return mapToGroupResponseDTO(group, request.getCreatedBy());
 	}
 
 	// Helper method to map Group entity to GroupResponseDTO.
-	private CreateGroupResponseDTO mapToGroupResponseDTO(Group group) {
+	private CreateGroupResponseDTO mapToGroupResponseDTO(Group group, Long userId) {
 
 		// Initialize an instance of the DTO that is going to be used as a response.
 		CreateGroupResponseDTO groupResponseDTO = new CreateGroupResponseDTO();
@@ -163,6 +164,7 @@ public class GroupService {
 		groupResponseDTO.setEstimatedPrice(group.getEstimatedPrice());
 		groupResponseDTO.setCurrency(group.getCurrency());
 		groupResponseDTO.setCreatedAt(group.getCreatedAt());
+		groupResponseDTO.setUserIsOwner(group.getCreatedBy().getUserId().equals(userId));
 
 		// Map group owner details (GroupOwnerDTO-> includes id and username).
 		GroupOwnerDTO groupOwnerDTO = new GroupOwnerDTO();
@@ -173,16 +175,16 @@ public class GroupService {
 		groupResponseDTO.setGroupOwner(groupOwnerDTO);
 
 		// Map registered members (CopayMemberDTO -> includes id and phoneNumber).
-		if (group.getGroupMembers() != null) {
+		if (group.getRegisteredMembers() != null) {
 
 			// Convert each group member to CopayMemberDTO.
-			List<CopayMemberDTO> groupMemberResponseDTOList = group.getGroupMembers().stream().map(gm -> {
+			List<RegisteredMemberDTO> groupMemberResponseDTOList = group.getRegisteredMembers().stream().map(gm -> {
 				User user = gm.getId().getUser();
-				return new CopayMemberDTO(user.getUserId(), user.getPhoneNumber());
+				return new RegisteredMemberDTO(user.getUserId(), user.getPhoneNumber());
 			}).collect(Collectors.toList());
 
 			// Set the mapped list of CopayMemberDTOs in the response DTO.
-			groupResponseDTO.setCopayMembers(groupMemberResponseDTOList);
+			groupResponseDTO.setRegisteredMembers(groupMemberResponseDTOList);
 		}
 
 		// Map external members (ExternalMemberDTO -> includes externalMembersId and
@@ -213,9 +215,9 @@ public class GroupService {
 		List<Group> groups = groupMembers.stream().map(gm -> gm.getId().getGroup()).distinct()
 				.collect(Collectors.toList());
 
-		// Map groups to response DTO format, including external members.
-		List<CreateGroupResponseDTO> createGroupResponseDTO = groups.stream().map(this::mapToGroupResponseDTO)
-				.collect(Collectors.toList());
+		// Map groups to response DTO format.
+		List<CreateGroupResponseDTO> createGroupResponseDTO = groups.stream()
+				.map(group -> mapToGroupResponseDTO(group, userId)).collect(Collectors.toList());
 
 		GetGroupResponseDTO getGroupResponseDTO = new GetGroupResponseDTO();
 
@@ -229,8 +231,8 @@ public class GroupService {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
-		
-		// Get the email from the current token.
+
+		// Get the phoneNumber from the current token.
 		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
 
 		// Find user by email through the temporal token.
@@ -250,69 +252,78 @@ public class GroupService {
 	}
 
 	@Transactional
-	public UpdateGroupResponseDTO updateGroupName(Long groupId, UpdateGroupNameRequestDTO request) {
+	public UpdateGroupResponseDTO leaveGroup(Long groupId, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
-		
-		// Update the group's name.
-		group.setName(request.getName());
 
-		// Save the updated group.
+		// Get the phoneNumber from the current token.
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Check if the group member exists on the database with user phoneNumber.
+		GroupMember groupMember = group.getRegisteredMembers().stream()
+				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
+				.orElseThrow(() -> new UserNotFoundException("User not found in the group"));
+
+		// Remove the Copay member from the group.
+		group.getRegisteredMembers().remove(groupMember);
+
+		// Persists the group details in the database.
 		groupRepository.save(group);
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("Group name updated successfully.");
+		return new UpdateGroupResponseDTO("User successfully left the group.");
 	}
 
 	@Transactional
-	public UpdateGroupResponseDTO updateGroupDescription(Long groupId, UpdateGroupDescriptionRequestDTO request) {
+	public UpdateGroupResponseDTO updateGroup(Long groupId, Map<String, Object> fields) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
-		
-		// Update the group's description.
-		group.setDescription(request.getDescription());
+	    // Encuentra el grupo o lanza excepción si no existe.
+	    Group group = findGroupOrThrow(groupId);
 
-		// Save the updated group.
-		groupRepository.save(group);
+	    // ObjectMapper para convertir valores al tipo del campo
+	    ObjectMapper mapper = new ObjectMapper();
 
-		// Return success message.
-		return new UpdateGroupResponseDTO("Group description updated successfully.");
+	    fields.forEach((key, value) -> {
+	        // Buscar el campo correspondiente en la clase Group
+	        Field field = ReflectionUtils.findField(Group.class, f -> f.getName().equals(key));
+
+	        if (field != null) {
+	            field.setAccessible(true);
+
+	            // Convertir el valor al tipo del campo
+	            Object convertedValue = mapper.convertValue(value, field.getType());
+
+	            // Establecer el valor convertido en el campo correspondiente
+	            ReflectionUtils.setField(field, group, convertedValue);
+	        } else {
+	            throw new IllegalArgumentException("Field '" + key + "' does not exist in Group entity.");
+	        }
+	    });
+
+	    // Persists the group details in the database.
+	    groupRepository.save(group);
+
+	    return new UpdateGroupResponseDTO("Group updated successfully.");
 	}
 
 	@Transactional
-	public UpdateGroupResponseDTO updateGroupEstimatedPrice(Long groupId, UpdateGroupEstimatedPriceRequestDTO request) {
-
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
-		// Update the group's estimated price.
-		group.setEstimatedPrice(request.getEstimatedPrice());
-
-		// Save the updated group.
-		groupRepository.save(group);
-
-		// Return success message.
-		return new UpdateGroupResponseDTO("Group estimated price updated successfully.");
-	}
-
-	@Transactional
-	public UpdateGroupResponseDTO updateGroupCopayMembers(Long groupId, UpdateGroupCopayMembersRequestDTO request) {
+	public UpdateGroupResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupCopayMembersRequestDTO request) {
 
 		// Find the group or throw an exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
 		// Collect the invited phone numbers from the request.
-		Set<String> invitedPhoneNumbers = new HashSet<>(request.getInvitedCopayMembers());
+		Set<String> invitedPhoneNumbers = new HashSet<>(request.getRegisteredCopayMembers());
 
 		// Remove members who are no longer invited.
-		removeUninvitedCopayMembers(group, invitedPhoneNumbers);
+		removeUninvitedRegisteredMembers(group, invitedPhoneNumbers);
 
 		// Add newly invited members who are not already in the group.
-		addNewCopayMembers(group, invitedPhoneNumbers);
+		addNewRegisteredMembers(group, invitedPhoneNumbers);
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("Group Copay members updated successfully.");
+		return new UpdateGroupResponseDTO("Group members updated successfully.");
 	}
 
 	@Transactional
@@ -345,16 +356,16 @@ public class GroupService {
 		return new UpdateGroupResponseDTO("Group external members updated successfully.");
 	}
 
-	private void removeUninvitedCopayMembers(Group group, Set<String> invitedPhones) {
-		
+	private void removeUninvitedRegisteredMembers(Group group, Set<String> invitedPhones) {
+
 		// Remove current members whose phone numbers are not in the invited list.
-		group.getGroupMembers().removeIf(member -> !invitedPhones.contains(member.getId().getUser().getPhoneNumber()));
+		group.getRegisteredMembers().removeIf(member -> !invitedPhones.contains(member.getId().getUser().getPhoneNumber()));
 	}
 
-	private void addNewCopayMembers(Group group, Set<String> invitedPhones) {
-		
+	private void addNewRegisteredMembers(Group group, Set<String> invitedPhones) {
+
 		// Get phone numbers of the current group members.
-		Set<String> currentPhones = group.getGroupMembers().stream().map(m -> m.getId().getUser().getPhoneNumber())
+		Set<String> currentPhones = group.getRegisteredMembers().stream().map(m -> m.getId().getUser().getPhoneNumber())
 				.collect(Collectors.toSet());
 
 		// Iterate through invited phone numbers.
@@ -371,14 +382,15 @@ public class GroupService {
 
 			// Create and add a new group member to the group.
 			GroupMemberId id = new GroupMemberId(group, user);
-			group.getGroupMembers().add(new GroupMember(id));
+			group.getRegisteredMembers().add(new GroupMember(id));
 		}
 	}
 
 	// Find group by ID or throw if not found.
 	private Group findGroupOrThrow(Long groupId) {
 
-		return groupRepository.findById(groupId).orElseThrow(() -> new GroupNotFoundException("Group not found"));
+		return groupRepository.findById(groupId)
+				.orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
 	}
 
 	// Extract IDs of invited external members from the request.
