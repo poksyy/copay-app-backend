@@ -46,23 +46,33 @@ import jakarta.persistence.PersistenceContext;
 @Service
 public class GroupService {
 
-	@Autowired
-	private GroupRepository groupRepository;
+	private final GroupRepository groupRepository;
 
-	@Autowired
-	private GroupMemberRepository groupMemberRepository;
+	private final GroupMemberRepository groupMemberRepository;
 
-	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	@Autowired
-	private ExternalMemberRepository externalMemberRepository;
+	private final ExternalMemberRepository externalMemberRepository;
 
-	@Autowired
-	private JwtService jwtService;
+	private final JwtService jwtService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	// Constructor
+	public GroupService(GroupRepository groupRepository,
+						GroupMemberRepository groupMemberRepository,
+						UserRepository userRepository,
+						ExternalMemberRepository externalMemberRepository,
+						JwtService jwtService,
+						EntityManager entityManager) {
+		this.groupRepository = groupRepository;
+		this.groupMemberRepository = groupMemberRepository;
+		this.userRepository = userRepository;
+		this.externalMemberRepository = externalMemberRepository;
+		this.jwtService = jwtService;
+		this.entityManager = entityManager;
+	}
 
 	@Transactional
 	public CreateGroupResponseDTO createGroup(CreateGroupRequestDTO request) {

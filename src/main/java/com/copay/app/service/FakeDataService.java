@@ -19,6 +19,7 @@ public class FakeDataService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
+	// Constructor
 	public FakeDataService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;

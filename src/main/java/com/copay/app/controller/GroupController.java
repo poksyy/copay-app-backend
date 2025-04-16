@@ -35,10 +35,14 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/groups")
 public class GroupController {
 
-	@Autowired
-	private GroupService groupService;
+	private final GroupService groupService;
 
-	// Endpoint to create a new group.
+	// Constructor
+    public GroupController(GroupService groupService) {
+        this.groupService = groupService;
+    }
+
+    // Endpoint to create a new group.
 	@PostMapping
 	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO,
 			BindingResult result) {

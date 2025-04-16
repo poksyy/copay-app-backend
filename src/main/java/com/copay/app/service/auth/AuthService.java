@@ -38,7 +38,7 @@ public class AuthService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	@Autowired
+	// Constructor
 	public AuthService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
 			JwtService jwtService, UserRepository userRepository, RevokedTokenRepository revokedTokenRepository,
 			UserAvailabilityService userValidationService) {

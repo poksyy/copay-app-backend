@@ -46,7 +46,7 @@ public class JwtService {
 	// Holder for context thread.
 	private static final ThreadLocal<TokenValidationContext> contextHolder = new ThreadLocal<>();
 
-	@Autowired
+	// Constructor
 	public JwtService(RevokedTokenRepository revokedTokenRepository) {
 		this.revokedTokenRepository = revokedTokenRepository;
 	}
