@@ -1,4 +1,4 @@
-package com.copay.app.exception;
+package com.copay.app.exception.user;
 
 public class UserPermissionException extends RuntimeException {
     /**

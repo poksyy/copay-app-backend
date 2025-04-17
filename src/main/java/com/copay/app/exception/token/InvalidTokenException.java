@@ -1,4 +1,4 @@
-package com.copay.app.exception;
+package com.copay.app.exception.token;
 
 public class InvalidTokenException extends RuntimeException {
     /**

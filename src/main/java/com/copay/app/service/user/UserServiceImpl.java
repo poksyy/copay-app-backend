@@ -18,9 +18,9 @@ import com.copay.app.dto.user.profile.UpdateEmailDTO;
 import com.copay.app.dto.user.profile.UpdatePhoneNumberDTO;
 import com.copay.app.dto.user.profile.UpdateUsernameDTO;
 import com.copay.app.entity.User;
-import com.copay.app.exception.EmailAlreadyExistsException;
-import com.copay.app.exception.PhoneAlreadyExistsException;
-import com.copay.app.exception.UserNotFoundException;
+import com.copay.app.exception.user.EmailAlreadyExistsException;
+import com.copay.app.exception.user.PhoneAlreadyExistsException;
+import com.copay.app.exception.user.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 

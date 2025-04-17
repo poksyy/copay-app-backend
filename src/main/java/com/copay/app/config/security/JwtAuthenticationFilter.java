@@ -2,7 +2,7 @@ package com.copay.app.config.security;
 
 import java.io.IOException;
 
-import com.copay.app.exception.InvalidTokenException;
+import com.copay.app.exception.token.InvalidTokenException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,9 +1,9 @@
 package com.copay.app.service.user;
 
 import com.copay.app.entity.User;
-import com.copay.app.exception.EmailAlreadyExistsException;
-import com.copay.app.exception.PhoneAlreadyExistsException;
-import com.copay.app.exception.UserUniquenessException;
+import com.copay.app.exception.user.EmailAlreadyExistsException;
+import com.copay.app.exception.user.PhoneAlreadyExistsException;
+import com.copay.app.exception.user.UserUniquenessException;
 import com.copay.app.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

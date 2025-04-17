@@ -4,13 +4,12 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.copay.app.entity.RevokedToken;
 import com.copay.app.repository.RevokedTokenRepository;
-import com.copay.app.exception.InvalidTokenException;
+import com.copay.app.exception.token.InvalidTokenException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
