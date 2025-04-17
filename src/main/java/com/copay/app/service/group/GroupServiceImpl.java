@@ -249,12 +249,13 @@ public class GroupServiceImpl implements GroupService {
 		// Get the phoneNumber from the current token.
 		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
 
-		// Find user by email through the temporal token.
+		// Find user by the phoneNumber provided with the token.
 		User user = userRepository.findByPhoneNumber(userPhoneNumber)
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		// Validate that the deletion is being done by the group creator.
 		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
+			
 			throw new InvalidGroupCreatorException(
 					"User " + user.getUserId() + " has no permissions to delete group " + group.getGroupId());
 		}
@@ -275,17 +276,17 @@ public class GroupServiceImpl implements GroupService {
 		// Get the phoneNumber from the current token.
 		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
 
-		// Check if the group member exists on the database with user phoneNumber.
+		// Check if the group member exists in the group with the provided phoneNumber.
 		GroupMember groupMember = group.getRegisteredMembers().stream()
 				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
-				.orElseThrow(() -> new UserNotFoundException("User not found in the group"));
+				.orElseThrow(() -> new UserNotFoundException("User with phone " + userPhoneNumber + " not found in the group"));
 
 		// Check if the user is the owner (creator) of the group.
 		if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
 			// If the user is the owner, delete the group entirely.
 			groupRepository.delete(group);
 
-			return new UpdateGroupResponseDTO("Group left and deleted successfully.");
+			return new UpdateGroupResponseDTO("You have successfully left the group, and it has been deleted.");
 		}
 
 		// Remove the Registered member from the group.
@@ -295,7 +296,7 @@ public class GroupServiceImpl implements GroupService {
 		groupRepository.save(group);
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("Left the group successfully.");
+		return new UpdateGroupResponseDTO("You have successfully left the group.");
 	}
 
 	@Override
@@ -308,14 +309,17 @@ public class GroupServiceImpl implements GroupService {
 		// Update only the fields present in the Map.
 		updateGroupFields(group, fields);
 
-		// Validate the group using annotations in the entity.
+		// Validate the group thanks to the annotations in the Group entity.
 		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 		Set<ConstraintViolation<Group>> violations = validator.validate(group);
 
 		if (!violations.isEmpty()) {
+			
 			// If there are validation errors, throw an exception with the messages.
 			String errorMessages = violations.stream().map(ConstraintViolation::getMessage)
 					.collect(Collectors.joining(", "));
+			
+			// TODO: ADD CUSTOM VALIDATIONS.
 			throw new IllegalArgumentException("Validation errors: " + errorMessages);
 		}
 
@@ -327,25 +331,29 @@ public class GroupServiceImpl implements GroupService {
 
 	private void updateGroupFields(Group group, Map<String, Object> fields) {
 
+		// Initialize ObjectMapper to convert values to the correct type.
 		ObjectMapper mapper = new ObjectMapper();
 
+		 // Iterate through the map entries.
 		fields.forEach((key, value) -> {
 
-			// Find the corresponding field in the Group class.
+			// Find the corresponding field in the Group class by the name.
 			Field field = ReflectionUtils.findField(Group.class, f -> f.getName().equals(key));
 
 			if (field != null) {
 
+				 // Make the field accessible to modify its value.
 				field.setAccessible(true);
 
 				// Convert the value to the field's type.
 				Object convertedValue = mapper.convertValue(value, field.getType());
 
-				// Set the converted value into the corresponding field.
+				// Set the converted value into the corresponding field to avoid errors.
 				ReflectionUtils.setField(field, group, convertedValue);
 
 			} else {
 				// TODO: ADD CUSTOM VALIDATION.
+				// Throw an exception if the field does not exist in the Group class.
 				throw new IllegalArgumentException("Field '" + key + "' does not exist in Group entity.");
 			}
 		});
@@ -448,7 +456,7 @@ public class GroupServiceImpl implements GroupService {
 				.filter(Objects::nonNull).collect(Collectors.toSet());
 	}
 
-	// Remove external members that are not in the new ID list.
+	// Remove external members that are not longer invited.
 	private void removeDeletedExternalMembers(Group group, Set<Long> newIds) {
 
 		group.getExternalMembers().removeIf(member -> !newIds.contains(member.getExternalMembersId()));
