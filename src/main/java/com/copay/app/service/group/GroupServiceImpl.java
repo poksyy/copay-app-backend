@@ -1,4 +1,4 @@
-package com.copay.app.service;
+package com.copay.app.service.group;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -8,13 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.copay.app.dto.group.CreateGroupRequestDTO;
-import com.copay.app.dto.group.UpdateGroupCopayMembersRequestDTO;
+import com.copay.app.dto.group.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
@@ -36,6 +35,7 @@ import com.copay.app.repository.ExternalMemberRepository;
 import com.copay.app.repository.GroupMemberRepository;
 import com.copay.app.repository.GroupRepository;
 import com.copay.app.repository.UserRepository;
+import com.copay.app.service.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
@@ -47,7 +47,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
 @Service
-public class GroupService {
+public class GroupServiceImpl implements GroupService {
 
 	private final GroupRepository groupRepository;
 
@@ -62,13 +62,11 @@ public class GroupService {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	// Constructor
-	public GroupService(GroupRepository groupRepository,
-						GroupMemberRepository groupMemberRepository,
-						UserRepository userRepository,
-						ExternalMemberRepository externalMemberRepository,
-						JwtService jwtService,
-						EntityManager entityManager) {
+	// Constructor to initialize all the instances.
+	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
+			UserRepository userRepository, ExternalMemberRepository externalMemberRepository, JwtService jwtService,
+			EntityManager entityManager) {
+
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
 		this.userRepository = userRepository;
@@ -77,6 +75,7 @@ public class GroupService {
 		this.entityManager = entityManager;
 	}
 
+	@Override
 	@Transactional
 	public CreateGroupResponseDTO createGroup(CreateGroupRequestDTO request) {
 
@@ -84,7 +83,7 @@ public class GroupService {
 		User creator = userRepository.findById(request.getCreatedBy())
 				.orElseThrow(() -> new UserNotFoundException("User with ID " + request.getCreatedBy() + " not found"));
 
-		// Loop to check if the invited Copay members have an account.
+		// Loop to check if the invited registered members have an account.
 		for (String phoneNumber : request.getInvitedRegisteredMembers()) {
 			userRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> new InvitedMemberNotFoundException(
 					"This phone number owner doesn't have an account: " + phoneNumber));
@@ -117,13 +116,13 @@ public class GroupService {
 		List<String> invitedMembers = request.getInvitedRegisteredMembers().stream()
 				.filter(phone -> !phone.equals(creator.getPhoneNumber())).collect(Collectors.toList());
 
-		// Loop to persist invited copay members into the database.
+		// Loop to persist invited registered members into the database.
 		for (String phoneNumber : invitedMembers) {
 
-			// Find the users by the phone number.
-			User invitedCopayMember = userRepository.findByPhoneNumber(phoneNumber).get();
+			// Find the registered members by the phone number.
+			User invitedRegisteredMember = userRepository.findByPhoneNumber(phoneNumber).get();
 
-			GroupMemberId invitedMemberId = new GroupMemberId(group, invitedCopayMember);
+			GroupMemberId invitedMemberId = new GroupMemberId(group, invitedRegisteredMember);
 
 			// Validates if the user already belongs to the group.
 			if (groupMemberRepository.existsById(invitedMemberId)) {
@@ -187,16 +186,16 @@ public class GroupService {
 		groupOwnerDTO.setOwnerName(group.getCreatedBy().getUsername());
 		groupResponseDTO.setGroupOwner(groupOwnerDTO);
 
-		// Map registered members (CopayMemberDTO -> includes id and phoneNumber).
+		// Map registered members (RegisteredMemberDTO -> includes id and phoneNumber).
 		if (group.getRegisteredMembers() != null) {
 
-			// Convert each group member to CopayMemberDTO.
+			// Convert each group member to RegisteredMemberDTO.
 			List<RegisteredMemberDTO> groupMemberResponseDTOList = group.getRegisteredMembers().stream().map(gm -> {
 				User user = gm.getId().getUser();
 				return new RegisteredMemberDTO(user.getUserId(), user.getPhoneNumber());
 			}).collect(Collectors.toList());
 
-			// Set the mapped list of CopayMemberDTOs in the response DTO.
+			// Set the mapped list of RegisteredMemberDTO in the response DTO.
 			groupResponseDTO.setRegisteredMembers(groupMemberResponseDTOList);
 		}
 
@@ -217,7 +216,7 @@ public class GroupService {
 		return groupResponseDTO;
 	}
 
-	// readOnly since it's a GET request.
+	@Override
 	@Transactional(readOnly = true)
 	public GetGroupResponseDTO getGroupsByUserId(Long userId) {
 
@@ -240,6 +239,7 @@ public class GroupService {
 		return getGroupResponseDTO;
 	}
 
+	@Override
 	@Transactional
 	public DeleteGroupResponseDTO deleteGroup(Long groupId, String token) {
 
@@ -265,6 +265,7 @@ public class GroupService {
 		return new DeleteGroupResponseDTO("Group " + group.getName() + " deleted successfully.");
 	}
 
+	@Override
 	@Transactional
 	public UpdateGroupResponseDTO leaveGroup(Long groupId, String token) {
 
@@ -279,15 +280,15 @@ public class GroupService {
 				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
 				.orElseThrow(() -> new UserNotFoundException("User not found in the group"));
 
-		 // Check if the user is the owner (creator) of the group.
-	    if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
-	        // If the user is the owner, delete the group entirely.
-	        groupRepository.delete(group);
-	        
-	        return new UpdateGroupResponseDTO("Group left and deleted successfully.");
-	    }
-	    
-		// Remove the Copay member from the group.
+		// Check if the user is the owner (creator) of the group.
+		if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
+			// If the user is the owner, delete the group entirely.
+			groupRepository.delete(group);
+
+			return new UpdateGroupResponseDTO("Group left and deleted successfully.");
+		}
+
+		// Remove the Registered member from the group.
 		group.getRegisteredMembers().remove(groupMember);
 
 		// Persists the group details in the database.
@@ -297,65 +298,69 @@ public class GroupService {
 		return new UpdateGroupResponseDTO("Left the group successfully.");
 	}
 
+	@Override
 	@Transactional
 	public UpdateGroupResponseDTO updateGroup(Long groupId, Map<String, Object> fields) {
-		
-	    // Find the group or throw an exception if not found.
-	    Group group = findGroupOrThrow(groupId);
 
-	    // Update only the fields present in the Map.
-	    updateGroupFields(group, fields);
+		// Find the group or throw an exception if not found.
+		Group group = findGroupOrThrow(groupId);
 
-	    // Validate the group using annotations in the entity.
-	    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-	    Set<ConstraintViolation<Group>> violations = validator.validate(group);
+		// Update only the fields present in the Map.
+		updateGroupFields(group, fields);
 
-	    if (!violations.isEmpty()) {
-	        // If there are validation errors, throw an exception with the messages.
-	        String errorMessages = violations.stream()
-	                                         .map(ConstraintViolation::getMessage)
-	                                         .collect(Collectors.joining(", "));
-	        throw new IllegalArgumentException("Validation errors: " + errorMessages);
-	    }
+		// Validate the group using annotations in the entity.
+		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+		Set<ConstraintViolation<Group>> violations = validator.validate(group);
 
-	    // Save the group with the updated fields.
-	    groupRepository.save(group);
+		if (!violations.isEmpty()) {
+			// If there are validation errors, throw an exception with the messages.
+			String errorMessages = violations.stream().map(ConstraintViolation::getMessage)
+					.collect(Collectors.joining(", "));
+			throw new IllegalArgumentException("Validation errors: " + errorMessages);
+		}
 
-	    return new UpdateGroupResponseDTO("Group updated successfully.");
+		// Save the group with the updated fields.
+		groupRepository.save(group);
+
+		return new UpdateGroupResponseDTO("Group updated successfully.");
 	}
 
 	private void updateGroupFields(Group group, Map<String, Object> fields) {
-		
-	    ObjectMapper mapper = new ObjectMapper();
 
-	    fields.forEach((key, value) -> {
-	        // Find the corresponding field in the Group class.
-	        Field field = ReflectionUtils.findField(Group.class, f -> f.getName().equals(key));
+		ObjectMapper mapper = new ObjectMapper();
 
-	        if (field != null) {
-	            field.setAccessible(true);
+		fields.forEach((key, value) -> {
 
-	            // Convert the value to the field's type.
-	            Object convertedValue = mapper.convertValue(value, field.getType());
+			// Find the corresponding field in the Group class.
+			Field field = ReflectionUtils.findField(Group.class, f -> f.getName().equals(key));
 
-	            // Set the converted value into the corresponding field.
-	            ReflectionUtils.setField(field, group, convertedValue);
-	            
-	        } else {
-	        	// TODO: ADD CUSTOM VALIDATION.
-	            throw new IllegalArgumentException("Field '" + key + "' does not exist in Group entity.");
-	        }
-	    });
+			if (field != null) {
+
+				field.setAccessible(true);
+
+				// Convert the value to the field's type.
+				Object convertedValue = mapper.convertValue(value, field.getType());
+
+				// Set the converted value into the corresponding field.
+				ReflectionUtils.setField(field, group, convertedValue);
+
+			} else {
+				// TODO: ADD CUSTOM VALIDATION.
+				throw new IllegalArgumentException("Field '" + key + "' does not exist in Group entity.");
+			}
+		});
 	}
 
+	@Override
 	@Transactional
-	public UpdateGroupResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupCopayMembersRequestDTO request) {
+	public UpdateGroupResponseDTO updateGroupRegisteredMembers(Long groupId,
+			UpdateGroupRegisteredMembersRequestDTO request) {
 
 		// Find the group or throw an exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
 		// Collect the invited phone numbers from the request.
-		Set<String> invitedPhoneNumbers = new HashSet<>(request.getRegisteredCopayMembers());
+		Set<String> invitedPhoneNumbers = new HashSet<>(request.getInvitedRegisteredMembers());
 
 		// Remove members who are no longer invited.
 		removeUninvitedRegisteredMembers(group, invitedPhoneNumbers);
@@ -367,6 +372,7 @@ public class GroupService {
 		return new UpdateGroupResponseDTO("Group members updated successfully.");
 	}
 
+	@Override
 	@Transactional
 	public UpdateGroupResponseDTO updateGroupExternalMembers(Long groupId,
 			UpdateGroupExternalMembersRequestDTO request) {
@@ -400,7 +406,8 @@ public class GroupService {
 	private void removeUninvitedRegisteredMembers(Group group, Set<String> invitedPhones) {
 
 		// Remove current members whose phone numbers are not in the invited list.
-		group.getRegisteredMembers().removeIf(member -> !invitedPhones.contains(member.getId().getUser().getPhoneNumber()));
+		group.getRegisteredMembers()
+				.removeIf(member -> !invitedPhones.contains(member.getId().getUser().getPhoneNumber()));
 	}
 
 	private void addNewRegisteredMembers(Group group, Set<String> invitedPhones) {
