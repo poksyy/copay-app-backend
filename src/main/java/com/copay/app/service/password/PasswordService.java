@@ -7,7 +7,10 @@ import com.copay.app.dto.responses.ResetPasswordResponseDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface PasswordService {
+	
     ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO request, String token);
+    
     ResponseEntity<ForgotPasswordResponseDTO> forgotPassword(ForgotPasswordDTO request);
+    
     ResponseEntity<ForgotPasswordResetResponseDTO> forgotPasswordReset(String token, ForgotPasswordResetDTO request);
 }

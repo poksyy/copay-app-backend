@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.copay.app.dto.group.CreateGroupRequestDTO;
 import com.copay.app.dto.group.DeleteGroupRequestDTO;
 import com.copay.app.dto.group.GetGroupRequestDTO;
-import com.copay.app.dto.group.UpdateGroupCopayMembersRequestDTO;
+import com.copay.app.dto.group.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.responses.CreateGroupResponseDTO;
 import com.copay.app.dto.responses.DeleteGroupResponseDTO;
 import com.copay.app.dto.responses.GetGroupResponseDTO;
 import com.copay.app.dto.responses.UpdateGroupResponseDTO;
-import com.copay.app.service.GroupService;
 import com.copay.app.service.ValidationService;
+import com.copay.app.service.group.GroupServiceImpl;
 import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
@@ -35,10 +35,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/groups")
 public class GroupController {
 
-	private final GroupService groupService;
+	private final GroupServiceImpl groupService;
 
 	// Constructor
-    public GroupController(GroupService groupService) {
+    public GroupController(GroupServiceImpl groupService) {
         this.groupService = groupService;
     }
 
@@ -144,7 +144,7 @@ public class GroupController {
 
 	@PatchMapping("/{groupId}/copaymembers")
 	public ResponseEntity<?> updateGroupCopayMembers(@PathVariable Long groupId,
-			@RequestBody @Valid UpdateGroupCopayMembersRequestDTO request, BindingResult result) {
+			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request, BindingResult result) {
 
 		ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
