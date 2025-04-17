@@ -9,13 +9,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.copay.app.dto.auth.UserLoginRequestDTO;
-import com.copay.app.dto.auth.UserRegisterStepOneDTO;
-import com.copay.app.dto.auth.UserRegisterStepTwoDTO;
+import com.copay.app.dto.auth.request.UserLoginRequestDTO;
+import com.copay.app.dto.auth.request.UserRegisterStepOneDTO;
+import com.copay.app.dto.auth.request.UserRegisterStepTwoDTO;
 
-import com.copay.app.dto.responses.RegisterStepOneResponseDTO;
-import com.copay.app.dto.responses.RegisterStepTwoResponseDTO;
-import com.copay.app.dto.responses.LoginResponseDTO;
+import com.copay.app.dto.auth.response.RegisterStepOneResponseDTO;
+import com.copay.app.dto.auth.response.RegisterStepTwoResponseDTO;
+import com.copay.app.dto.auth.response.LoginResponseDTO;
 import com.copay.app.entity.User;
 import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.user.IncorrectPasswordException;

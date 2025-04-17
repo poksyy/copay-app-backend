@@ -2,13 +2,13 @@ package com.copay.app.service.group;
 
 import java.util.Map;
 
-import com.copay.app.dto.group.CreateGroupRequestDTO;
-import com.copay.app.dto.group.UpdateGroupRegisteredMembersRequestDTO;
-import com.copay.app.dto.group.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.responses.CreateGroupResponseDTO;
-import com.copay.app.dto.responses.DeleteGroupResponseDTO;
-import com.copay.app.dto.responses.GetGroupResponseDTO;
-import com.copay.app.dto.responses.UpdateGroupResponseDTO;
+import com.copay.app.dto.group.request.CreateGroupRequestDTO;
+import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
+import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
+import com.copay.app.dto.group.response.CreateGroupResponseDTO;
+import com.copay.app.dto.group.response.DeleteGroupResponseDTO;
+import com.copay.app.dto.group.response.GetGroupResponseDTO;
+import com.copay.app.dto.group.response.UpdateGroupResponseDTO;
 
 public interface GroupService {
 	

@@ -2,7 +2,6 @@ package com.copay.app.controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -16,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.group.CreateGroupRequestDTO;
-import com.copay.app.dto.group.DeleteGroupRequestDTO;
-import com.copay.app.dto.group.GetGroupRequestDTO;
-import com.copay.app.dto.group.UpdateGroupRegisteredMembersRequestDTO;
-import com.copay.app.dto.group.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.responses.CreateGroupResponseDTO;
-import com.copay.app.dto.responses.DeleteGroupResponseDTO;
-import com.copay.app.dto.responses.GetGroupResponseDTO;
-import com.copay.app.dto.responses.UpdateGroupResponseDTO;
+import com.copay.app.dto.group.request.CreateGroupRequestDTO;
+import com.copay.app.dto.group.request.DeleteGroupRequestDTO;
+import com.copay.app.dto.group.request.GetGroupRequestDTO;
+import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
+import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
+import com.copay.app.dto.group.response.CreateGroupResponseDTO;
+import com.copay.app.dto.group.response.DeleteGroupResponseDTO;
+import com.copay.app.dto.group.response.GetGroupResponseDTO;
+import com.copay.app.dto.group.response.UpdateGroupResponseDTO;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.group.GroupServiceImpl;
 import com.copay.app.validation.ValidationErrorResponse;

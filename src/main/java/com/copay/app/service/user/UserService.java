@@ -1,16 +1,16 @@
 package com.copay.app.service.user;
 
 import java.util.List;
-import com.copay.app.dto.responses.profile.EmailResponseDTO;
-import com.copay.app.dto.responses.profile.PhoneNumberResponseDTO;
-import com.copay.app.dto.responses.profile.UsernameResponseDTO;
-import com.copay.app.dto.user.UserCreateDTO;
-import com.copay.app.dto.user.UserDeleteDTO;
-import com.copay.app.dto.user.UserResponseDTO;
-import com.copay.app.dto.user.UserUpdateDTO;
-import com.copay.app.dto.user.profile.UpdateEmailDTO;
-import com.copay.app.dto.user.profile.UpdatePhoneNumberDTO;
-import com.copay.app.dto.user.profile.UpdateUsernameDTO;
+import com.copay.app.dto.user.response.profile.EmailResponseDTO;
+import com.copay.app.dto.user.response.profile.PhoneNumberResponseDTO;
+import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
+import com.copay.app.dto.user.request.UserCreateDTO;
+import com.copay.app.dto.user.request.UserDeleteDTO;
+import com.copay.app.dto.user.response.UserResponseDTO;
+import com.copay.app.dto.user.request.UserUpdateDTO;
+import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
+import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
+import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
 
 public interface UserService {
 

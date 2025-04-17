@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.password.ForgotPasswordDTO;
-import com.copay.app.dto.password.ForgotPasswordResetDTO;
-import com.copay.app.dto.password.ResetPasswordDTO;
+import com.copay.app.dto.password.request.ForgotPasswordDTO;
+import com.copay.app.dto.password.request.ForgotPasswordResetDTO;
+import com.copay.app.dto.password.request.ResetPasswordDTO;
 import com.copay.app.service.password.PasswordServiceImpl;
 
 import jakarta.validation.Valid;
