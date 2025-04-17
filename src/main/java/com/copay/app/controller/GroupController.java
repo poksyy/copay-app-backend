@@ -127,15 +127,7 @@ public class GroupController {
 	}
 
 	@PatchMapping("/{groupId}")
-	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges,
-			BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges) {
 
 		UpdateGroupResponseDTO response = groupService.updateGroup(groupId, fieldChanges);
 
