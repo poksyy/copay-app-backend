@@ -25,7 +25,7 @@ public class Group {
 
 	@NotBlank(message = "Group name is required")
 	@Size(max = 25, message = "Group name must be no longer than 25 characters")
-	@Column(name = "group_name", nullable = false, length = 25)
+	@Column(name = "name", nullable = false, length = 25)
 	private String name;
 
 	// 'created_by' is a foreign key referencing the 'user_id' in the 'users' table.
