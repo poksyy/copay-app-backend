@@ -94,8 +94,7 @@ public class GroupController {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		// Get the token from the SecurityContextHolder (set by
-		// JwtAuthenticationFilter).
+		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		DeleteGroupResponseDTO response = groupService.deleteGroup(groupId, token);
@@ -117,7 +116,7 @@ public class GroupController {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		// Get the token from the SecurityContextHolder (set by JwtAuthenticationFilter)
+		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		UpdateGroupResponseDTO response = groupService.leaveGroup(groupId, token);
