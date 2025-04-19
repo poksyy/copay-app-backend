@@ -170,6 +170,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void logout(String token) {
+    	
         try {
 
             JwtService.setCurrentContext(JwtService.TokenValidationContext.LOGOUT);
