@@ -45,19 +45,22 @@ public class JwtService {
 	// Holder for context thread.
 	private static final ThreadLocal<TokenValidationContext> contextHolder = new ThreadLocal<>();
 
-	// Constructor
+	// Constructor.
 	public JwtService(RevokedTokenRepository revokedTokenRepository) {
 		this.revokedTokenRepository = revokedTokenRepository;
 	}
 
 	// Transform String to secret key.
 	private SecretKey getSigningKey() {
+		
 		return Keys.hmacShaKeyFor(jwtSecret.getBytes());
 	}
 
 	@PostConstruct
 	public void init() {
+		
 		if (jwtSecret == null || jwtSecret.isEmpty()) {
+			
 			throw new IllegalStateException("JWT Secret key is not configured in the environment.");
 		}
 	}
@@ -69,7 +72,9 @@ public class JwtService {
 
 	// Usa the actual context from ThreadLocal or use DEFAULT if it does not exist.
 	public static TokenValidationContext getCurrentContext() {
+		
 		TokenValidationContext context = contextHolder.get();
+		
 		return context != null ? context : TokenValidationContext.DEFAULT;
 	}
 
@@ -80,13 +85,16 @@ public class JwtService {
 
 	// Validate JWT token with explicit context parameter.
 	public boolean validateToken(String token, TokenValidationContext context) {
+		
 		System.out.println("Debug: Validation context received - " + context);
 
-		// Check if token is revoked
+		// Check if token is revoked.
 		if (revokedTokenRepository.existsByToken(token)) {
+			
 			System.err.println("Trying to do HTTP requests with revoked token in context: " + context);
 
 			String errorMessage = switch (context) {
+			
 				case LOGOUT -> "Session was already terminated";
 				case REGISTER_STEP_TWO -> "Registration token has expired, please start the process again";
 				default -> "This token has already been revoked";
@@ -96,26 +104,35 @@ public class JwtService {
 		}
 
 		try {
+			
 			// Parse and validate the token.
 			Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
+			
 			return true;
 
 		} catch (ExpiredJwtException e) {
+			
 			throw new InvalidTokenException(getExpirationMessage(context));
+			
 		} catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-			throw new InvalidTokenException("Invalid token format");
+			
+			throw new InvalidTokenException("Invalid token - Possibly malformed, invalid signature, or unsupported format.");
 		}
 	}
 
 	// Original validateToken method now uses the ThreadLocal context.
 	public boolean validateToken(String token) {
+		
 		TokenValidationContext context = getCurrentContext();
+		
 		System.out.println("Debug: Using ThreadLocal context - " + context);
+		
 		return validateToken(token, context);
 	}
 
 	// Helper method to get context-specific expiration message.
 	private String getExpirationMessage(TokenValidationContext context) {
+		
 		return context == TokenValidationContext.REGISTER_STEP_TWO
 				? "Your registration time has expired, please try again from the beginning"
 				: "Your session has expired, please login again";
@@ -123,7 +140,9 @@ public class JwtService {
 
 	// Generate 1 hour token for the registerStepTwo().
 	public String generateToken(String phoneNumber) {
+		
 		long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000);
+		
 		return Jwts.builder()
 				.setSubject(phoneNumber)
 				.setIssuedAt(new Date())
@@ -134,44 +153,66 @@ public class JwtService {
 
 	// Generate temporal 5 minutes token for the registerStepOne().
 	public String generateTemporaryToken(String email) {
+		
 		long expirationTimeMillis = System.currentTimeMillis() + (TEMPORAL_JWT_EXPIRATION * 1000);
+		
 		return Jwts.builder()
 				.setSubject(email)
+				.claim("register", true)      
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(expirationTimeMillis))
 				.signWith(getSigningKey())
 				.compact();
 	}
-
+    
 	// Identify the user through the token.
 	public String getUserIdentifierFromToken(String token) {
+		
 		Claims claims = Jwts.parserBuilder()
 				.setSigningKey(getSigningKey())
 				.build()
 				.parseClaimsJws(token)
 				.getBody();
+		
+		// Subject refers to either an email or a phone number.
 		return claims.getSubject();
 	}
-
-	public long getExpirationTime(boolean isTemporary) {
-
-		if (isTemporary) {
-
-			return REGULAR_JWT_EXPIRATION;
-
-		} else {
-
-			return TEMPORAL_JWT_EXPIRATION;
-
-		}
+	
+	// Identify if the token has the claim generated at the first register step.
+	public Boolean isRegisterToken(String token) {
+		
+	    Claims claims = Jwts.parserBuilder()
+	            .setSigningKey(getSigningKey())
+	            .build()
+	            .parseClaimsJws(token)
+	            .getBody();
+	    
+	    return claims.get("register", Boolean.class);
 	}
 
 	// Method to revoke token.
 	public void revokeToken(String token) {
 
 		RevokedToken revokedToken = new RevokedToken();
-
+		
 		revokedToken.setToken(token);
+		
+		// Persist changes in the database.
 		revokedTokenRepository.save(revokedToken);
+	}
+	
+	public long getExpirationTime(boolean isTemporary) {
+
+		if (isTemporary) {
+			
+			// Token generated at second register step or login.
+			return REGULAR_JWT_EXPIRATION;
+
+		} else {
+			
+			// Token generated at first register step.
+			return TEMPORAL_JWT_EXPIRATION;
+
+		}
 	}
 }
