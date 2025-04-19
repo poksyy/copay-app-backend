@@ -8,7 +8,6 @@ import com.copay.app.exception.group.GroupNotFoundException;
 import com.copay.app.exception.group.InvalidGroupCreatorException;
 import com.copay.app.exception.group.InvitedMemberNotFoundException;
 import com.copay.app.exception.user.PhoneAlreadyExistsException;
-import com.copay.app.exception.token.InvalidTokenException;
 import com.copay.app.exception.user.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,18 +91,7 @@ public class GlobalExceptionHandler {
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
-
-	// HTTP 401: Invalid or expired token.
-	@ExceptionHandler(InvalidTokenException.class)
-
-	public ResponseEntity<ValidationErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
-		
-		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Invalid or expired token.", HttpStatus.UNAUTHORIZED.value());
-		
-		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
-	}
-
+	
 	// HTTP 500: Error sending email.
 	@ExceptionHandler(EmailSendingException.class)
 
@@ -118,8 +106,10 @@ public class GlobalExceptionHandler {
 	// HTTP 409: Conflict when adding existing member to the group.
 	@ExceptionHandler(UserAlreadyMemberException.class)
 	public ResponseEntity<ValidationErrorResponse> handleUserAlreadyExistsException(UserAlreadyMemberException ex) {
+		
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"User is already on the group.", HttpStatus.CONFLICT.value());
+		
 		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
@@ -129,6 +119,7 @@ public class GlobalExceptionHandler {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"You don't have the permissions to delete this group.", HttpStatus.FORBIDDEN.value());
+		
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
 	
@@ -138,6 +129,7 @@ public class GlobalExceptionHandler {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Specified group doesn't exist.", HttpStatus.NOT_FOUND.value());
+		
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
