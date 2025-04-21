@@ -25,6 +25,9 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
+	@Column(name = "phone_prefix", nullable = true)
+	private String phonePrefix;
+
 	@Column(unique = true, nullable = true)
 	private String phoneNumber;
 
@@ -41,9 +44,10 @@ public class User {
 	private Set<GroupMember> groupMembers = new HashSet<>();
 
 	// Constructor for fake data.
-	public User(String username, String email, String password, String phoneNumber) {
+	public User(String username, String email, String password, String phonePrefix, String phoneNumber) {
 		this.username = username;
 		this.email = email;
+		this.phonePrefix = phonePrefix;
 		this.phoneNumber = phoneNumber;
 		this.password = password;
 		this.createdAt = LocalDateTime.now();
@@ -87,6 +91,15 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public String getPhonePrefix() {
+		return phonePrefix;
+	}
+
+	public void setPhonePrefix(String phonePrefix) {
+		this.phonePrefix = phonePrefix;
+	}
+
 
 	public String getPhoneNumber() {
 		return phoneNumber;

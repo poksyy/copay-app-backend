@@ -5,18 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 public class UserLoginRequestDTO {
 
 	@NotBlank(message = "Phone number cannot be empty")
-	private String phone_number;
+	private String phoneNumber;
 
 	@NotBlank(message = "Password cannot be empty")
 	private String password;
 
 	// Getters and Setters.
 	public String getPhoneNumber() {
-		return phone_number;
+		return phoneNumber;
 	}
 
-	public void setPhoneNumber(String phone_number) {
-		this.phone_number = phone_number;
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
 
 	public String getPassword() {
