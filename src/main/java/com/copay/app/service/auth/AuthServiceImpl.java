@@ -100,6 +100,7 @@ public class AuthServiceImpl implements AuthService {
 		// Encrypt password through the SecurityConfig @Bean.
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user.setCreatedAt(LocalDateTime.now());
+		user.setPhonePrefix(null);
 		user.setPhoneNumber(null);
 		user.setCompleted(false);
 
@@ -142,7 +143,8 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> new UserNotFoundException("User not found"));
 
             // Update the user's phone number and mark user registration as completed.
-            user.setPhoneNumber(request.getPhoneNumber());
+			user.setPhonePrefix(request.getPhonePrefix());
+			user.setPhoneNumber(request.getPhoneNumber());
             user.setCompleted(true);
 
             userRepository.save(user);

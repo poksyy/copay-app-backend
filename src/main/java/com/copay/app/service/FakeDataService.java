@@ -32,7 +32,8 @@ public class FakeDataService {
 				faker.name().fullName(),
 				faker.internet().emailAddress(),
 				passwordEncoder.encode("Test12345"),
-				faker.phoneNumber().cellPhone().replaceAll("[^0-9]", "")
+				faker.phoneNumber().cellPhone().replaceAll("[^0-9]", ""),
+				"+" + faker.number().numberBetween(1, 100)
 		)).collect(Collectors.toList());
 
 		return userRepository.saveAll(users);
