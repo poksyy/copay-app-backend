@@ -1,6 +1,5 @@
 package com.copay.app.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -100,7 +99,7 @@ public class EmailService {
                 + "        <h2>Reset Password</h2>"
                 + "        <div class='email-body'>"
                 + "            <p>You have requested to reset your password. Click the button below to proceed:</p>"
-                + "            <a href='" + resetLink + "' class='reset-button'>Reset Password</a>"
+                + "            <a href='" + resetLink + "' class='reset-button'>Set new password</a>"
                 + "            <p>If you did not request this, please ignore this email.</p>"
                 + "        </div>"
                 + "    </div>"

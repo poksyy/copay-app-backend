@@ -117,13 +117,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		return JwtService.TokenValidationContext.DEFAULT;
 	}
-	
+
 	private void checkRegisterTokenValidity(String token, HttpServletRequest request, HttpServletResponse response) {
-	   
-		// Throws exception if "register" claim token is used outside step-two endpoint.	    
-		if (Boolean.TRUE.equals(jwtService.isRegisterToken(token)) && !request.getServletPath().equals("/api/auth/register/step-two")) {
-			
-	        throw new AccessRestrictedTokenException("Unauthorized - You need to be registered to access this resource.");
-	    }
+		if (Boolean.TRUE.equals(jwtService.isRegisterToken(token))) {
+			String path = request.getServletPath();
+
+			// Throws exception if "register" claim token is used outside step-two or password update endpoint.
+			boolean isAllowed = path.equals("/api/auth/register/step-two") ||
+					path.equals("/api/forgot-password-reset");
+
+			if (!isAllowed) {
+				throw new AccessRestrictedTokenException("Unauthorized - You need to be registered to access this resource.");
+			}
+		}
 	}
 }

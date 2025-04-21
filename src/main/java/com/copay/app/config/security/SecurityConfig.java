@@ -55,7 +55,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/response", "/api/auth/register/step-one", "/api/auth/login",
 								"/api/users/**", "/api/fake-data/**", "/reset-password.html", "/api/forgot-password",
-								"/api/forgot-password-reset", "/static/**", "/api/groups", "/api/groups/**",
+								"/api/forgot-password-reset", "/favicon.ico","/img/**", "/static/**", "/api/groups", "/api/groups/**",
 								"/api/db/**")
 						// Allow public routes.
 						.permitAll()
