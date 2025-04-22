@@ -1,11 +1,20 @@
 package com.copay.app.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.copay.app.entity.relations.GroupMember;
+import com.copay.app.entity.relations.UserExpense;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -43,6 +52,18 @@ public class User {
 	@OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<GroupMember> groupMembers = new HashSet<>();
 
+    // Expenses paid by this user
+    @OneToMany(mappedBy = "paidByUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Expense> paidExpenses = new HashSet<>();
+
+    // UserExpenses where this user is the debtor
+    @OneToMany(mappedBy = "debtorUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserExpense> debtsOwed = new HashSet<>();
+
+    // UserExpenses where this user is the creditor
+    @OneToMany(mappedBy = "creditorUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserExpense> debtsReceivable = new HashSet<>();
+	
 	// Constructor for fake data.
 	public User(String username, String email, String password, String phonePrefix, String phoneNumber) {
 		this.username = username;
@@ -131,5 +152,29 @@ public class User {
 
 	public void setGroupMembers(Set<GroupMember> groupMembers) {
 		this.groupMembers = groupMembers;
+	}
+
+	public Set<Expense> getPaidExpenses() {
+		return paidExpenses;
+	}
+
+	public void setPaidExpenses(Set<Expense> paidExpenses) {
+		this.paidExpenses = paidExpenses;
+	}
+
+	public Set<UserExpense> getDebtsOwed() {
+		return debtsOwed;
+	}
+
+	public void setDebtsOwed(Set<UserExpense> debtsOwed) {
+		this.debtsOwed = debtsOwed;
+	}
+
+	public Set<UserExpense> getDebtsReceivable() {
+		return debtsReceivable;
+	}
+
+	public void setDebtsReceivable(Set<UserExpense> debtsReceivable) {
+		this.debtsReceivable = debtsReceivable;
 	}
 }
