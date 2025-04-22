@@ -21,9 +21,8 @@ import com.copay.app.dto.group.request.GetGroupRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.group.response.CreateGroupResponseDTO;
-import com.copay.app.dto.group.response.DeleteGroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
-import com.copay.app.dto.group.response.UpdateGroupResponseDTO;
+import com.copay.app.dto.group.response.GroupMessageResponseDTO;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.group.GroupServiceImpl;
 import com.copay.app.validation.ValidationErrorResponse;
@@ -97,7 +96,7 @@ public class GroupController {
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		DeleteGroupResponseDTO response = groupService.deleteGroup(groupId, token);
+		GroupMessageResponseDTO response = groupService.deleteGroup(groupId, token);
 
 		return ResponseEntity.ok(response);
 	}
@@ -119,7 +118,7 @@ public class GroupController {
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		UpdateGroupResponseDTO response = groupService.leaveGroup(groupId, token);
+		GroupMessageResponseDTO response = groupService.leaveGroup(groupId, token);
 
 		return ResponseEntity.ok(response);
 	}
@@ -127,7 +126,7 @@ public class GroupController {
 	@PatchMapping("/{groupId}")
 	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges) {
 
-		UpdateGroupResponseDTO response = groupService.updateGroup(groupId, fieldChanges);
+		GroupMessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges);
 
 		return ResponseEntity.ok(response);
 	}
@@ -143,7 +142,7 @@ public class GroupController {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		UpdateGroupResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
+		GroupMessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
 
 		return ResponseEntity.ok(response);
 	}
@@ -159,7 +158,7 @@ public class GroupController {
 			return ResponseEntity.badRequest().body(validationResponse);
 		}
 
-		UpdateGroupResponseDTO response = groupService.updateGroupExternalMembers(groupId, request);
+		GroupMessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request);
 
 		return ResponseEntity.ok(response);
 	}

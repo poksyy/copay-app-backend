@@ -19,9 +19,8 @@ import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 import com.copay.app.dto.group.response.CreateGroupResponseDTO;
-import com.copay.app.dto.group.response.DeleteGroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
-import com.copay.app.dto.group.response.UpdateGroupResponseDTO;
+import com.copay.app.dto.group.response.GroupMessageResponseDTO;
 import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
@@ -95,7 +94,7 @@ public class GroupServiceImpl implements GroupService {
 		// This field will store the reference to the User entity, JPA will handle the
 		// user_id automatically.
 		group.setCreatedBy(creator);
-		group.setName(request.getGroupName());
+		group.setName(request.getName());
 		group.setDescription(request.getDescription());
 		group.setEstimatedPrice(request.getEstimatedPrice());
 		group.setCurrency(request.getCurrency());
@@ -171,7 +170,7 @@ public class GroupServiceImpl implements GroupService {
 
 		// Set group details
 		groupResponseDTO.setGroupId(group.getGroupId());
-		groupResponseDTO.setGroupName(group.getName());
+		groupResponseDTO.setName(group.getName());
 		groupResponseDTO.setDescription(group.getDescription());
 		groupResponseDTO.setEstimatedPrice(group.getEstimatedPrice());
 		groupResponseDTO.setCurrency(group.getCurrency());
@@ -192,8 +191,9 @@ public class GroupServiceImpl implements GroupService {
 			// Convert each group member to RegisteredMemberDTO.
 			List<RegisteredMemberDTO> groupMemberResponseDTOList = group.getRegisteredMembers().stream().map(gm -> {
 				User user = gm.getId().getUser();
-				return new RegisteredMemberDTO(user.getUserId(), user.getPhoneNumber());
+				return new RegisteredMemberDTO(user.getUserId(), user.getUsername(), user.getPhoneNumber());
 			}).collect(Collectors.toList());
+
 
 			// Set the mapped list of RegisteredMemberDTO in the response DTO.
 			groupResponseDTO.setRegisteredMembers(groupMemberResponseDTOList);
@@ -241,7 +241,7 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public DeleteGroupResponseDTO deleteGroup(Long groupId, String token) {
+	public GroupMessageResponseDTO deleteGroup(Long groupId, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
@@ -263,12 +263,12 @@ public class GroupServiceImpl implements GroupService {
 		// Persists deletion in the database.
 		groupRepository.delete(group);
 
-		return new DeleteGroupResponseDTO("Group " + group.getName() + " deleted successfully.");
+		return new GroupMessageResponseDTO("Group " + group.getName() + " deleted successfully.");
 	}
 
 	@Override
 	@Transactional
-	public UpdateGroupResponseDTO leaveGroup(Long groupId, String token) {
+	public GroupMessageResponseDTO leaveGroup(Long groupId, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
@@ -286,7 +286,7 @@ public class GroupServiceImpl implements GroupService {
 			// If the user is the owner, delete the group entirely.
 			groupRepository.delete(group);
 
-			return new UpdateGroupResponseDTO("You have successfully left the group, and it has been deleted.");
+			return new GroupMessageResponseDTO("You have successfully left the group, and it has been deleted.");
 		}
 
 		// Remove the Registered member from the group.
@@ -296,12 +296,12 @@ public class GroupServiceImpl implements GroupService {
 		groupRepository.save(group);
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("You have successfully left the group.");
+		return new GroupMessageResponseDTO("You have successfully left the group.");
 	}
 
 	@Override
 	@Transactional
-	public UpdateGroupResponseDTO updateGroup(Long groupId, Map<String, Object> fields) {
+	public GroupMessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields) {
 
 		// Find the group or throw an exception if not found.
 		Group group = findGroupOrThrow(groupId);
@@ -326,7 +326,7 @@ public class GroupServiceImpl implements GroupService {
 		// Save the group with the updated fields.
 		groupRepository.save(group);
 
-		return new UpdateGroupResponseDTO("Group updated successfully.");
+		return new GroupMessageResponseDTO("Group updated successfully.");
 	}
 
 	private void updateGroupFields(Group group, Map<String, Object> fields) {
@@ -361,7 +361,7 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public UpdateGroupResponseDTO updateGroupRegisteredMembers(Long groupId,
+	public GroupMessageResponseDTO updateGroupRegisteredMembers(Long groupId,
 			UpdateGroupRegisteredMembersRequestDTO request) {
 
 		// Find the group or throw an exception if not found.
@@ -377,12 +377,12 @@ public class GroupServiceImpl implements GroupService {
 		addNewRegisteredMembers(group, invitedPhoneNumbers);
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("Group members updated successfully.");
+		return new GroupMessageResponseDTO("Group members updated successfully.");
 	}
 
 	@Override
 	@Transactional
-	public UpdateGroupResponseDTO updateGroupExternalMembers(Long groupId,
+	public GroupMessageResponseDTO updateGroupExternalMembers(Long groupId,
 			UpdateGroupExternalMembersRequestDTO request) {
 
 		// Find the group by ID or throw exception if not found.
@@ -408,7 +408,7 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		// Return success message.
-		return new UpdateGroupResponseDTO("Group external members updated successfully.");
+		return new GroupMessageResponseDTO("Group external members updated successfully.");
 	}
 
 	private void removeUninvitedRegisteredMembers(Group group, Set<String> invitedPhones) {
