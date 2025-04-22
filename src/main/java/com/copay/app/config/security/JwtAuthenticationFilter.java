@@ -76,7 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
 		// Custom exceptions caught here won't reach GlobalExceptionHandler.
-		} catch (AccessRestrictedTokenException |InvalidTokenException e) {
+		} catch (AccessRestrictedTokenException | InvalidTokenException e) {
 
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setContentType("application/json");
