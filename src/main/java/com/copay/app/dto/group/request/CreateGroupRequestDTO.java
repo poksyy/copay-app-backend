@@ -11,7 +11,7 @@ public class CreateGroupRequestDTO {
 
 	@NotBlank(message = "Group name is required")
 	@Size(max = 25, message = "Group name must be no longer than 25 characters")
-	private String groupName;
+	private String name;
 
 	@Size(max = 50, message = "Description must be no longer than 50 characters")
 	private String description;
@@ -42,12 +42,12 @@ public class CreateGroupRequestDTO {
 	}
 
 	// Getters and Setters.
-	public String getGroupName() {
-		return groupName;
+	public String getName() {
+		return name;
 	}
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Long getCreatedBy() {
@@ -118,11 +118,11 @@ public class CreateGroupRequestDTO {
     @Override
     public String toString() {
         return "CreateGroupRequestDTO{" +
-               "groupName='" + groupName + '\'' +
+               "groupName='" + name + '\'' +
                ", description='" + description + '\'' +
                ", currency='" + currency + '\'' +
                ", estimatedPrice=" + estimatedPrice +
-               ", invitedCopayMembers=" + invitedRegisteredMembers +
+               ", invitedRegisteredMemebers=" + invitedRegisteredMembers +
                ", invitedExternalMembers=" + invitedExternalMembers +
                ", createdBy=" + createdBy +
                '}';

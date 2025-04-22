@@ -2,21 +2,31 @@ package com.copay.app.dto.group.auxiliary;
 
 public class RegisteredMemberDTO {
 
-	private Long id;
+	private Long registeredMemberId;
+	private String username;
 	private String phoneNumber;
 
 	// Constructor used when mapping the DTO response.
-	public RegisteredMemberDTO(Long id, String phoneNumber) {
-		this.id = id;
+	public RegisteredMemberDTO(Long registeredMemberId, String username, String phoneNumber) {
+		this.registeredMemberId = registeredMemberId;
+		this.username = username;
 		this.phoneNumber = phoneNumber;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getRegisteredMemberId() {
+		return registeredMemberId;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setRegisteredMemberId(Long registeredMemberId) {
+		this.registeredMemberId = registeredMemberId;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public String getPhoneNumber() {

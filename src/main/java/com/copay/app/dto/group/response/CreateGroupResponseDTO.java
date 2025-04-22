@@ -10,7 +10,7 @@ import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 public class CreateGroupResponseDTO {
 
 	private Long groupId;
-	private String groupName;
+	private String name;
 	private String description;
 	private Float estimatedPrice;
 	private String currency;
@@ -34,12 +34,12 @@ public class CreateGroupResponseDTO {
 		this.groupId = groupId;
 	}
 
-	public String getGroupName() {
-		return groupName;
+	public String setName() {
+		return name;
 	}
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public LocalDateTime getCreatedAt() {
