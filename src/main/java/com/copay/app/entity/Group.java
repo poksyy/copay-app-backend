@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Size;
 @Entity
 @Table(name = "groups")
 public class Group {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "group_id")
@@ -57,7 +57,8 @@ public class Group {
 
 	// CascadeType.ALL propagates all persistence operations to GroupMember.
 	// orphanRemoval ensures deletion of GroupMember when removed from the Set.
-	// "id.group" is used because GroupMember has a composite key via the @Embeddable GroupMemberId.
+	// "id.group" is used because GroupMember has a composite key via the
+	// @Embeddable GroupMemberId.
 	@OneToMany(mappedBy = "id.group", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<GroupMember> registeredMembers = new HashSet<>();
 
@@ -65,6 +66,11 @@ public class Group {
 	// orphanRemoval ensures deletion of ExternalMember when removed from the Set.
 	@OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ExternalMember> externalMembers = new HashSet<>();
+
+	// CascadeType.ALL propagates all persistence operations to Expenses.
+	// orphanRemoval ensures deletion of ExternalMember when removed from the Set.
+	@OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<Expense> expenses = new HashSet<>();
 
 	// Getter and Setters.
 	public Long getGroupId() {
@@ -155,4 +161,11 @@ public class Group {
 		this.externalMembers = externalMembers;
 	}
 
+	public Set<Expense> getExpenses() {
+		return expenses;
+	}
+
+	public void setExpenses(Set<Expense> expenses) {
+		this.expenses = expenses;
+	}
 }
