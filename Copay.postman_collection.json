@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "cf7ddea8-4949-4556-b3bf-8f92b65dc262",
+		"_postman_id": "e39b1af7-ab44-4f64-9dbf-3aff8e6e12d5",
 		"name": "Copay",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38870815"
+		"_exporter_id": "38870768"
 	},
 	"item": [
 		{
@@ -12,104 +12,6 @@
 				{
 					"name": "User",
 					"item": [
-						{
-							"name": "Edit specific fields",
-							"item": [
-								{
-									"name": "Update Username",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n  \"username\": \"newTest\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/users/edit-username/9",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"users",
-												"edit-username",
-												"9"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Update Phone Number",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n  \"phoneNumber\": \"+34123456789\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/users/edit-phone/14",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"users",
-												"edit-phone",
-												"14"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Update Mail",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n  \"email\": \"testa@gmail.com\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/users/edit-email/9",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"users",
-												"edit-email",
-												"9"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
 						{
 							"name": "Create User",
 							"request": {
@@ -249,7 +151,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/users/1",
+									"raw": "http://localhost:8080/api/users",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -257,8 +159,7 @@
 									"port": "8080",
 									"path": [
 										"api",
-										"users",
-										"1"
+										"users"
 									]
 								}
 							},
@@ -285,22 +186,29 @@
 							"response": []
 						}
 					]
-				}
-			]
-		},
-		{
-			"name": "Utils",
-			"item": [
+				},
 				{
-					"name": "Database",
+					"name": "Groups",
 					"item": [
 						{
-							"name": "Reset Database",
+							"name": "Get Group by user id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
 							"request": {
-								"method": "POST",
+								"method": "GET",
 								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
-									"raw": "http://localhost:8080/api/db/reset-users",
+									"raw": "http://localhost:8080/api/groups/2",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -308,8 +216,232 @@
 									"port": "8080",
 									"path": [
 										"api",
-										"db",
-										"reset-users"
+										"groups",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create group",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"createdBy\": 2,\r\n  \"name\": \"Test\",\r\n  \"description\": \"Quedamos al Weekend\",\r\n  \"estimatedPrice\": 200,\r\n  \"currency\": \"EUR\",\r\n  \"invitedRegisteredMembers\": [\r\n    \"604395537\",\r\n    \"603696141\"\r\n\r\n  ],\r\n  \"invitedExternalMembers\": [\r\n    \"Cristian\",\r\n    \"Pau\"\r\n  ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Group",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"estimatedPrice\": -2,\r\n  \"name\":\"\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Group Description",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"description\": \"Nuevo descripcion del grupo\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/1/description",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"1",
+										"description"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Group CopayMembers",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"invitedCopayMembers\": [\r\n        \"+34603696141\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/1/copaymembers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"1",
+										"copaymembers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Group ExternalMembers",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"invitedExternalMembers\": [\r\n        {\r\n            \"externalMembersId\": 18,\r\n            \"name\": \"aaa\"\r\n        },\r\n        {\r\n            \"name\": \"bss\"\r\n        },\r\n        {\r\n            \"name\": \"css\"\r\n        },\r\n        {\r\n            \"name\": \"dss\"\r\n        }\r\n    ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/1/externalmembers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"1",
+										"externalmembers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Group",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2NDc3OTA2NDgiLCJpYXQiOjE3NDQ1NjgwOTQsImV4cCI6MTc0NDU3MTY5NH0.Li7PgnMzeoQnRIHy6urmlOseJRpQSiyjscLGgteBcw_1TaLPMQJMrwns7v3zQSK6lGRt1vu3R6v6ycn36lKXpA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/8",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Leave group (need token)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMjM0NTY3ODk0IiwiaWF0IjoxNzQ0ODQ1NzkzLCJleHAiOjE3NDQ4NDkzOTN9.6Jln5tWc_sGwhNWX_4S26fZGB8JF5h1tMUBX4OBbeL0KHIZv9cpCcjD1fH2yx3J_OPTKjqvi4q6FYtAwjdaB_Q",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/groups/2/leave",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"2",
+										"leave"
 									]
 								}
 							},
@@ -329,7 +461,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"test\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"Password123\",\r\n    \"phoneNumber\": \"000000000\",\r\n    \"confirmPassword\": \"Password123\"\r\n}",
+							"raw": "{\r\n    \"username\": \"taest\",\r\n    \"email\": \"taaest@example.com\",\r\n    \"password\": \"Password123\",\r\n    \"phoneNumber\": \"000000000\",\r\n    \"confirmPassword\": \"Password123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -361,7 +493,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0YWFlc3RAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDQzODE0MTAsImV4cCI6MTc0NDM4MTcxMH0.E8qfwdqbxeIyn2E8icVdg9R2e4A19Lhwsfwo-UdNB4OfEeo0xg54MOxBICEojnqpvLpcQaksKvqWaXL_kDiwdQ",
 									"type": "string"
 								}
 							]
@@ -370,7 +502,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phoneNumber\": \"111111111\"\r\n}",
+							"raw": "{\r\n    \"phoneNumber\": \"0a0000s0000\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -401,7 +533,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phoneNumber\": \"111111111\",\r\n    \"password\": \"Password123\"\r\n}",
+							"raw": "{\r\n    \"phoneNumber\": \"1234567894\",\r\n    \"password\": \"Test12345\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -432,7 +564,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0dGVlc3N0dEBleGFtcGxlLmNvbSIsImlhdCI6MTc0MzE4MjAyMSwiZXhwIjoxNzQzMTgyMzIxfQ.SF8P-36pzcpXBqmflCQCZ4JwAekzHrT8LMx4YPQQaCk4Oiuf-nchnC3V8xydj5dS-eIdEu3ZL3AFwr38_rVoCQ",
 									"type": "string"
 								}
 							]
@@ -468,7 +600,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3MzAyNDE0MjMyIiwiaWF0IjoxNzQzNTI0MzgwLCJleHAiOjE3NDM1Mjc5ODB9.UmDhd5gbVymx-HssYlLkumGc6PBb2bptyJxrfVza3XfrfuvKFgF4AK5J3MoXY4VeI2P4H5qPd0wqygFXrvT-dQ",
 									"type": "string"
 								}
 							]
@@ -477,7 +609,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"currentPassword\": \"Password123\",\r\n  \"newPassword\": \"Pass12345\",\r\n  \"confirmNewPassword\": \"Pass12345\"\r\n}",
+							"raw": "{\r\n  \"currentPassword\": \"Test12345\",\r\n  \"newPassword\": \"Pass12345\",\r\n  \"confirmNewPassword\": \"Pass12345\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -581,7 +713,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/fake-data/users?count=5",
+									"raw": "http://localhost:8080/api/fake-data/users?count=1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -595,7 +727,7 @@
 									"query": [
 										{
 											"key": "count",
-											"value": "5"
+											"value": "1"
 										}
 									]
 								}
@@ -632,6 +764,173 @@
 				{
 					"name": "Plans",
 					"item": []
+				}
+			]
+		},
+		{
+			"name": "Database",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Truncate Users Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Expenses",
+					"item": [
+						{
+							"name": "Truncate Payment_Confirmation Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Truncate User_Expenses Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Truncate Expenses Table Copy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-groups"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Groups",
+					"item": [
+						{
+							"name": "Truncate Group Members Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-group-members",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-group-members"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Truncate External Members Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-external-members",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-external-members"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Truncate Groups Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-groups"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
