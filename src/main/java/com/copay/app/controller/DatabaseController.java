@@ -60,4 +60,31 @@ public class DatabaseController {
 
 		return "Groups reset successful!";
 	}
+
+	@PostMapping("/reset-payment-confirmations")
+	public String resetPaymentConfirmationsTable() {
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.execute("TRUNCATE TABLE payment_confirmations");
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+		return "Payment confirmations reset successful!";
+	}
+
+	@PostMapping("/reset-user-expenses")
+	public String resetUserExpensesTable() {
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.execute("TRUNCATE TABLE user_expenses");
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+		return "User expenses reset successful!";
+	}
+
+	@PostMapping("/reset-expenses")
+	public String resetExpensesTable() {
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.execute("TRUNCATE TABLE expenses");
+		jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+		return "Expenses reset successful!";
+	}
 }
