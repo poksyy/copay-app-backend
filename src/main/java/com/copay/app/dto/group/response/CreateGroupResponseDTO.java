@@ -34,7 +34,7 @@ public class CreateGroupResponseDTO {
 		this.groupId = groupId;
 	}
 
-	public String setName() {
+	public String getName() {
 		return name;
 	}
 
