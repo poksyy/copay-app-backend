@@ -1,6 +1,5 @@
 package com.copay.app.entity.relations;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -26,8 +25,8 @@ public class PaymentConfirmation {
     @JoinColumn(name = "debt_id", nullable = false)
     private UserExpense userExpense;
 
-    @Column(name = "confirmation_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal confirmationAmount;
+    @Column(name = "confirmation_amount", nullable = false)
+    private Float confirmationAmount;
 
     @Column(name = "confirmation_date", nullable = false)
     private LocalDateTime confirmationDate = LocalDateTime.now();
@@ -52,11 +51,11 @@ public class PaymentConfirmation {
 		this.userExpense = userExpense;
 	}
 
-	public BigDecimal getConfirmationAmount() {
+	public Float getConfirmationAmount() {
 		return confirmationAmount;
 	}
 
-	public void setConfirmationAmount(BigDecimal confirmationAmount) {
+	public void setConfirmationAmount(Float confirmationAmount) {
 		this.confirmationAmount = confirmationAmount;
 	}
 

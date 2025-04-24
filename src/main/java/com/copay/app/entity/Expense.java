@@ -1,6 +1,5 @@
 package com.copay.app.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 
 @Entity
 @Table(name = "expenses")
@@ -33,11 +34,8 @@ public class Expense {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    @Column(name = "title", nullable = false, length = 100)
-    private String title;
-
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
+    @Column(name = "total_amount", nullable = false)
+    private Float totalAmount;
 
     @ManyToOne
     @JoinColumn(name = "paid_by_user_id")
@@ -54,7 +52,7 @@ public class Expense {
     private List<UserExpense> userExpenses = new ArrayList<>();
 
     public Expense() {
-	
+
 	}
 
     // Getters and Setters.
@@ -74,19 +72,11 @@ public class Expense {
 		this.group = group;
 	}
 
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public BigDecimal getTotalAmount() {
+	public Float getTotalAmount() {
 		return totalAmount;
 	}
 
-	public void setTotalAmount(BigDecimal totalAmount) {
+	public void setTotalAmount(Float totalAmount) {
 		this.totalAmount = totalAmount;
 	}
 
@@ -121,5 +111,5 @@ public class Expense {
 	public void setUserExpenses(List<UserExpense> userExpenses) {
 		this.userExpenses = userExpenses;
 	}
-    
+
 }

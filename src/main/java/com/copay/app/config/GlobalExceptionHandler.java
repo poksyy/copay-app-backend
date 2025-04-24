@@ -2,6 +2,7 @@ package com.copay.app.config;
 
 import java.util.List;
 
+import com.copay.app.exception.expense.ExpenseNotFoundException;
 import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.email.EmailSendingException;
 import com.copay.app.exception.group.GroupNotFoundException;
@@ -130,6 +131,16 @@ public class GlobalExceptionHandler {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Specified group doesn't exist.", HttpStatus.NOT_FOUND.value());
 		
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 404: Expense not found with the provided ID.
+	@ExceptionHandler(ExpenseNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundExepction(ExpenseNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Specified expense doesn't exist.", HttpStatus.NOT_FOUND.value());
+
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
