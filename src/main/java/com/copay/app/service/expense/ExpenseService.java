@@ -1,0 +1,20 @@
+package com.copay.app.service.expense;
+
+import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
+import com.copay.app.dto.expense.response.ExpenseResponseDTO;
+import com.copay.app.dto.expense.response.ConfirmPaymentResponseDTO;
+import com.copay.app.dto.MessageResponseDTO;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ExpenseService {
+
+    ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request);
+
+    List<ExpenseResponseDTO> getExpenses(Long groupId);
+
+    ExpenseResponseDTO getExpense(Long groupId, Long expenseId);
+
+    ConfirmPaymentResponseDTO confirmPayment(Long expenseId, Long userExpenseId);
+}
