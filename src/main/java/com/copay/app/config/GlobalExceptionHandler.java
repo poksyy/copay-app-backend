@@ -1,6 +1,8 @@
 package com.copay.app.config;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.email.EmailSendingException;
@@ -9,8 +11,10 @@ import com.copay.app.exception.group.InvalidGroupCreatorException;
 import com.copay.app.exception.group.InvitedMemberNotFoundException;
 import com.copay.app.exception.user.PhoneAlreadyExistsException;
 import com.copay.app.exception.user.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -131,6 +135,44 @@ public class GlobalExceptionHandler {
 				"Specified group doesn't exist.", HttpStatus.NOT_FOUND.value());
 		
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 404: Expense not found with the provided ID.
+	@ExceptionHandler(ExpenseNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundExepction(ExpenseNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Specified expense doesn't exist.", HttpStatus.NOT_FOUND.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 400: Validation of the JSON fields.
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ValidationErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+		Throwable cause = ex.getCause();
+
+		if (cause instanceof UnrecognizedPropertyException unrecognizedEx) {
+			String invalidField = unrecognizedEx.getPropertyName();
+			String message = "Invalid JSON field: " + invalidField;
+
+			ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+					List.of(message),
+					"Deserialization error. Invalid fields were provided.",
+					HttpStatus.BAD_REQUEST.value()
+			);
+
+			return ResponseEntity.badRequest().body(errorResponse);
+		}
+
+		// Generic fallback if the cause isn't UnrecognizedPropertyException.
+		ValidationErrorResponse fallbackResponse = new ValidationErrorResponse(
+				List.of("Malformed JSON request."),
+				"Deserialization error.",
+				HttpStatus.BAD_REQUEST.value()
+		);
+
+		return ResponseEntity.badRequest().body(fallbackResponse);
 	}
 
 	// Handle other generic exceptions.
