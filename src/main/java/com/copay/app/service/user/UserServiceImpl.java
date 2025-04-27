@@ -27,135 +27,162 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserServiceImpl implements UserService {
 
-	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
-	private final UserAvailabilityServiceImpl userAvailabilityServiceImpl;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserAvailabilityServiceImpl userAvailabilityServiceImpl;
 
-	// Constructor
-	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-						   UserAvailabilityServiceImpl userAvailabilityServiceImpl) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.userAvailabilityServiceImpl = userAvailabilityServiceImpl;
-	}
+    // Constructor
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                           UserAvailabilityServiceImpl userAvailabilityServiceImpl) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userAvailabilityServiceImpl = userAvailabilityServiceImpl;
+    }
 
-	public UserResponseDTO getUserByIdDTO(Long id) {
-		return new UserResponseDTO(getUserById(id));
-	}
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserByIdDTO(Long id) {
 
-	private User getUserById(Long id) {
-		return userRepository.findById(id)
-				.orElseThrow(() -> new UserNotFoundException("User not found with provided ID."));
-	}
+        return new UserResponseDTO(getUserById(id));
+    }
 
-	public UserResponseDTO getUserByPhoneDTO(String phoneNumber) {
-		return new UserResponseDTO(getUserByPhone(phoneNumber));
-	}
+    private User getUserById(Long id) {
 
-	private User getUserByPhone(String phoneNumber) {
-		return userRepository.findByPhoneNumber(phoneNumber)
-				.orElseThrow(() -> new UserNotFoundException("User not found with provided phone number."));
-	}
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with provided ID."));
+    }
 
-	public User getUserByEmail(String email) {
-		return userRepository.findByEmail(email)
-				.orElseThrow(() -> new UserNotFoundException("User not found with provided email."));
-	}
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserByPhoneDTO(String phoneNumber) {
 
-	@Transactional
-	public UserResponseDTO createUser(UserCreateDTO request) {
-		User newUser = new User();
-		newUser.setEmail(request.getEmail());
-		newUser.setPhoneNumber(request.getPhoneNumber());
+        return new UserResponseDTO(getUserByPhone(phoneNumber));
+    }
 
-		// Validate user credentials availability.
-		userAvailabilityServiceImpl.checkUserExistence(newUser);
+    private User getUserByPhone(String phoneNumber) {
 
-		newUser.setUsername(request.getUsername());
-		newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-		newUser.setCreatedAt(LocalDateTime.now());
-		newUser.setCompleted(true);
+        return userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UserNotFoundException("User not found with provided phone number."));
+    }
 
-		return new UserResponseDTO(userRepository.save(newUser));
-	}
+    public User getUserByEmail(String email) {
 
-	@Transactional
-	public UserResponseDTO updateUser(Long id, UserUpdateDTO request) {
-		User user = getUserById(id);
-		return updateUserDetails(user, request);
-	}
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with provided email."));
+    }
 
-	@Transactional
-	public UserResponseDTO updateUser(String email, UserUpdateDTO request) {
-		User user = getUserByEmail(email);
-		return updateUserDetails(user, request);
-	}
+    @Override
+    @Transactional
+    public UserResponseDTO createUser(UserCreateDTO request) {
 
-	private UserResponseDTO updateUserDetails(User user, UserUpdateDTO request) {
-		// Update logic here
-		user.setUsername(request.getUsername());
-		user.setEmail(request.getEmail());
-		user.setPhoneNumber(request.getPhoneNumber());
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User newUser = new User();
+        newUser.setEmail(request.getEmail());
+        newUser.setPhoneNumber(request.getPhoneNumber());
 
-		// Check user availability
-		userAvailabilityServiceImpl.checkUserExistence(user);
+        // Validate user credentials availability.
+        userAvailabilityServiceImpl.checkUserExistence(newUser);
 
-		return new UserResponseDTO(userRepository.save(user));
-	}
+        newUser.setUsername(request.getUsername());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setCompleted(true);
 
-	@Transactional
-	public UserDeleteDTO deleteUser(Long userId) {
-		User user = getUserById(userId);
-		userRepository.delete(user);
-		return new UserDeleteDTO("User account deleted successfully.");
-	}
+        return new UserResponseDTO(userRepository.save(newUser));
+    }
 
-	public List<UserResponseDTO> getAllUsers() {
-		return userRepository.findAll().stream().map(UserResponseDTO::new).collect(Collectors.toList());
-	}
+    @Override
+    @Transactional
+    public UserResponseDTO updateUser(Long id, UserUpdateDTO request) {
 
-	@Transactional
-	public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
-		User user = getUserById(id);
+        User user = getUserById(id);
+        return updateUserDetails(user, request);
+    }
 
-		user.setUsername(request.getUsername());
+    @Override
+    @Transactional
+    public UserResponseDTO updateUser(String email, UserUpdateDTO request) {
 
-		return new UsernameResponseDTO(userRepository.save(user));
-	}
+        User user = getUserByEmail(email);
+        return updateUserDetails(user, request);
+    }
 
-	@Transactional
-	public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
-		User user = getUserById(id);
+    private UserResponseDTO updateUserDetails(User user, UserUpdateDTO request) {
 
-		// Validates if the new phone number is already taken.
-		boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
+        // Update logic here
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-		// Verify if the phoneNumber exists or not.
-		if (phoneNumberExists) {
-			throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
-		}
+        // Check user availability
+        userAvailabilityServiceImpl.checkUserExistence(user);
 
-		user.setPhoneNumber(request.getPhoneNumber());
+        return new UserResponseDTO(userRepository.save(user));
+    }
 
-		return new PhoneNumberResponseDTO(userRepository.save(user));
-	}
+    @Override
+    @Transactional
+    public UserDeleteDTO deleteUser(Long userId) {
 
-	@Transactional
-	public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
-		User user = getUserById(id);
+        User user = getUserById(userId);
+        userRepository.delete(user);
 
-		// Validates if the new email is already taken.
-		boolean emailExists = userRepository.existsByEmail(request.getEmail());
+        return new UserDeleteDTO("User account deleted successfully.");
+    }
 
-		// Verify if the email exists or not.
-		if (emailExists) {
-			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
-		}
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getAllUsers() {
 
-		user.setEmail(request.getEmail());
+        return userRepository.findAll().stream().map(UserResponseDTO::new).collect(Collectors.toList());
+    }
 
-		return new EmailResponseDTO(userRepository.save(user));
-	}
+    @Override
+    @Transactional
+    public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
 
+        User user = getUserById(id);
+
+        user.setUsername(request.getUsername());
+
+        return new UsernameResponseDTO(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
+    public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
+
+        User user = getUserById(id);
+
+        // Validates if the new phone number is already taken.
+        boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
+
+        // Verify if the phoneNumber exists or not.
+        if (phoneNumberExists) {
+            throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
+        }
+
+        user.setPhoneNumber(request.getPhoneNumber());
+
+        return new PhoneNumberResponseDTO(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
+    public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
+
+        User user = getUserById(id);
+
+        // Validates if the new email is already taken.
+        boolean emailExists = userRepository.existsByEmail(request.getEmail());
+
+        // Verify if the email exists or not.
+        if (emailExists) {
+            throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
+        }
+
+        user.setEmail(request.getEmail());
+
+        return new EmailResponseDTO(userRepository.save(user));
+    }
 }
