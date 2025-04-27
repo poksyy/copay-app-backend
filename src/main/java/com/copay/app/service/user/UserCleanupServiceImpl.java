@@ -19,12 +19,13 @@ public class UserCleanupServiceImpl implements UserCleanupService {
 
     // Scheduled task that runs automatically every 2 minutes.
     // This method removes users who have not completed the registration process within the last 5 minutes.
+	@Override
 	@Transactional
 	@Scheduled(fixedRate = 120000)
 	public void deleteIncompleteUsers() {
 
 		LocalDateTime cutoffTime = LocalDateTime.now().minusMinutes(5);
 		int deletedUsers = userRepository.deleteIncompleteUsers(cutoffTime);
-		System.out.println(deletedUsers + " Users were removed due to incomplete registration.");
+		System.err.println(deletedUsers + " Users were removed due to incomplete registration.");
 	}
 }
