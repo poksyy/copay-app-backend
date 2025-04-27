@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PasswordServiceImpl implements PasswordService{
+public class PasswordServiceImpl implements PasswordService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -35,29 +35,33 @@ public class PasswordServiceImpl implements PasswordService{
         this.emailService = emailService;
     }
 
+    @Override
     @Transactional
     public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO request, String token) {
 
-            String phoneNumberToken = jwtService.getUserIdentifierFromToken(token);
+        String phoneNumberToken = jwtService.getUserIdentifierFromToken(token);
 
-            // Find user by email through the temporal token.
-            User user = userRepository.findByPhoneNumber(phoneNumberToken)
-                    .orElseThrow(() -> new UserNotFoundException("User not found" ));
+        // Find user by email through the temporal token.
+        User user = userRepository.findByPhoneNumber(phoneNumberToken)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-            // Check if the current password is correct.
-            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-                throw new IncorrectPasswordException("Current password is incorrect.");
-            }
+        // Check if the current password is correct.
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
 
-            // Save the new password with hash
-            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            throw new IncorrectPasswordException("Current password is incorrect.");
+        }
 
-            userRepository.save(user);
+        // Save the new password with hash
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
-            return ResponseEntity.ok(new ResetPasswordResponseDTO("Password updated successfully."));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new ResetPasswordResponseDTO("Password updated successfully."));
 
     }
 
+    @Override
+    @Transactional
     public ResponseEntity<ForgotPasswordResponseDTO> forgotPassword(ForgotPasswordDTO request) {
 
         boolean emailExists = userRepository.existsByEmail(request.getEmail());
@@ -86,10 +90,12 @@ public class PasswordServiceImpl implements PasswordService{
             return ResponseEntity.ok(responseDTO);
 
         } catch (MessagingException e) {
+            // TODO: Add custom validation in order to not send http 500 error.
             throw new EmailSendingException("Error sending the email. " + e);
         }
     }
 
+    @Override
     @Transactional
     public ResponseEntity<ForgotPasswordResetResponseDTO> forgotPasswordReset(String token, ForgotPasswordResetDTO request) {
 
