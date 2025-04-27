@@ -74,15 +74,22 @@ public class ExpenseServiceImpl implements ExpenseService {
         updateRegisteredUsers(group, userCreditor, externalCreditor);
     }
 
-    public void deleteExpenseByGroup(Group group) {
-        Optional<Expense> optionalExpense = expenseRepository.findByGroup(group);
+    public void deleteExpenseByGroupAndId(Long groupId, Long expenseId) {
+        Optional<Expense> expenseOptional = expenseRepository.findByIdAndGroupId(expenseId, groupId);
 
-        if (optionalExpense.isPresent()) {
-            Expense expense = optionalExpense.get();
+        if (expenseOptional.isPresent()) {
+            Expense expense = expenseOptional.get();
 
-            // paymentConfirmationRepository.deleteByExpense(expense);
+            // Delete associated UserExpense records
             userExpenseRepository.deleteByExpense(expense);
+
+            // TODO: Delete payment confirmations related to the expense
+            // paymentConfirmationRepository.deleteByExpense(expense);
+
+            // Finally, delete the expense itself
             expenseRepository.delete(expense);
+        } else {
+            throw new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId);
         }
     }
 

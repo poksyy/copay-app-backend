@@ -72,11 +72,12 @@ public class ExpenseController {
         return ResponseEntity.ok(getExpense);
     }
 
-    // @DeleteMapping("/{groupId}/{expenseId}")
-    // public ResponseEntity<?> deleteGroup(@PathVariable Long groupId, Long expenseId
-    //                                     @Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO, BindingResult result) {
-    //    //TODO: Delete an specific expense
-    //    return ResponseEntity.ok(null);
-    // }
+    @DeleteMapping("/{groupId}/{expenseId}")
+    public ResponseEntity<?> deleteExpense(@PathVariable Long groupId, @PathVariable Long expenseId) {
+
+        expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
+
+        return ResponseEntity.ok("Expense deleted successfully.");
+    }
 
 }
