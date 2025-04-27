@@ -42,15 +42,7 @@ public class GroupController {
 
     // Endpoint to create a new group.
 	@PostMapping
-	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO,
-			BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO) {
 
 		System.err.println("Create group inputs from front" + createGroupRequestDTO);
 
@@ -62,17 +54,10 @@ public class GroupController {
 	// Endpoint to retrieve groups for a given user (HomeScreen display).
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getGroupsByUser(@PathVariable Long userId,
-			@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO, BindingResult result) {
+			@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
 
 		// The userId is manually added to the DTO for validation.
 		getGroupRequestDTO.setUserId(userId);
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
 
 		GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
 
@@ -81,17 +66,10 @@ public class GroupController {
 
 	@DeleteMapping("/{groupId}")
 	public ResponseEntity<?> deleteGroup(@PathVariable Long groupId,
-			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO, BindingResult result) {
+			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO) {
 
 		// The groupId is manually added to the DTO for validation.
 		deleteGroupRequestDTO.setGroupId(groupId);
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
 
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
@@ -103,17 +81,10 @@ public class GroupController {
 
 	@DeleteMapping("/{groupId}/leave")
 	public ResponseEntity<?> leaveGroup(@PathVariable Long groupId,
-			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO, BindingResult result) {
+			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO) {
 
 		// The groupId is manually added to the DTO for validation.
 		deleteGroupRequestDTO.setGroupId(groupId);
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
 
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
@@ -133,14 +104,7 @@ public class GroupController {
 
 	@PatchMapping("/{groupId}/copaymembers")
 	public ResponseEntity<?> updateGroupCopayMembers(@PathVariable Long groupId,
-			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request, BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request) {
 
 		GroupMessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
 
@@ -149,14 +113,7 @@ public class GroupController {
 
 	@PatchMapping("/{groupId}/externalmembers")
 	public ResponseEntity<?> updateGroupExternalMembers(@PathVariable Long groupId,
-			@RequestBody @Valid UpdateGroupExternalMembersRequestDTO request, BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations.
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+			@RequestBody @Valid UpdateGroupExternalMembersRequestDTO request) {
 
 		GroupMessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request);
 
