@@ -20,6 +20,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -101,14 +102,32 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public List<ExpenseResponseDTO> getExpenses(Long groupId) {
-        //TODO
-        return null;
+
+        // Fetch all expenses for the given group
+        List<Expense> expenses = expenseRepository.findByGroupId(groupId);
+
+        // Check if the group has any expenses
+        if (expenses.isEmpty()) {
+
+            // If no expenses are found, throw an exception
+            throw new ExpenseNotFoundException("No expenses found for group " + groupId);
+        }
+
+        // Convert the list of Expense entities to ExpenseResponseDTOs
+        return expenses.stream()
+                .map(expense -> new ExpenseResponseDTO(expense.getExpenseId(), expense.getTotalAmount(), expense.getGroup().getGroupId()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public ExpenseResponseDTO getExpense(Long groupId, Long expenseId) {
-        //TODO
-        return null;
+
+        // Fetch a specific expense by expenseId and groupId
+        Expense expense = expenseRepository.findByIdAndGroupId(expenseId, groupId)
+                .orElseThrow(() -> new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId));
+
+        // Convert the Expense entity to an ExpenseResponseDTO
+        return new ExpenseResponseDTO(expense.getExpenseId(), expense.getTotalAmount(), expense.getGroup().getGroupId());
     }
 
     @Override
