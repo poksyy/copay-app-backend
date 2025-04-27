@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.copay.app.entity.Expense;
+import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.service.expense.ExpenseServiceImpl;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
@@ -61,13 +63,15 @@ public class GroupServiceImpl implements GroupService {
 
 	private final ExpenseServiceImpl expenseServiceImpl;
 
+	private final ExpenseRepository expenseRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	// Constructor to initialize all the instances.
 	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
 			UserRepository userRepository, ExternalMemberRepository externalMemberRepository, JwtService jwtService, ExpenseServiceImpl expenseServiceImpl,
-			EntityManager entityManager) {
+			EntityManager entityManager, ExpenseRepository expenseRepository) {
 
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
@@ -76,6 +80,7 @@ public class GroupServiceImpl implements GroupService {
 		this.jwtService = jwtService;
 		this.expenseServiceImpl = expenseServiceImpl;
 		this.entityManager = entityManager;
+		this.expenseRepository = expenseRepository;
 	}
 
 	@Override
@@ -265,6 +270,12 @@ public class GroupServiceImpl implements GroupService {
 			
 			throw new InvalidGroupCreatorException(
 					"User " + user.getUserId() + " has no permissions to delete group " + group.getGroupId());
+		}
+
+		// Delete expenses associated by the group.
+		List<Expense> expenses = expenseRepository.findAllByGroup(group);
+		for (Expense expense : expenses) {
+			expenseServiceImpl.deleteExpenseByGroupAndId(group.getGroupId(), expense.getExpenseId());
 		}
 
 		// Persists deletion in the database.
