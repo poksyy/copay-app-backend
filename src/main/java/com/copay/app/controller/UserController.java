@@ -42,14 +42,7 @@ public class UserController {
 
 	// Handles user creation with validation.
 	@PostMapping
-	public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDTO request, BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations. 
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+	public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDTO request) {
 
 		// Convert the saved entity to a response DTO.
 		UserResponseDTO response = userServiceImpl.createUser(request);
@@ -77,15 +70,7 @@ public class UserController {
 
 	// Updates a user with the provided ID.
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO request,
-			BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations. 
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO request) {
 
 		// Delegate the update to the service.
 		UserResponseDTO response = userServiceImpl.updateUser(id, request);
@@ -96,14 +81,7 @@ public class UserController {
 	// Updates a user with the provided email.
 	@PutMapping("/email/{email}")
 	public ResponseEntity<?> updateUserByEmail(@PathVariable String email,
-			@Valid @RequestBody UserUpdateDTO request, BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations. 
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+			@Valid @RequestBody UserUpdateDTO request) {
 
 		// Convert the updated entity to a response DTO.
 		UserResponseDTO response = userServiceImpl.updateUser(email, request);
@@ -131,14 +109,7 @@ public class UserController {
 	
 	// Updates only the username of a user by ID.
 	@PutMapping("/edit-username/{id}")
-	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO request, BindingResult result) {
-
-	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-	    // Validates the DTO annotations.
-	    if (validationResponse != null) {
-	        return ResponseEntity.badRequest().body(validationResponse);
-	    }
+	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO request) {
 
 	    // Delegate the username update to the service.
 	    UsernameResponseDTO response = userServiceImpl.updateUsername(id, request);
@@ -148,14 +119,7 @@ public class UserController {
 	
 	// Updates only the phone number of a user by ID.
 	@PutMapping("/edit-phone/{id}")
-	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO request, BindingResult result) {
-
-	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-	    // Validates the DTO annotations.
-	    if (validationResponse != null) {
-	        return ResponseEntity.badRequest().body(validationResponse);
-	    }
+	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO request) {
 
 	    // Delegate the phone number update to the service.
 	    PhoneNumberResponseDTO response = userServiceImpl.updatePhoneNumber(id, request);
@@ -165,19 +129,12 @@ public class UserController {
 
 	// Updates only the email of a user by ID.
 	@PutMapping("/edit-email/{id}")
-	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailDTO request, BindingResult result) {
+	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailDTO request) {
 
-	    ValidationErrorResponse validationResponse = ValidationService.validate(result);
+		// Delegate the email update to the service.
+		EmailResponseDTO response = userServiceImpl.updateEmail(id, request);
 
-	    // Validates the DTO annotations.
-	    if (validationResponse != null) {
-	        return ResponseEntity.badRequest().body(validationResponse);
-	    }
-
-	    // Delegate the email update to the service.
-	    EmailResponseDTO response = userServiceImpl.updateEmail(id, request);
-
-	    return ResponseEntity.ok(response);
+		return ResponseEntity.ok(response);
 	}
 
 }
