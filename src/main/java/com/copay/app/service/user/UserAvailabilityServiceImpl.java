@@ -16,6 +16,7 @@ public class UserAvailabilityServiceImpl implements UserAvailabilityService {
 		this.userRepository = userRepository;
 	}
 
+	@Override
 	public void checkUserExistence(User user) {
 
 		boolean phoneInUse = userRepository.existsByPhoneNumber(user.getPhoneNumber());
