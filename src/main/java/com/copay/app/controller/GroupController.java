@@ -2,9 +2,9 @@ package com.copay.app.controller;
 
 import java.util.Map;
 
+import com.copay.app.dto.MessageResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,10 +22,7 @@ import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.group.response.CreateGroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
-import com.copay.app.dto.group.response.GroupMessageResponseDTO;
-import com.copay.app.service.ValidationService;
 import com.copay.app.service.group.GroupServiceImpl;
-import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
 
@@ -74,7 +71,7 @@ public class GroupController {
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		GroupMessageResponseDTO response = groupService.deleteGroup(groupId, token);
+		MessageResponseDTO response = groupService.deleteGroup(groupId, token);
 
 		return ResponseEntity.ok(response);
 	}
@@ -89,7 +86,7 @@ public class GroupController {
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		GroupMessageResponseDTO response = groupService.leaveGroup(groupId, token);
+		MessageResponseDTO response = groupService.leaveGroup(groupId, token);
 
 		return ResponseEntity.ok(response);
 	}
@@ -97,7 +94,7 @@ public class GroupController {
 	@PatchMapping("/{groupId}")
 	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges) {
 
-		GroupMessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges);
+		MessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges);
 
 		return ResponseEntity.ok(response);
 	}
@@ -106,7 +103,7 @@ public class GroupController {
 	public ResponseEntity<?> updateGroupCopayMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request) {
 
-		GroupMessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
+		MessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
 
 		return ResponseEntity.ok(response);
 	}
@@ -115,7 +112,7 @@ public class GroupController {
 	public ResponseEntity<?> updateGroupExternalMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupExternalMembersRequestDTO request) {
 
-		GroupMessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request);
+		MessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request);
 
 		return ResponseEntity.ok(response);
 	}
