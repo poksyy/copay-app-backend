@@ -47,6 +47,8 @@ public class AuthServiceImpl implements AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Override
+	@Transactional
 	public LoginResponseDTO loginUser(UserLoginRequestDTO request) {
 
 		// Find the user by phone number before executing try-catch block.
@@ -83,6 +85,7 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
+	@Override
 	@Transactional
 	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneDTO request) {
 
@@ -119,6 +122,7 @@ public class AuthServiceImpl implements AuthService {
 				user.getEmail());
 	}
 
+	@Override
 	@Transactional
     public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
 
@@ -171,6 +175,8 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
+	@Override
+	@Transactional
     public void logout(String token) {
     	
         try {
