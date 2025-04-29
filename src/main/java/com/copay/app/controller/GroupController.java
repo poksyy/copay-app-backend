@@ -37,11 +37,16 @@ public class GroupController {
         this.groupService = groupService;
     }
 
-    // Endpoint to create a new group.
+	// Endpoint to create a new group.
 	@PostMapping
 	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO) {
 
-		System.err.println("Create group inputs from front" + createGroupRequestDTO);
+		boolean isValidPayer = (createGroupRequestDTO.getPaidByRegisteredMemberId() != null && createGroupRequestDTO.getPaidByExternalMemberId() == null)
+				|| (createGroupRequestDTO.getPaidByRegisteredMemberId() == null && createGroupRequestDTO.getPaidByExternalMemberId() != null);
+
+		if (!isValidPayer) {
+			return ResponseEntity.badRequest().body("Only one payer (either registered user or external member) should be selected.");
+		}
 
 		CreateGroupResponseDTO createGroupResponseDTO = groupService.createGroup(createGroupRequestDTO);
 
