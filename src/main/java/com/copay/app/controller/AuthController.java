@@ -30,15 +30,7 @@ public class AuthController {
 
     // Handles user registration request.
 	@PostMapping("/register/step-one")
-	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneDTO userRegisterStepOneDTO,
-			BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations. 
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneDTO userRegisterStepOneDTO) {
 
 		// Registers the user and returns a JWT response.
 		RegisterStepOneResponseDTO registerStepOneResponseDTO = authServiceImpl.registerStepOne(userRegisterStepOneDTO);
@@ -48,15 +40,7 @@ public class AuthController {
 
 	// Update phone number of the user.
 	@PostMapping("/register/step-two")
-	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoDTO userRegisterStepTwoDTO,
-			BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations. 
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-		}
+	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoDTO userRegisterStepTwoDTO) {
 
 		// Get the authentication though the JwtAuthenticationFilter class.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
@@ -69,14 +53,7 @@ public class AuthController {
 
 	// Handles user login request.
 	@PostMapping("/login")
-	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequestDTO loginRequest, BindingResult result) {
-
-		ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-		// Validates the DTO annotations. 
-		if (validationResponse != null) {
-			return ResponseEntity.badRequest().body(validationResponse);
-    }
+	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequestDTO loginRequest) {
 
 		// Authenticates the user and returns a JWT token.
 		LoginResponseDTO loginResponseDTO = authServiceImpl.loginUser(loginRequest);
