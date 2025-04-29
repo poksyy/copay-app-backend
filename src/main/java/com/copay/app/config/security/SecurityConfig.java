@@ -56,7 +56,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/response", "/api/auth/register/step-one", "/api/auth/login",
 								"/api/users/**", "/api/fake-data/**", "/reset-password.html", "/api/forgot-password",
 								"/api/forgot-password-reset", "/favicon.ico","/img/**", "/static/**", "/api/groups", "/api/groups/**",
-								"/api/db/**")
+								"/api/db/**", "/api/expenses/**")
 						// Allow public routes.
 						.permitAll()
 						// Require authentication for all other endpoints.
