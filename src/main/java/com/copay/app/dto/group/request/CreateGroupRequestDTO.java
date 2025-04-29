@@ -35,10 +35,21 @@ public class CreateGroupRequestDTO {
 	private List<String> invitedRegisteredMembers = new ArrayList<>();
 	private List<String> invitedExternalMembers = new ArrayList<>();
 
+	private Long paidByRegisteredMemberId;
+	private Long paidByExternalMemberId;
+
 	@AssertTrue(message = "At least one list of members must be provided")
 	public boolean isAtLeastOneMemberProvided() {
 		// Validates that at least 1 of both variables are not null or empty
 		return !invitedExternalMembers.isEmpty() || !invitedRegisteredMembers.isEmpty();
+	}
+
+	// Validation to ensure that only one payer is selected
+	@AssertTrue(message = "Only one payer must be selected (either from registered or external members, not both)")
+	public boolean isOnlyOnePayer() {
+		// Ensure that only one of the following fields is not null
+		return (paidByRegisteredMemberId != null && paidByExternalMemberId == null) ||
+				(paidByRegisteredMemberId == null && paidByExternalMemberId != null);
 	}
 
 	// Getters and Setters.
@@ -112,6 +123,22 @@ public class CreateGroupRequestDTO {
 
 	public void setInvitedRegisteredMembers(List<String> invitedRegisteredMembers) {
 		this.invitedRegisteredMembers = invitedRegisteredMembers;
+	}
+
+	public Long getPaidByRegisteredMemberId() {
+		return paidByRegisteredMemberId;
+	}
+
+	public void setPaidByRegisteredMemberId(Long paidByRegisteredMemberId) {
+		this.paidByRegisteredMemberId = paidByRegisteredMemberId;
+	}
+
+	public Long getPaidByExternalMemberId() {
+		return paidByExternalMemberId;
+	}
+
+	public void setPaidByExternalMemberId(Long paidByExternalMemberId) {
+		this.paidByExternalMemberId = paidByExternalMemberId;
 	}
 
 	// toString method with debug purposes.
