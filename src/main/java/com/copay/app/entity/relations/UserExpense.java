@@ -1,6 +1,5 @@
 package com.copay.app.entity.relations;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +47,8 @@ public class UserExpense {
     @JoinColumn(name = "creditor_external_member_id")
     private ExternalMember creditorExternalMember;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    @Column(nullable = false)
+    private Float amount;
     
     @OneToMany(mappedBy = "userExpense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentConfirmation> confirmations = new ArrayList<>();    
@@ -107,11 +106,11 @@ public class UserExpense {
 		this.creditorExternalMember = creditorExternalMember;
 	}
 
-	public BigDecimal getAmount() {
+	public Float getAmount() {
 		return amount;
 	}
 
-	public void setAmount(BigDecimal amount) {
+	public void setAmount(Float amount) {
 		this.amount = amount;
 	}
 	

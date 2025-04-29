@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.copay.app.dto.MessageResponseDTO;
+import com.copay.app.entity.Expense;
+import com.copay.app.repository.expense.ExpenseRepository;
+import com.copay.app.service.expense.ExpenseServiceImpl;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.group.request.CreateGroupRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
@@ -58,20 +61,26 @@ public class GroupServiceImpl implements GroupService {
 
 	private final JwtService jwtService;
 
+	private final ExpenseServiceImpl expenseServiceImpl;
+
+	private final ExpenseRepository expenseRepository;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	// Constructor to initialize all the instances.
 	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
-			UserRepository userRepository, ExternalMemberRepository externalMemberRepository, JwtService jwtService,
-			EntityManager entityManager) {
+			UserRepository userRepository, ExternalMemberRepository externalMemberRepository, JwtService jwtService, ExpenseServiceImpl expenseServiceImpl,
+			EntityManager entityManager, ExpenseRepository expenseRepository) {
 
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
 		this.userRepository = userRepository;
 		this.externalMemberRepository = externalMemberRepository;
 		this.jwtService = jwtService;
+		this.expenseServiceImpl = expenseServiceImpl;
 		this.entityManager = entityManager;
+		this.expenseRepository = expenseRepository;
 	}
 
 	@Override
@@ -157,6 +166,9 @@ public class GroupServiceImpl implements GroupService {
 		 * relies on cascading.
 		 */
 		entityManager.merge(group);
+
+		// Null because the user who pays is always the creator of the group (temporal).
+		expenseServiceImpl.initializeExpenseFromGroup(group, group.getEstimatedPrice(), creator, null);
 
 		// Map the group instance to GroupResponseDTO.
 		return mapToGroupResponseDTO(group, request.getCreatedBy());
@@ -258,6 +270,12 @@ public class GroupServiceImpl implements GroupService {
 			
 			throw new InvalidGroupCreatorException(
 					"User " + user.getUserId() + " has no permissions to delete group " + group.getGroupId());
+		}
+
+		// Delete expenses associated by the group.
+		List<Expense> expenses = expenseRepository.findAllByGroup(group);
+		for (Expense expense : expenses) {
+			expenseServiceImpl.deleteExpenseByGroupAndId(group.getGroupId(), expense.getExpenseId());
 		}
 
 		// Persists deletion in the database.
@@ -364,17 +382,22 @@ public class GroupServiceImpl implements GroupService {
 	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId,
 														   UpdateGroupRegisteredMembersRequestDTO request) {
 
-		// Find the group or throw an exception if not found.
+		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
-		// Collect the invited phone numbers from the request.
+		// List invited phone numbers.
 		Set<String> invitedPhoneNumbers = new HashSet<>(request.getInvitedRegisteredMembers());
 
-		// Remove members who are no longer invited.
+		// Remove current members whose phone numbers are not in the invited list.
 		removeUninvitedRegisteredMembers(group, invitedPhoneNumbers);
 
-		// Add newly invited members who are not already in the group.
+		// Add new registered members to the list
 		addNewRegisteredMembers(group, invitedPhoneNumbers);
+
+		User userCreditor = group.getCreatedBy();
+
+		expenseServiceImpl.updateRegisteredUsers(group, userCreditor, null);
+		expenseServiceImpl.updateExternalMembers(group, userCreditor, null);
 
 		// Return success message.
 		return new MessageResponseDTO("Group members updated successfully.");
@@ -406,6 +429,11 @@ public class GroupServiceImpl implements GroupService {
 			// Add member to the group if it's not already present.
 			addMemberToGroupIfMissing(group, member);
 		}
+
+		User userCreditor = group.getCreatedBy();
+
+		expenseServiceImpl.updateRegisteredUsers(group, userCreditor, null);
+		expenseServiceImpl.updateExternalMembers(group, userCreditor, null);
 
 		// Return success message.
 		return new MessageResponseDTO("Group external members updated successfully.");
