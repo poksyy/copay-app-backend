@@ -87,9 +87,16 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public CreateGroupResponseDTO createGroup(CreateGroupRequestDTO request) {
 
-		// Check if the creator exists on the database and saves the user_id.
+		// Check if the creator exists in the database and save the user_id.
 		User creator = userRepository.findById(request.getCreatedBy())
 				.orElseThrow(() -> new UserNotFoundException("User with ID " + request.getCreatedBy() + " not found"));
+
+		Long paidByUserId = request.getPaidByRegisteredMemberId();
+		Long paidByExternalMemberId = request.getPaidByExternalMemberId();
+
+		if ((paidByUserId != null && paidByExternalMemberId != null) || (paidByUserId == null && paidByExternalMemberId == null)) {
+			throw new IllegalArgumentException("Only one payer (either registered user or external member) should be selected.");
+		}
 
 		// Loop to check if the invited registered members have an account.
 		for (String phoneNumber : request.getInvitedRegisteredMembers()) {
@@ -122,7 +129,7 @@ public class GroupServiceImpl implements GroupService {
 
 		// Excludes the creator of the group from the invitedMembers list.
 		List<String> invitedMembers = request.getInvitedRegisteredMembers().stream()
-				.filter(phone -> !phone.equals(creator.getPhoneNumber())).collect(Collectors.toList());
+				.filter(phone -> !phone.equals(creator.getPhoneNumber())).toList();
 
 		// Loop to persist invited registered members into the database.
 		for (String phoneNumber : invitedMembers) {
@@ -151,7 +158,7 @@ public class GroupServiceImpl implements GroupService {
 			// Create and persist an ExternalMember.
 			ExternalMember externalMember = new ExternalMember();
 			externalMember.setName(externalName);
-			externalMember.setGroup(group);
+			externalMember.setGroupId(group);
 			externalMember.setJoinedAt(LocalDateTime.now());
 
 			// Add the external member to the group
@@ -273,7 +280,8 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		// Delete expenses associated by the group.
-		List<Expense> expenses = expenseRepository.findAllByGroup(group);
+		List<Expense> expenses = expenseRepository.findAllByGroupId(group);
+
 		for (Expense expense : expenses) {
 			expenseServiceImpl.deleteExpenseByGroupAndId(group.getGroupId(), expense.getExpenseId());
 		}
@@ -501,7 +509,7 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		ExternalMember newMember = new ExternalMember();
-		newMember.setGroup(group);
+		newMember.setGroupId(group);
 
 		return newMember;
 	}
