@@ -36,7 +36,7 @@ public class ExternalMember {
 	// LAZY fetch is used to avoid unnecessary loading of external members if not accessed.
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "group_id", nullable = false)
-	private Group group;
+	private Group groupId;
 
 	// Bidirectional mappings for debts
     @OneToMany(mappedBy = "debtorExternalMember", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,12 +67,12 @@ public class ExternalMember {
 		this.name = name;
 	}
 
-	public Group getGroup() {
-		return group;
+	public Group getGroupId() {
+		return groupId;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
+	public void setGroupId(Group groupId) {
+		this.groupId = groupId;
 	}
 
 	public LocalDateTime getJoinedAt() {
