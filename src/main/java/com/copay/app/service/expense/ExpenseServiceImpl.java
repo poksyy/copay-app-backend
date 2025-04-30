@@ -42,7 +42,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Method triggered when creating a new group to initialize the expense management.
     public void initializeExpenseFromGroup(Group group, Float estimatedPrice, User userCreditor, ExternalMember externalCreditor) {
-        // Create and save the main expense
+
+        // Create and save the main expense.
         Expense expense = new Expense();
         expense.setGroupId(group);
         expense.setTotalAmount(estimatedPrice);
@@ -70,16 +71,19 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Method triggered when updating registered users to update the expense.
     public void updateRegisteredUsers(Group group, User userCreditor, ExternalMember externalCreditor) {
+
         Expense expense = findExpenseByGroup(group);
         updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
     }
 
     // Method triggered when updating external members to update the expense.
     public void updateExternalMembers(Group group, User userCreditor, ExternalMember externalCreditor) {
-        // Reuse the same method as updateRegisteredUsers since the logic is identical
+
+        // Reuse the same method as updateRegisteredUsers since the logic is identical.
         updateRegisteredUsers(group, userCreditor, externalCreditor);
     }
 
+    // Delete an expense of a specific group by retrieving expense id and group id.
     public void deleteExpenseByGroupAndId(Long groupId, Long expenseId) {
 
         Optional<Expense> expenseOptional = expenseRepository.findByExpenseIdAndGroupId_GroupId(expenseId, groupId);
@@ -93,7 +97,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             // TODO: Delete payment confirmations related to the expense
             // paymentConfirmationRepository.deleteByExpense(expense);
 
-            // Finally, delete the expense itself
+            // Finally, delete the expense itself.
             expenseRepository.delete(expense);
 
         } else {
@@ -101,14 +105,16 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
     }
 
+    //TODO: Implement this method of creating expenses when implementing more than one expense per group.
     @Override
     public ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request) {
-        //TODO
         return null;
     }
 
+    // Find the expenses of a group by id.
     @Override
     public List<ExpenseResponseDTO> getExpenses(Long groupId) {
+
         List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
 
         if (expenses.isEmpty()) {
@@ -120,6 +126,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .collect(Collectors.toList());
     }
 
+    // Find an expense by id of a specific group by id.
     @Override
     public ExpenseResponseDTO getExpense(Long groupId, Long expenseId) {
         Expense expense = expenseRepository.findByExpenseIdAndGroupId_GroupId(expenseId, groupId)
@@ -134,7 +141,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         return null;
     }
 
-    // Sets the creditor (payer) for an expense
+    // Sets the creditor (payer) for an expense.
     private void setCreditor(Expense expense, User userCreditor, ExternalMember externalCreditor) {
 
         if (userCreditor != null) {
@@ -168,15 +175,15 @@ public class ExpenseServiceImpl implements ExpenseService {
         List<UserExpense> toRemove = new ArrayList<>();
 
         // Iterate over existing debts and identify if the debtor (user or external member) is no longer in the group.
-        for (UserExpense ue : existingExpenses) {
-            boolean userStillExists = ue.getDebtorUser() != null && memberUsers.stream()
-                    .anyMatch(u -> u.getUserId().equals(ue.getDebtorUser().getUserId()));
-            boolean externalStillExists = ue.getDebtorExternalMember() != null && externalMembers.stream()
-                    .anyMatch(em -> em.getExternalMembersId().equals(ue.getDebtorExternalMember().getExternalMembersId()));
+        for (UserExpense userExpense : existingExpenses) {
+            boolean userStillExists = userExpense.getDebtorUser() != null && memberUsers.stream()
+                    .anyMatch(u -> u.getUserId().equals(userExpense.getDebtorUser().getUserId()));
+            boolean externalStillExists = userExpense.getDebtorExternalMember() != null && externalMembers.stream()
+                    .anyMatch(em -> em.getExternalMembersId().equals(userExpense.getDebtorExternalMember().getExternalMembersId()));
 
             // If neither the user nor the external member exists in the group, mark this debt for removal.
             if (!userStillExists && !externalStillExists) {
-                toRemove.add(ue);
+                toRemove.add(userExpense);
             }
         }
 
@@ -210,7 +217,8 @@ public class ExpenseServiceImpl implements ExpenseService {
             userExpense.setExpense(expense);
             // Set the user as the debtor.
             userExpense.setDebtorUser(user);
-            userExpense.setAmount(amountPerDebtor.floatValue());  // Set the amount this user needs to pay
+            // Set the amount this user needs to pay
+            userExpense.setAmount(amountPerDebtor.floatValue());
 
             // Set the creditor (either a user or an external member).
             if (userCreditor != null) {
@@ -240,7 +248,8 @@ public class ExpenseServiceImpl implements ExpenseService {
             userExpense.setExpense(expense);
             // Set the external member as the debtor.
             userExpense.setDebtorExternalMember(externalMember);
-            userExpense.setAmount(amountPerDebtor.floatValue());  // Set the amount this external member needs to pay
+            // Set the amount this external member needs to pay
+            userExpense.setAmount(amountPerDebtor.floatValue());
 
             // Set the creditor (either a user or an external member).
             if (userCreditor != null) {
@@ -281,18 +290,18 @@ public class ExpenseServiceImpl implements ExpenseService {
         List<DebtorResponseDTO> externalMembers = new ArrayList<>();
 
         // Iterate through the user expenses to separate registered members from external members
-        for (UserExpense ue : userExpenses) {
-            Float amount = ue.getAmount();
-            Long creditorUserId = Optional.ofNullable(ue.getCreditorUser()).map(User::getUserId).orElse(null);
-            Long creditorExternalMemberId = Optional.ofNullable(ue.getCreditorExternalMember()).map(ExternalMember::getExternalMembersId).orElse(null);
+        for (UserExpense userExpense : userExpenses) {
+            Float amount = userExpense.getAmount();
+            Long creditorUserId = Optional.ofNullable(userExpense.getCreditorUser()).map(User::getUserId).orElse(null);
+            Long creditorExternalMemberId = Optional.ofNullable(userExpense.getCreditorExternalMember()).map(ExternalMember::getExternalMembersId).orElse(null);
 
             // Create the DTO depending on whether it is a registered user or an external member
-            DebtorResponseDTO dto = createDebtorResponseDTO(ue, creditorUserId, creditorExternalMemberId, amount);
+            DebtorResponseDTO dto = createDebtorResponseDTO(userExpense, creditorUserId, creditorExternalMemberId, amount);
 
             // Separate into registered members and external members
-            if (ue.getDebtorUser() != null) {
+            if (userExpense.getDebtorUser() != null) {
                 registeredMembers.add(dto);
-            } else if (ue.getDebtorExternalMember() != null) {
+            } else if (userExpense.getDebtorExternalMember() != null) {
                 externalMembers.add(dto);
             }
         }

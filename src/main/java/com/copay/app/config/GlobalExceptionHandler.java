@@ -10,11 +10,8 @@ import com.copay.app.exception.group.InvalidGroupCreatorException;
 import com.copay.app.exception.group.InvitedMemberNotFoundException;
 import com.copay.app.exception.user.PhoneAlreadyExistsException;
 import com.copay.app.exception.user.*;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -139,7 +136,7 @@ public class GlobalExceptionHandler {
 
 	// HTTP 404: Expense not found with the provided ID.
 	@ExceptionHandler(ExpenseNotFoundException.class)
-	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundExepction(ExpenseNotFoundException ex) {
+	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundException(ExpenseNotFoundException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Specified expense doesn't exist.", HttpStatus.NOT_FOUND.value());

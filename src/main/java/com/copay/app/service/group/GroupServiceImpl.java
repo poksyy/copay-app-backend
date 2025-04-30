@@ -492,7 +492,7 @@ public class GroupServiceImpl implements GroupService {
 				.filter(Objects::nonNull).collect(Collectors.toSet());
 	}
 
-	// Remove external members that are not longer invited.
+	// Remove external members that are no longer invited.
 	private void removeDeletedExternalMembers(Group group, Set<Long> newIds) {
 
 		group.getExternalMembers().removeIf(member -> !newIds.contains(member.getExternalMembersId()));
@@ -517,9 +517,6 @@ public class GroupServiceImpl implements GroupService {
 	// Ensure the addition of the external member to the group.
 	private void addMemberToGroupIfMissing(Group group, ExternalMember member) {
 
-		if (!group.getExternalMembers().contains(member)) {
-
-			group.getExternalMembers().add(member);
-		}
+        group.getExternalMembers().add(member);
 	}
 }
