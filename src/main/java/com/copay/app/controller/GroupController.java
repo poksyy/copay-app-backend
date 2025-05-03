@@ -94,7 +94,9 @@ public class GroupController {
 	@PatchMapping("/{groupId}")
 	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges) {
 
-		MessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges);
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		MessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges, token);
 
 		return ResponseEntity.ok(response);
 	}
@@ -103,7 +105,9 @@ public class GroupController {
 	public ResponseEntity<?> updateGroupCopayMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request) {
 
-		MessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request);
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		MessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request, token);
 
 		return ResponseEntity.ok(response);
 	}
@@ -112,7 +116,9 @@ public class GroupController {
 	public ResponseEntity<?> updateGroupExternalMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupExternalMembersRequestDTO request) {
 
-		MessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request);
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		MessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request, token);
 
 		return ResponseEntity.ok(response);
 	}
