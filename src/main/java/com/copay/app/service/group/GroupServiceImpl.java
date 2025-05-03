@@ -327,10 +327,23 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields) {
+	public MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token) {
 
 		// Find the group or throw an exception if not found.
 		Group group = findGroupOrThrow(groupId);
+
+		// Get the phone number from the current token.
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Find user by the phone number provided with the token.
+		User user = userRepository.findByPhoneNumber(userPhoneNumber)
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		// Validate that the update is being done by the group creator.
+		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
+			throw new InvalidGroupCreatorException(
+					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
+		}
 
 		// Update only the fields present in the Map.
 		updateGroupFields(group, fields);
@@ -360,7 +373,7 @@ public class GroupServiceImpl implements GroupService {
 		// Initialize ObjectMapper to convert values to the correct type.
 		ObjectMapper mapper = new ObjectMapper();
 
-		 // Iterate through the map entries.
+		// Iterate through the map entries.
 		fields.forEach((key, value) -> {
 
 			// Find the corresponding field in the Group class by the name.
@@ -368,7 +381,7 @@ public class GroupServiceImpl implements GroupService {
 
 			if (field != null) {
 
-				 // Make the field accessible to modify its value.
+				// Make the field accessible to modify its value.
 				field.setAccessible(true);
 
 				// Convert the value to the field's type.
@@ -376,11 +389,6 @@ public class GroupServiceImpl implements GroupService {
 
 				// Set the converted value into the corresponding field to avoid errors.
 				ReflectionUtils.setField(field, group, convertedValue);
-
-			} else {
-				// TODO: ADD CUSTOM VALIDATION.
-				// Throw an exception if the field does not exist in the Group class.
-				throw new IllegalArgumentException("Field '" + key + "' does not exist in Group entity.");
 			}
 		});
 	}
@@ -388,10 +396,23 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	@Transactional
 	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId,
-														   UpdateGroupRegisteredMembersRequestDTO request) {
+														   UpdateGroupRegisteredMembersRequestDTO request, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
+
+		// Get the phone number from the current token.
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Find user by the phone number provided with the token.
+		User user = userRepository.findByPhoneNumber(userPhoneNumber)
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		// Validate that the update is being done by the group creator.
+		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
+			throw new InvalidGroupCreatorException(
+					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
+		}
 
 		// List invited phone numbers.
 		Set<String> invitedPhoneNumbers = new HashSet<>(request.getInvitedRegisteredMembers());
@@ -414,10 +435,23 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	@Transactional
 	public MessageResponseDTO updateGroupExternalMembers(Long groupId,
-			UpdateGroupExternalMembersRequestDTO request) {
+			UpdateGroupExternalMembersRequestDTO request, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
+
+		// Get the phone number from the current token.
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Find user by the phone number provided with the token.
+		User user = userRepository.findByPhoneNumber(userPhoneNumber)
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		// Validate that the update is being done by the group creator.
+		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
+			throw new InvalidGroupCreatorException(
+					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
+		}
 
 		// Extract the set of external member IDs from the request.
 		Set<Long> newIds = extractExternalMemberIds(request);

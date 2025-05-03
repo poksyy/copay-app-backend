@@ -15,11 +15,11 @@ public interface GroupService {
 	
 	CreateGroupResponseDTO createGroup(CreateGroupRequestDTO request);
 
-	MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request);
+	MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token);
 
-	MessageResponseDTO updateGroupExternalMembers(Long groupId, UpdateGroupExternalMembersRequestDTO request);
+	MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request, String token);
 
-	MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields);
+	MessageResponseDTO updateGroupExternalMembers(Long groupId, UpdateGroupExternalMembersRequestDTO request, String token);
 
 	MessageResponseDTO leaveGroup(Long groupId, String token);
 

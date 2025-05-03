@@ -16,16 +16,52 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.copay.app.validation.ValidationErrorResponse;
+import org.springframework.web.context.request.WebRequest;
 
 // Global exception handler to manage different exceptions in the application.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	// HTTP 400: Validation errors in request DTO's.
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ValidationErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+		List<String> errors = ex.getBindingResult()
+				.getFieldErrors()
+				.stream()
+				.map(err -> err.getField() + ": " + err.getDefaultMessage())
+				.toList();
+
+		return ResponseEntity.badRequest().body(
+				new ValidationErrorResponse(
+						errors,
+						"Validation failed for request body",
+						HttpStatus.BAD_REQUEST.value()
+				)
+		);
+	}
+
+	// HTTP 422: Invalid input format.
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+
+		// Error message for the exception return.
+		String errorMessage = "There was an error processing the request. Please ensure that all JSON input fields are correctly formatted.";
+
+		// Constructing the response with the error message and status code
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+				List.of(errorMessage),
+				"Invalid data format, please try again.",
+				HttpStatus.UNPROCESSABLE_ENTITY.value()
+		);
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+
 	// HTTP 400: Phone number already exists.
 	@ExceptionHandler(PhoneAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handlePhoneAlreadyExists(PhoneAlreadyExistsException ex) {
 
-		// Constructing response with error details
+		// Constructing response with error details.
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Phone number already exists, please change it.", HttpStatus.BAD_REQUEST.value());
 
@@ -114,13 +150,16 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
-	// HTTP 403: Invalid user trying to delete a group.
+	// HTTP 403: Non creator user trying to update/delete a group.
 	@ExceptionHandler(InvalidGroupCreatorException.class)
 	public ResponseEntity<ValidationErrorResponse> handleInvalidGroupCreatorException(InvalidGroupCreatorException ex) {
 
-		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"You don't have the permissions to delete this group.", HttpStatus.FORBIDDEN.value());
-		
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+				List.of(ex.getMessage()),
+				"Only the group creator is authorized to perform this action.",
+				HttpStatus.FORBIDDEN.value()
+		);
+
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
 	
