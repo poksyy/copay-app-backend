@@ -258,29 +258,46 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	@Transactional(readOnly = true)
 	public GetGroupResponseDTO getGroupsByUserId(Long userId) {
-/*
+
+		// Fetch groups where the user is a member.
 		List<GroupMember> groupMembers = groupMemberRepository.findByIdUserUserId(userId);
 
-		List<Group> groups = groupMembers.stream()
-				.map(gm -> gm.getId().getGroup())
-				.distinct()
+		// Transform GroupMembers into unique groups and map data for response.
+		List<Group> groups = groupMembers.stream().map(gm -> gm.getId().getGroup()).distinct()
 				.toList();
 
+		// Map groups to response DTO format
 		List<GroupResponseDTO> groupResponseDTOs = groups.stream()
 				.map(group -> {
-					Expense expense = expenseRepository.(group.getGroupId());
 
-					User paidByUser = expense != null ? expense.getPaidByUser() : null;
-					ExternalMember paidByExternalMember = expense != null ? expense.getPaidByExternalMember() : null;
+					// Fetch all Expenses associated with the Group
+					List<Expense> expenses = expenseRepository.findByGroupId_GroupId(group.getGroupId());
 
+					// Initialize variables for paid user or external member
+					User paidByUser = null;
+					ExternalMember paidByExternalMember = null;
+
+					if (!expenses.isEmpty()) {
+						// Find the first expense (or process multiple expenses if necessary)
+						Expense expense = expenses.get(0);  // Example of getting the first expense
+
+						// Assign the paid user or external member from the expense
+						paidByUser = expense.getPaidByUser();
+						paidByExternalMember = expense.getPaidByExternalMember();
+					}
+
+					// Map to GroupResponseDTO with all required params
 					return mapToGroupResponseDTO(group, userId, paidByUser, paidByExternalMember);
 				})
 				.collect(Collectors.toList());
 
-		GetGroupResponseDTO response = new GetGroupResponseDTO();
-		response.setGroups(groupResponseDTOs);
-*/
-		return null;
+		// Create the response DTO
+		GetGroupResponseDTO getGroupResponseDTO = new GetGroupResponseDTO();
+
+		// Set the mapped groups list in the response DTO.
+		getGroupResponseDTO.setGroups(groupResponseDTOs);
+
+		return getGroupResponseDTO;
 	}
 
 	@Override
