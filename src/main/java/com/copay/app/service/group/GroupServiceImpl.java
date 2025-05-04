@@ -279,7 +279,7 @@ public class GroupServiceImpl implements GroupService {
 
 					if (!expenses.isEmpty()) {
 						// Find the first expense (or process multiple expenses if necessary)
-						Expense expense = expenses.get(0);  // Example of getting the first expense
+						Expense expense = expenses.getFirst();
 
 						// Assign the paid user or external member from the expense
 						paidByUser = expense.getPaidByUser();
