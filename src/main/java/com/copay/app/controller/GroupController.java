@@ -6,6 +6,8 @@ import java.util.Map;
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
+import com.copay.app.dto.group.request.*;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,11 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.copay.app.dto.group.request.CreateGroupRequestDTO;
-import com.copay.app.dto.group.request.DeleteGroupRequestDTO;
-import com.copay.app.dto.group.request.GetGroupRequestDTO;
-import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
-import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
 import com.copay.app.service.group.GroupServiceImpl;
@@ -113,6 +110,16 @@ public class GroupController {
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		MessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges, token);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@PatchMapping("/{groupId}/estimatedprice")
+	public ResponseEntity<?> updateGroupEstimatedPrice(@PathVariable Long groupId, @RequestBody @Valid UpdateGroupEstimatedPriceRequestDTO request) {
+
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		MessageResponseDTO response = groupService.updateGroupEstimatedPrice(groupId, request, token);
 
 		return ResponseEntity.ok(response);
 	}

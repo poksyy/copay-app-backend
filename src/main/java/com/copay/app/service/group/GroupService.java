@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.group.request.CreateGroupRequestDTO;
+import com.copay.app.dto.group.request.UpdateGroupEstimatedPriceRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
@@ -20,6 +21,8 @@ public interface GroupService {
 	GroupResponseDTO createGroup(CreateGroupRequestDTO request);
 
 	MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token);
+
+	MessageResponseDTO updateGroupEstimatedPrice(Long groupId, UpdateGroupEstimatedPriceRequestDTO request, String token);
 
 	MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request, String token);
 

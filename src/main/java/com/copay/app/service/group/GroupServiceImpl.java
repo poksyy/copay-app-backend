@@ -326,19 +326,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
-		// Get the phoneNumber from the current token.
-		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-		// Find user by the phoneNumber provided with the token.
-		User user = userRepository.findByPhoneNumber(userPhoneNumber)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		// Validate that the deletion is being done by the group creator.
-		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
-			
-			throw new InvalidGroupCreatorException(
-					"User " + user.getUserId() + " has no permissions to delete group " + group.getGroupId());
-		}
+		// Invoke private method to validate the group creator.
+		validateGroupCreator(group, token);
 
 		// Delete expenses associated by the group.
 		List<Expense> expenses = expenseRepository.findAllByGroupId(group);
@@ -356,6 +345,9 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	@Transactional
 	public MessageResponseDTO leaveGroup(Long groupId, String token) {
+
+		/* TODO: validateGroupCreator() METHOD SHOULD BE USED HERE BUT ITS HARDER THAN THE OTHER IMPLEMENTATIONS SINCE
+		 * TODO: METHOD ALSO HAS VALIDATION TO CHECK IF THE GROUP MEMBER EXISTS IN THE GROUP. */
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
@@ -393,18 +385,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find the group or throw an exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
-		// Get the phone number from the current token.
-		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-		// Find user by the phone number provided with the token.
-		User user = userRepository.findByPhoneNumber(userPhoneNumber)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		// Validate that the update is being done by the group creator.
-		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
-			throw new InvalidGroupCreatorException(
-					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
-		}
+		// Invoke private method to validate the group creator.
+		validateGroupCreator(group, token);
 
 		// Update only the fields present in the Map.
 		updateGroupFields(group, fields);
@@ -415,6 +397,8 @@ public class GroupServiceImpl implements GroupService {
 
 		if (!violations.isEmpty()) {
 			
+			// TODO: CHECK IF THIS VALIDATIOSN ARE BEING HANDLED BY METHODEXCEPTION IN GLOBALEXCEPTIONHANDLER.
+
 			// If there are validation errors, throw an exception with the messages.
 			String errorMessages = violations.stream().map(ConstraintViolation::getMessage)
 					.collect(Collectors.joining(", "));
@@ -456,24 +440,33 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
+	public MessageResponseDTO updateGroupEstimatedPrice(Long groupId, UpdateGroupEstimatedPriceRequestDTO request, String token) {
+
+		// Find the group by ID or throw exception if not found.
+		Group group = findGroupOrThrow(groupId);
+
+		// Invoke private method to validate the group creator.
+		validateGroupCreator(group, token);
+
+		group.setEstimatedPrice(request.getEstimatedPrice());
+
+		groupRepository.save(group);
+
+		expenseServiceImpl.updateExpenseTotalAmount(group, request.getEstimatedPrice());
+
+		return new MessageResponseDTO("Estimated price updated and shares recalculated.");
+    }
+
+	@Override
+	@Transactional
 	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId,
 														   UpdateGroupRegisteredMembersRequestDTO request, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
-		// Get the phone number from the current token.
-		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-		// Find user by the phone number provided with the token.
-		User user = userRepository.findByPhoneNumber(userPhoneNumber)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		// Validate that the update is being done by the group creator.
-		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
-			throw new InvalidGroupCreatorException(
-					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
-		}
+		// Invoke private method to validate the group creator.
+		validateGroupCreator(group, token);
 
 		// List invited phone numbers.
 		Set<String> invitedPhoneNumbers = new HashSet<>(request.getInvitedRegisteredMembers());
@@ -501,18 +494,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
 
-		// Get the phone number from the current token.
-		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-		// Find user by the phone number provided with the token.
-		User user = userRepository.findByPhoneNumber(userPhoneNumber)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-		// Validate that the update is being done by the group creator.
-		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
-			throw new InvalidGroupCreatorException(
-					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
-		}
+		// Invoke private method to validate the group creator.
+		validateGroupCreator(group, token);
 
 		// Extract the set of external member IDs from the request.
 		Set<Long> newIds = extractExternalMemberIds(request);
@@ -570,6 +553,19 @@ public class GroupServiceImpl implements GroupService {
 			// Create and add a new group member to the group.
 			GroupMemberId id = new GroupMemberId(group, user);
 			group.getRegisteredMembers().add(new GroupMember(id));
+		}
+	}
+
+	private void validateGroupCreator(Group group, String token) {
+
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		User user = userRepository.findByPhoneNumber(userPhoneNumber)
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
+			throw new InvalidGroupCreatorException(
+					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
 		}
 	}
 

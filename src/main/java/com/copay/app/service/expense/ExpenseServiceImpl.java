@@ -45,26 +45,30 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         // Create and save the main expense.
         Expense expense = new Expense();
+
         expense.setGroupId(group);
         expense.setTotalAmount(estimatedPrice);
         setCreditor(expense, userCreditor, externalCreditor);
+
         expenseRepository.save(expense);
 
-        // Calculate and save all individual expenses
+        // Calculate and save all individual expenses.
         updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
     }
 
     // Method triggered when updating the group price to update the expenses.
-    public void updateExpensePrice(Group group, Float newPrice, User payerUser, ExternalMember payerExternal) {
+    public void updateExpenseTotalAmount(Group group, Float newPrice) {
 
         // Get existing expense and update its price and payer.
         Expense expense = findExpenseByGroup(group);
         expense.setTotalAmount(newPrice);
 
-        // Reset and set new payer.
-        expense.setPaidByUser(null);
-        expense.setPaidByExternalMember(null);
-        setCreditor(expense, payerUser, payerExternal);
+        // One of the creditors is going to be null, since only 1 creditor can be available
+        User userCreditor = expense.getPaidByUser();
+        ExternalMember externalCreditor = expense.getPaidByExternalMember();
+
+        // Recalculates the individual amount of each user with new changes.
+        updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
 
         expenseRepository.save(expense);
     }
@@ -73,6 +77,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     public void updateRegisteredUsers(Group group, User userCreditor, ExternalMember externalCreditor) {
 
         Expense expense = findExpenseByGroup(group);
+
+        // Recalculates the individual amount of each user with new changes.
         updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
     }
 
