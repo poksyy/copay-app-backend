@@ -20,7 +20,7 @@ import com.copay.app.dto.group.request.DeleteGroupRequestDTO;
 import com.copay.app.dto.group.request.GetGroupRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.group.response.CreateGroupResponseDTO;
+import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
 import com.copay.app.service.group.GroupServiceImpl;
 
@@ -48,9 +48,9 @@ public class GroupController {
 			return ResponseEntity.badRequest().body("Only one payer (either registered user or external member) should be selected.");
 		}
 
-		CreateGroupResponseDTO createGroupResponseDTO = groupService.createGroup(createGroupRequestDTO);
+		GroupResponseDTO groupResponseDTO = groupService.createGroup(createGroupRequestDTO);
 
-		return ResponseEntity.ok(createGroupResponseDTO);
+		return ResponseEntity.ok(groupResponseDTO);
 	}
 
 	// Endpoint to retrieve groups for a given user (HomeScreen display).

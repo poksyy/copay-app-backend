@@ -8,7 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.copay.app.dto.expense.response.CreditorResponseDTO;
+import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.entity.Expense;
+import com.copay.app.exception.group.ExternalMemberNotFoundException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.service.expense.ExpenseServiceImpl;
 import org.springframework.data.util.ReflectionUtils;
@@ -22,7 +25,6 @@ import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
 import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
-import com.copay.app.dto.group.response.CreateGroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
 import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
@@ -85,7 +87,7 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public CreateGroupResponseDTO createGroup(CreateGroupRequestDTO request) {
+	public GroupResponseDTO createGroup(CreateGroupRequestDTO request) {
 
 		// Check if the creator exists in the database and save the user_id.
 		User creator = userRepository.findById(request.getCreatedBy())
@@ -174,18 +176,28 @@ public class GroupServiceImpl implements GroupService {
 		 */
 		entityManager.merge(group);
 
-		// Null because the user who pays is always the creator of the group (temporal).
-		expenseServiceImpl.initializeExpenseFromGroup(group, group.getEstimatedPrice(), creator, null);
+		User paidByUser = null;
+		ExternalMember paidByExternalMember = null;
+
+		if (paidByUserId != null) {
+			paidByUser = userRepository.findById(paidByUserId)
+					.orElseThrow(() -> new UserNotFoundException("User with ID " + paidByUserId + " not found"));
+		} else {
+			paidByExternalMember = externalMemberRepository.findById(paidByExternalMemberId)
+					.orElseThrow(() -> new ExternalMemberNotFoundException("External Member with ID " + paidByExternalMemberId + " not found"));
+		}
+
+		expenseServiceImpl.initializeExpenseFromGroup(group, group.getEstimatedPrice(), paidByUser, paidByExternalMember);
 
 		// Map the group instance to GroupResponseDTO.
-		return mapToGroupResponseDTO(group, request.getCreatedBy());
+		return mapToGroupResponseDTO(group, request.getCreatedBy(), paidByUser, paidByExternalMember);
 	}
 
 	// Helper method to map Group entity to GroupResponseDTO.
-	private CreateGroupResponseDTO mapToGroupResponseDTO(Group group, Long userId) {
+	private GroupResponseDTO mapToGroupResponseDTO(Group group, Long userId, User paidByUser, ExternalMember paidByExternalMember) {
 
 		// Initialize an instance of the DTO that is going to be used as a response.
-		CreateGroupResponseDTO groupResponseDTO = new CreateGroupResponseDTO();
+		GroupResponseDTO groupResponseDTO = new GroupResponseDTO();
 
 		// Set group details
 		groupResponseDTO.setGroupId(group.getGroupId());
@@ -203,6 +215,14 @@ public class GroupServiceImpl implements GroupService {
 		groupOwnerDTO.setOwnerId(group.getCreatedBy().getUserId());
 		groupOwnerDTO.setOwnerName(group.getCreatedBy().getUsername());
 		groupResponseDTO.setGroupOwner(groupOwnerDTO);
+
+		CreditorResponseDTO creditorDTO = null;
+		if (paidByUser != null) {
+			creditorDTO = new CreditorResponseDTO(paidByUser.getUserId(), paidByUser.getUsername());
+		} else if (paidByExternalMember != null) {
+			creditorDTO = new CreditorResponseDTO(paidByExternalMember.getExternalMembersId(), paidByExternalMember.getName());
+		}
+		groupResponseDTO.setCreditor(creditorDTO);
 
 		// Map registered members (RegisteredMemberDTO -> includes id and phoneNumber).
 		if (group.getRegisteredMembers() != null) {
@@ -238,24 +258,29 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	@Transactional(readOnly = true)
 	public GetGroupResponseDTO getGroupsByUserId(Long userId) {
-
-		// Fetch groups where the user is a member.
+/*
 		List<GroupMember> groupMembers = groupMemberRepository.findByIdUserUserId(userId);
 
-		// Transform GroupMembers into unique groups and map data for response.
-		List<Group> groups = groupMembers.stream().map(gm -> gm.getId().getGroup()).distinct()
+		List<Group> groups = groupMembers.stream()
+				.map(gm -> gm.getId().getGroup())
+				.distinct()
 				.toList();
 
-		// Map groups to response DTO format.
-		List<CreateGroupResponseDTO> createGroupResponseDTO = groups.stream()
-				.map(group -> mapToGroupResponseDTO(group, userId)).collect(Collectors.toList());
+		List<GroupResponseDTO> groupResponseDTOs = groups.stream()
+				.map(group -> {
+					Expense expense = expenseRepository.(group.getGroupId());
 
-		GetGroupResponseDTO getGroupResponseDTO = new GetGroupResponseDTO();
+					User paidByUser = expense != null ? expense.getPaidByUser() : null;
+					ExternalMember paidByExternalMember = expense != null ? expense.getPaidByExternalMember() : null;
 
-		// Set the mapped groups list in the response DTO.
-		getGroupResponseDTO.setGroups(createGroupResponseDTO);
+					return mapToGroupResponseDTO(group, userId, paidByUser, paidByExternalMember);
+				})
+				.collect(Collectors.toList());
 
-		return getGroupResponseDTO;
+		GetGroupResponseDTO response = new GetGroupResponseDTO();
+		response.setGroups(groupResponseDTOs);
+*/
+		return null;
 	}
 
 	@Override

@@ -4,14 +4,14 @@ import java.util.List;
 
 public class GetGroupResponseDTO {
 
-	private List<CreateGroupResponseDTO> groups;
+	private List<GroupResponseDTO> groups;
 
 	// Getters and Setters.
-	public List<CreateGroupResponseDTO> getGroups() {
+	public List<GroupResponseDTO> getGroups() {
 		return groups;
 	}
 
-	public void setGroups(List<CreateGroupResponseDTO> groups) {
+	public void setGroups(List<GroupResponseDTO> groups) {
 		this.groups = groups;
 	}
 }
