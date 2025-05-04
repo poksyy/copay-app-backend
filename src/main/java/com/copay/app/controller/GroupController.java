@@ -1,8 +1,11 @@
 package com.copay.app.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import com.copay.app.dto.MessageResponseDTO;
+import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
+import com.copay.app.dto.user.response.UserResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,6 +67,14 @@ public class GroupController {
 		GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
 
 		return ResponseEntity.ok(getGroupResponseDTO);
+	}
+
+	@GetMapping("/{groupId}/members")
+	public ResponseEntity<GetGroupMembersResponseDTO> getGroupMembersByGroup(@PathVariable Long groupId) {
+
+		GetGroupMembersResponseDTO members = groupService.getGroupMembersByGroup(groupId);
+
+		return ResponseEntity.ok(members);
 	}
 
 	@DeleteMapping("/{groupId}")

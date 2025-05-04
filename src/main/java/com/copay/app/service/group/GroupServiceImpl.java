@@ -2,18 +2,17 @@ package com.copay.app.service.group;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.copay.app.dto.expense.response.CreditorResponseDTO;
+import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.entity.Expense;
 import com.copay.app.exception.group.ExternalMemberNotFoundException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.service.expense.ExpenseServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +40,6 @@ import com.copay.app.repository.GroupRepository;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Objects;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -180,6 +177,7 @@ public class GroupServiceImpl implements GroupService {
 		ExternalMember paidByExternalMember = null;
 
 		if (paidByUserId != null) {
+
 			paidByUser = userRepository.findById(paidByUserId)
 					.orElseThrow(() -> new UserNotFoundException("User with ID " + paidByUserId + " not found"));
 		} else {
@@ -217,9 +215,12 @@ public class GroupServiceImpl implements GroupService {
 		groupResponseDTO.setGroupOwner(groupOwnerDTO);
 
 		CreditorResponseDTO creditorDTO = null;
+
 		if (paidByUser != null) {
+
 			creditorDTO = new CreditorResponseDTO(paidByUser.getUserId(), paidByUser.getUsername());
 		} else if (paidByExternalMember != null) {
+
 			creditorDTO = new CreditorResponseDTO(paidByExternalMember.getExternalMembersId(), paidByExternalMember.getName());
 		}
 		groupResponseDTO.setCreditor(creditorDTO);
@@ -298,6 +299,24 @@ public class GroupServiceImpl implements GroupService {
 		getGroupResponseDTO.setGroups(groupResponseDTOs);
 
 		return getGroupResponseDTO;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId) {
+
+		// Find the group by ID or throw exception if not found.
+		Group group = findGroupOrThrow(groupId);
+
+		List<RegisteredMemberDTO> registeredMembers = group.getRegisteredMembers().stream()
+				.map(registeredMember -> new RegisteredMemberDTO(registeredMember.getId().getUser().getUserId(), registeredMember.getId().getUser().getUsername(), registeredMember.getId().getUser().getPhoneNumber()))
+				.toList();
+
+		List<ExternalMemberDTO> externalMembers = group.getExternalMembers().stream()
+				.map(externalMember -> new ExternalMemberDTO(externalMember.getExternalMembersId(), externalMember.getName()))
+				.toList();
+
+		return new GetGroupMembersResponseDTO(registeredMembers, externalMembers);
 	}
 
 	@Override
