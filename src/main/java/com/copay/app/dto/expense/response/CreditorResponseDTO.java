@@ -1,6 +1,7 @@
 package com.copay.app.dto.expense.response;
 
 public class CreditorResponseDTO {
+
     private Long creditorId;
     private String creditorName;
 

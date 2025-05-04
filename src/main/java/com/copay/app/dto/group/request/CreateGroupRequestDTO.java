@@ -1,5 +1,7 @@
 package com.copay.app.dto.group.request;
 
+import com.copay.app.dto.group.auxiliary.InvitedExternalMemberDTO;
+import com.copay.app.dto.group.auxiliary.InvitedRegisteredMemberDTO;
 import jakarta.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,17 +34,8 @@ public class CreateGroupRequestDTO {
 	private String imageProvider;
 
 	// Initialize the ArrayLists null by default.
-	private List<String> invitedRegisteredMembers = new ArrayList<>();
-	private List<String> invitedExternalMembers = new ArrayList<>();
-
-	private Long paidByRegisteredMemberId;
-	private Long paidByExternalMemberId;
-
-	@AssertTrue(message = "Exactly one payer must be selected (either registered or external member)")
-	public boolean isOnlyOnePayer() {
-		return (paidByRegisteredMemberId == null && paidByExternalMemberId != null)
-				|| (paidByRegisteredMemberId != null && paidByExternalMemberId == null);
-	}
+	private List<InvitedRegisteredMemberDTO> invitedRegisteredMembers;
+	private List<InvitedExternalMemberDTO> invitedExternalMembers;
 
 	// Getters and Setters.
 	public String getName() {
@@ -101,36 +94,20 @@ public class CreateGroupRequestDTO {
 		this.imageProvider = imageProvider;
 	}
 
-	public List<String> getInvitedExternalMembers() {
+	public List<InvitedExternalMemberDTO> getInvitedExternalMembers() {
 		return invitedExternalMembers;
 	}
 
-	public void setInvitedExternalMembers(List<String> invitedExternalMembers) {
+	public void setInvitedExternalMembers(List<InvitedExternalMemberDTO> invitedExternalMembers) {
 		this.invitedExternalMembers = invitedExternalMembers;
 	}
 
-	public List<String> getInvitedRegisteredMembers() {
+	public List<InvitedRegisteredMemberDTO> getInvitedRegisteredMembers() {
 		return invitedRegisteredMembers;
 	}
 
-	public void setInvitedRegisteredMembers(List<String> invitedRegisteredMembers) {
+	public void setInvitedRegisteredMembers(List<InvitedRegisteredMemberDTO> invitedRegisteredMembers) {
 		this.invitedRegisteredMembers = invitedRegisteredMembers;
-	}
-
-	public Long getPaidByRegisteredMemberId() {
-		return paidByRegisteredMemberId;
-	}
-
-	public void setPaidByRegisteredMemberId(Long paidByRegisteredMemberId) {
-		this.paidByRegisteredMemberId = paidByRegisteredMemberId;
-	}
-
-	public Long getPaidByExternalMemberId() {
-		return paidByExternalMemberId;
-	}
-
-	public void setPaidByExternalMemberId(Long paidByExternalMemberId) {
-		this.paidByExternalMemberId = paidByExternalMemberId;
 	}
 
 	// toString method with debug purposes.
