@@ -14,7 +14,6 @@ import com.copay.app.entity.Expense;
 import com.copay.app.exception.group.*;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.service.expense.ExpenseServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,16 +119,11 @@ public class GroupServiceImpl implements GroupService {
 		// Persist the new group member to the repository, saving the relationship.
 		groupMemberRepository.save(creatorGroupMember);
 
-		// Excludes the creator of the group from the invitedMembers list.
-		List<InvitedRegisteredMemberDTO> invitedMembers = request.getInvitedRegisteredMembers().stream()
-				.filter(m -> !m.getPhoneNumber().equals(creator.getPhoneNumber()))
-				.toList();
+		// Process all invited registered members into the database.
+		for (InvitedRegisteredMemberDTO registeredMember : request.getInvitedRegisteredMembers()) {
 
-		// Loop to persist invited registered members into the database.
-		for (InvitedRegisteredMemberDTO registeredMember : invitedMembers) {
-
-			User invitedRegisteredMember  = userRepository.findByPhoneNumber(registeredMember.getPhoneNumber()).get();
-
+			User invitedRegisteredMember = userRepository.findByPhoneNumber(registeredMember.getPhoneNumber()).get();
+			
 			GroupMemberId memberId = new GroupMemberId(group, invitedRegisteredMember);
 
 			// Validates if the user already belongs to the group and skip the user if is already a member of the group.
