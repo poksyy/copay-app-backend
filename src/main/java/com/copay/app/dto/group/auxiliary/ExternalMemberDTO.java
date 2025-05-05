@@ -5,6 +5,8 @@ public class ExternalMemberDTO {
 	private Long externalMembersId;
 	private String externalMemberName;
 
+	public ExternalMemberDTO() {}
+
 	// Constructor used when mapping the DTO response.
 	public ExternalMemberDTO(Long externalMembersId, String externalMemberName) {
 		this.externalMembersId = externalMembersId;

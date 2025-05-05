@@ -1,5 +1,7 @@
 package com.copay.app.dto.group.request;
 
+import com.copay.app.dto.group.auxiliary.InvitedExternalMemberDTO;
+import com.copay.app.dto.group.auxiliary.InvitedRegisteredMemberDTO;
 import jakarta.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +34,8 @@ public class CreateGroupRequestDTO {
 	private String imageProvider;
 
 	// Initialize the ArrayLists null by default.
-	private List<String> invitedRegisteredMembers = new ArrayList<>();
-	private List<String> invitedExternalMembers = new ArrayList<>();
-
-	@AssertTrue(message = "At least one list of members must be provided")
-	public boolean isAtLeastOneMemberProvided() {
-		// Validates that at least 1 of both variables are not null or empty
-		return !invitedExternalMembers.isEmpty() || !invitedRegisteredMembers.isEmpty();
-	}
+	private List<InvitedRegisteredMemberDTO> invitedRegisteredMembers;
+	private List<InvitedExternalMemberDTO> invitedExternalMembers;
 
 	// Getters and Setters.
 	public String getName() {
@@ -98,19 +94,19 @@ public class CreateGroupRequestDTO {
 		this.imageProvider = imageProvider;
 	}
 
-	public List<String> getInvitedExternalMembers() {
+	public List<InvitedExternalMemberDTO> getInvitedExternalMembers() {
 		return invitedExternalMembers;
 	}
 
-	public void setInvitedExternalMembers(List<String> invitedExternalMembers) {
+	public void setInvitedExternalMembers(List<InvitedExternalMemberDTO> invitedExternalMembers) {
 		this.invitedExternalMembers = invitedExternalMembers;
 	}
 
-	public List<String> getInvitedRegisteredMembers() {
+	public List<InvitedRegisteredMemberDTO> getInvitedRegisteredMembers() {
 		return invitedRegisteredMembers;
 	}
 
-	public void setInvitedRegisteredMembers(List<String> invitedRegisteredMembers) {
+	public void setInvitedRegisteredMembers(List<InvitedRegisteredMemberDTO> invitedRegisteredMembers) {
 		this.invitedRegisteredMembers = invitedRegisteredMembers;
 	}
 

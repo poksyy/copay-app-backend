@@ -29,7 +29,7 @@ public class UserExpense {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expense_id", nullable = false)
-    private Expense expense;
+    private Expense expenseId;
 
     @ManyToOne
     @JoinColumn(name = "debtor_user_id")
@@ -67,11 +67,11 @@ public class UserExpense {
 	}
 
 	public Expense getExpense() {
-		return expense;
+		return expenseId;
 	}
 
-	public void setExpense(Expense expense) {
-		this.expense = expense;
+	public void setExpense(Expense expenseId) {
+		this.expenseId = expenseId;
 	}
 
 	public User getDebtorUser() {

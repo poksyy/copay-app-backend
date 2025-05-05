@@ -1,21 +1,28 @@
 package com.copay.app.service.group;
 
+import java.util.List;
 import java.util.Map;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.group.request.CreateGroupRequestDTO;
+import com.copay.app.dto.group.request.UpdateGroupEstimatedPriceRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.group.response.CreateGroupResponseDTO;
+import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
+import com.copay.app.dto.group.response.GroupResponseDTO;
 
 public interface GroupService {
-	
+
 	GetGroupResponseDTO getGroupsByUserId(Long userId);
-	
-	CreateGroupResponseDTO createGroup(CreateGroupRequestDTO request);
+
+	GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId);
+
+	GroupResponseDTO createGroup(CreateGroupRequestDTO request);
 
 	MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token);
+
+	MessageResponseDTO updateGroupEstimatedPrice(Long groupId, UpdateGroupEstimatedPriceRequestDTO request, String token);
 
 	MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request, String token);
 
@@ -24,4 +31,5 @@ public interface GroupService {
 	MessageResponseDTO leaveGroup(Long groupId, String token);
 
 	MessageResponseDTO deleteGroup(Long groupId, String token);
+
 }

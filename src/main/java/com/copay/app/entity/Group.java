@@ -64,12 +64,12 @@ public class Group {
 
     // CascadeType.ALL propagates all persistence operations to ExternalMember.
     // orphanRemoval ensures deletion of ExternalMember when removed from the Set.
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "groupId", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExternalMember> externalMembers = new HashSet<>();
 
     // CascadeType.ALL propagates all persistence operations to Expenses.
     // orphanRemoval ensures deletion of ExternalMember when removed from the Set.
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "groupId", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Expense> expenses = new HashSet<>();
 
     // Getter and Setters.

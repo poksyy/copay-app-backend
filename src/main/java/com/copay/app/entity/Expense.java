@@ -32,7 +32,7 @@ public class Expense {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
+    private Group groupId;
 
     @Column(name = "total_amount", nullable = false)
     private Float totalAmount;
@@ -48,7 +48,7 @@ public class Expense {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "expenseId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserExpense> userExpenses = new ArrayList<>();
 
     public Expense() {
@@ -64,12 +64,12 @@ public class Expense {
 		this.expenseId = expenseId;
 	}
 
-	public Group getGroup() {
-		return group;
+	public Group getGroupId() {
+		return groupId;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
+	public void setGroupId(Group groupId) {
+		this.groupId = groupId;
 	}
 
 	public Float getTotalAmount() {

@@ -1,19 +1,30 @@
 package com.copay.app.dto.expense.response;
 
-public class ExpenseResponseDTO {
+import java.util.List;
 
+public class ExpenseResponseDTO {
     private Long id;
     private Float totalAmount;
     private Long groupId;
 
-    // Constructor
-    public ExpenseResponseDTO(Long id, Float totalAmount, Long groupId) {
+    private Long creditorUserId;
+    private Long creditorExternalMemberId;
+
+    private List<DebtorResponseDTO> registeredMembers;
+    private List<DebtorResponseDTO> externalMembers;
+
+    public ExpenseResponseDTO(Long id, Float totalAmount, Long groupId, Long creditorUserId, Long creditorExternalMemberId,
+                              List<DebtorResponseDTO> registeredMembers, List<DebtorResponseDTO> externalMembers) {
         this.id = id;
         this.totalAmount = totalAmount;
         this.groupId = groupId;
+        this.creditorUserId = creditorUserId;
+        this.creditorExternalMemberId = creditorExternalMemberId;
+        this.registeredMembers = registeredMembers;
+        this.externalMembers = externalMembers;
     }
 
-    // Getters and Setters
+    // Getters and setters.
     public Long getId() {
         return id;
     }
@@ -38,12 +49,35 @@ public class ExpenseResponseDTO {
         this.groupId = groupId;
     }
 
-    @Override
-    public String toString() {
-        return "ExpenseResponseDTO{" +
-                "id=" + id +
-                ", totalAmount=" + totalAmount +
-                ", groupId=" + groupId +
-                '}';
+    public Long getCreditorUserId() {
+        return creditorUserId;
+    }
+
+    public void setCreditorUserId(Long creditorUserId) {
+        this.creditorUserId = creditorUserId;
+    }
+
+    public Long getCreditorExternalMemberId() {
+        return creditorExternalMemberId;
+    }
+
+    public void setCreditorExternalMemberId(Long creditorExternalMemberId) {
+        this.creditorExternalMemberId = creditorExternalMemberId;
+    }
+
+    public List<DebtorResponseDTO> getRegisteredMembers() {
+        return registeredMembers;
+    }
+
+    public void setRegisteredMembers(List<DebtorResponseDTO> registeredMembers) {
+        this.registeredMembers = registeredMembers;
+    }
+
+    public List<DebtorResponseDTO> getExternalMembers() {
+        return externalMembers;
+    }
+
+    public void setExternalMembers(List<DebtorResponseDTO> externalMembers) {
+        this.externalMembers = externalMembers;
     }
 }

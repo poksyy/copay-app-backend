@@ -11,12 +11,12 @@ import java.util.Optional;
 
 public interface UserExpenseRepository extends JpaRepository<UserExpense, Long> {
 
-    void deleteByExpense(Expense expense);
+    void deleteByExpenseId(Expense expenseId);
 
-    Optional<UserExpense> findByExpenseAndDebtorUser(Expense expense, User user);
+    Optional<UserExpense> findByExpenseIdAndDebtorUser(Expense expenseId, User user);
 
-    Optional<UserExpense> findByExpenseAndDebtorExternalMember(Expense expense, ExternalMember externalMember);
+    Optional<UserExpense> findByExpenseIdAndDebtorExternalMember(Expense expenseId, ExternalMember externalMember);
 
-    List<UserExpense> findByExpense(Expense expense);
+    List<UserExpense> findByExpenseId(Expense expenseId);
 
 }

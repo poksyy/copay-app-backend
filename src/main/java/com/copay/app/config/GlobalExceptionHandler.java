@@ -17,9 +17,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import com.copay.app.validation.ValidationErrorResponse;
-import org.springframework.web.context.request.WebRequest;
 
 // Global exception handler to manage different exceptions in the application.
 @RestControllerAdvice
@@ -43,28 +41,31 @@ public class GlobalExceptionHandler {
 		);
 	}
 
-	// HTTP 422: Invalid input format.
+	// HTTP 422: Invalid input format (e.g., unrecognized field).
 	@ExceptionHandler(HttpMessageNotReadableException.class)
-	public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+	public ResponseEntity<ValidationErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
 
-		// Error message for the exception return.
-		String errorMessage = "There was an error processing the request. Please ensure that all JSON input fields are correctly formatted.";
+		// Custom error message.
+		String errorMessage = "There was an issue with the request format. Please check for unrecognized fields or incorrect JSON structure.";
 
-		// Constructing the response with the error message and status code
-		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+		// Extract the unrecognized property name if available.
+		if (ex.getCause() instanceof UnrecognizedPropertyException unrecognizedException) {
+			errorMessage = "Invalid field: '" + unrecognizedException.getPropertyName() + "'. Please remove or correct it.";
+		}
+
+		ValidationErrorResponse error = new ValidationErrorResponse(
 				List.of(errorMessage),
-				"Invalid data format, please try again.",
+				"Invalid data format or unrecognized field in request",
 				HttpStatus.UNPROCESSABLE_ENTITY.value()
 		);
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+		return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 	// HTTP 400: Phone number already exists.
 	@ExceptionHandler(PhoneAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handlePhoneAlreadyExists(PhoneAlreadyExistsException ex) {
 
-		// Constructing response with error details.
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Phone number already exists, please change it.", HttpStatus.BAD_REQUEST.value());
 
@@ -178,7 +179,7 @@ public class GlobalExceptionHandler {
 
 	// HTTP 404: Expense not found with the provided ID.
 	@ExceptionHandler(ExpenseNotFoundException.class)
-	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundExepction(ExpenseNotFoundException ex) {
+	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundException(ExpenseNotFoundException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Specified expense doesn't exist.", HttpStatus.NOT_FOUND.value());

@@ -3,16 +3,18 @@ package com.copay.app.dto.group.response;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.copay.app.dto.expense.response.CreditorResponseDTO;
 import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
 import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 
-public class CreateGroupResponseDTO {
+public class GroupResponseDTO {
 
 	private Long groupId;
 	private String name;
 	private String description;
 	private Float estimatedPrice;
+	private CreditorResponseDTO creditor;
 	private String currency;
 	private LocalDateTime createdAt;
 	private boolean userIsOwner;
@@ -64,6 +66,14 @@ public class CreateGroupResponseDTO {
 
 	public void setEstimatedPrice(Float estimatedPrice) {
 		this.estimatedPrice = estimatedPrice;
+	}
+
+	public CreditorResponseDTO getCreditor() {
+		return creditor;
+	}
+
+	public void setCreditor(CreditorResponseDTO creditor) {
+		this.creditor = creditor;
 	}
 
 	public String getCurrency() {
