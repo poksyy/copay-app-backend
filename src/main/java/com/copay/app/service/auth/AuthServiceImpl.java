@@ -74,6 +74,7 @@ public class AuthServiceImpl implements AuthService {
 					expiresIn,
 					user.getUserId(),
 					user.getPhoneNumber(),
+					user.getPhonePrefix(),
 					user.getUsername(),
 					user.getEmail(),
 					"true"
