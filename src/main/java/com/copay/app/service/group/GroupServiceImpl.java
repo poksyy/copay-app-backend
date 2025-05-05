@@ -6,11 +6,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.copay.app.dto.expense.response.CreditorResponseDTO;
+import com.copay.app.dto.group.auxiliary.*;
 import com.copay.app.dto.group.request.UpdateGroupEstimatedPriceRequestDTO;
 import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.entity.Expense;
-import com.copay.app.exception.group.ExternalMemberNotFoundException;
+import com.copay.app.exception.group.*;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.service.expense.ExpenseServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,18 +23,12 @@ import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.group.request.CreateGroupRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupRegisteredMembersRequestDTO;
 import com.copay.app.dto.group.request.UpdateGroupExternalMembersRequestDTO;
-import com.copay.app.dto.group.auxiliary.RegisteredMemberDTO;
-import com.copay.app.dto.group.auxiliary.ExternalMemberDTO;
-import com.copay.app.dto.group.auxiliary.GroupOwnerDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
 import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.GroupMember;
 import com.copay.app.entity.relations.GroupMemberId;
-import com.copay.app.exception.group.GroupNotFoundException;
-import com.copay.app.exception.group.InvalidGroupCreatorException;
-import com.copay.app.exception.group.InvitedMemberNotFoundException;
 import com.copay.app.exception.user.UserNotFoundException;
 import com.copay.app.repository.ExternalMemberRepository;
 import com.copay.app.repository.GroupMemberRepository;
@@ -91,24 +86,23 @@ public class GroupServiceImpl implements GroupService {
 		User creator = userRepository.findById(request.getCreatedBy())
 				.orElseThrow(() -> new UserNotFoundException("User with ID " + request.getCreatedBy() + " not found"));
 
-		Long paidByUserId = request.getPaidByRegisteredMemberId();
-		Long paidByExternalMemberId = request.getPaidByExternalMemberId();
+		// Validate only one payer (only one can have Payer=true)
+		boolean hasRegisteredPayer = request.getInvitedRegisteredMembers().stream().anyMatch(InvitedRegisteredMemberDTO::isPayer);
+		boolean hasExternalPayer = request.getInvitedExternalMembers().stream().anyMatch(InvitedExternalMemberDTO::isPayer);
 
-		if ((paidByUserId != null && paidByExternalMemberId != null) || (paidByUserId == null && paidByExternalMemberId == null)) {
-			throw new IllegalArgumentException("Only one payer (either registered user or external member) should be selected.");
+		if ((hasRegisteredPayer && hasExternalPayer) || (!hasRegisteredPayer && !hasExternalPayer)) {
+			throw new InvalidPayerSelectionException("Exactly one payer must be selected, either registered or external.");
 		}
 
 		// Loop to check if the invited registered members have an account.
-		for (String phoneNumber : request.getInvitedRegisteredMembers()) {
-			userRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> new InvitedMemberNotFoundException(
-					"This phone number owner doesn't have an account: " + phoneNumber));
+		for (InvitedRegisteredMemberDTO member : request.getInvitedRegisteredMembers()) {
+			userRepository.findByPhoneNumber(member.getPhoneNumber()).orElseThrow(() ->
+					new InvitedMemberNotFoundException("This phone number owner doesn't have an account: " + member.getPhoneNumber()));
 		}
 
-		// Creates a group instance.
+		// Create a group instance.
 		Group group = new Group();
 
-		// This field will store the reference to the User entity, JPA will handle the
-		// user_id automatically.
 		group.setCreatedBy(creator);
 		group.setName(request.getName());
 		group.setDescription(request.getDescription());
@@ -118,8 +112,7 @@ public class GroupServiceImpl implements GroupService {
 		// Persists the group details in the database.
 		group = groupRepository.save(group);
 
-		// Create the composite key for the group-member relationship with the group and
-		// user.
+		// Create the composite key for the group-member relationship with the group and user.
 		GroupMemberId creatorMemberId = new GroupMemberId(group, creator);
 		// Instantiate the GroupMember entity using the composite key.
 		GroupMember creatorGroupMember = new GroupMember(creatorMemberId);
@@ -128,41 +121,39 @@ public class GroupServiceImpl implements GroupService {
 		groupMemberRepository.save(creatorGroupMember);
 
 		// Excludes the creator of the group from the invitedMembers list.
-		List<String> invitedMembers = request.getInvitedRegisteredMembers().stream()
-				.filter(phone -> !phone.equals(creator.getPhoneNumber())).toList();
+		List<InvitedRegisteredMemberDTO> invitedMembers = request.getInvitedRegisteredMembers().stream()
+				.filter(m -> !m.getPhoneNumber().equals(creator.getPhoneNumber()))
+				.toList();
 
 		// Loop to persist invited registered members into the database.
-		for (String phoneNumber : invitedMembers) {
+		for (InvitedRegisteredMemberDTO registeredMember : invitedMembers) {
 
-			// Find the registered members by the phone number.
-			User invitedRegisteredMember = userRepository.findByPhoneNumber(phoneNumber).get();
+			User invitedRegisteredMember  = userRepository.findByPhoneNumber(registeredMember.getPhoneNumber()).get();
 
-			GroupMemberId invitedMemberId = new GroupMemberId(group, invitedRegisteredMember);
+			GroupMemberId memberId = new GroupMemberId(group, invitedRegisteredMember);
 
-			// Validates if the user already belongs to the group.
-			if (groupMemberRepository.existsById(invitedMemberId)) {
-				// Skip the user if they are already a member of the group.
-				continue;
-			}
+			// Validates if the user already belongs to the group and skip the user if is already a member of the group.
+			if (groupMemberRepository.existsById(memberId)) continue;
 
 			// If the user is not already a member, create and add them to the group.
-			GroupMember invitedGroupMember = new GroupMember(invitedMemberId);
+			GroupMember groupMember = new GroupMember(memberId);
 
 			// Add the user to the group
-			group.getRegisteredMembers().add(invitedGroupMember);
+			group.getRegisteredMembers().add(groupMember);
 		}
 
 		// Loop to interact with the List of the externalMembers.
-		for (String externalName : request.getInvitedExternalMembers()) {
+		for (InvitedExternalMemberDTO externalMember : request.getInvitedExternalMembers()) {
 
 			// Create and persist an ExternalMember.
-			ExternalMember externalMember = new ExternalMember();
-			externalMember.setName(externalName);
-			externalMember.setGroupId(group);
-			externalMember.setJoinedAt(LocalDateTime.now());
+			ExternalMember external = new ExternalMember();
+
+			external.setName(externalMember.getName());
+			external.setGroupId(group);
+			external.setJoinedAt(LocalDateTime.now());
 
 			// Add the external member to the group
-			group.getExternalMembers().add(externalMember);
+			group.getExternalMembers().add(external);
 		}
 
 		/*
@@ -174,18 +165,37 @@ public class GroupServiceImpl implements GroupService {
 		 */
 		entityManager.merge(group);
 
+		// Identify the payer among registered or external members.
 		User paidByUser = null;
 		ExternalMember paidByExternalMember = null;
 
-		if (paidByUserId != null) {
+		// Check if any registered member is marked as the payer.
+		Optional<InvitedRegisteredMemberDTO> payerRegistered = request.getInvitedRegisteredMembers().stream()
+				.filter(InvitedRegisteredMemberDTO::isPayer)
+				.findFirst();
 
-			paidByUser = userRepository.findById(paidByUserId)
-					.orElseThrow(() -> new UserNotFoundException("User with ID " + paidByUserId + " not found"));
+		// Check if any external member is marked as the payer.
+		Optional<InvitedExternalMemberDTO> payerExternal = request.getInvitedExternalMembers().stream()
+				.filter(InvitedExternalMemberDTO::isPayer)
+				.findFirst();
+
+		if (payerRegistered.isPresent()) {
+
+			// Get the registered payer user from the database by phone number.
+			String phone = payerRegistered.get().getPhoneNumber();
+			paidByUser = userRepository.findByPhoneNumber(phone)
+					.orElseThrow(() -> new UserNotFoundException("Registered creditor user with phone " + phone + " not found"));
 		} else {
-			paidByExternalMember = externalMemberRepository.findById(paidByExternalMemberId)
-					.orElseThrow(() -> new ExternalMemberNotFoundException("External Member with ID " + paidByExternalMemberId + " not found"));
+
+			// Get the external payer member from the persisted group by name.
+			String payerName = payerExternal.get().getName();
+			paidByExternalMember = group.getExternalMembers().stream()
+					.filter(em -> em.getName().equals(payerName))
+					.findFirst()
+					.orElseThrow(() -> new ExternalMemberNotFoundException("External member creditor with name " + payerName + " not found"));
 		}
 
+		// Create expense for the group through the expenseServiceImpl.
 		expenseServiceImpl.initializeExpenseFromGroup(group, group.getEstimatedPrice(), paidByUser, paidByExternalMember);
 
 		// Map the group instance to GroupResponseDTO.
@@ -198,7 +208,7 @@ public class GroupServiceImpl implements GroupService {
 		// Initialize an instance of the DTO that is going to be used as a response.
 		GroupResponseDTO groupResponseDTO = new GroupResponseDTO();
 
-		// Set group details
+		// Set group details.
 		groupResponseDTO.setGroupId(group.getGroupId());
 		groupResponseDTO.setName(group.getName());
 		groupResponseDTO.setDescription(group.getDescription());
@@ -224,6 +234,7 @@ public class GroupServiceImpl implements GroupService {
 
 			creditorDTO = new CreditorResponseDTO(paidByExternalMember.getExternalMembersId(), paidByExternalMember.getName());
 		}
+
 		groupResponseDTO.setCreditor(creditorDTO);
 
 		// Map registered members (RegisteredMemberDTO -> includes id and phoneNumber).
@@ -235,13 +246,11 @@ public class GroupServiceImpl implements GroupService {
 				return new RegisteredMemberDTO(user.getUserId(), user.getUsername(), user.getPhoneNumber());
 			}).collect(Collectors.toList());
 
-
 			// Set the mapped list of RegisteredMemberDTO in the response DTO.
 			groupResponseDTO.setRegisteredMembers(groupMemberResponseDTOList);
 		}
 
-		// Map external members (ExternalMemberDTO -> includes externalMembersId and
-		// name).
+		// Map external members (ExternalMemberDTO -> includes externalMembersId and name).
 		if (group.getExternalMembers() != null) {
 
 			// Convert each external member to ExternalMemberDTO.

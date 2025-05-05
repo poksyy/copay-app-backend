@@ -41,13 +41,6 @@ public class GroupController {
 	@PostMapping
 	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO) {
 
-		boolean isValidPayer = (createGroupRequestDTO.getPaidByRegisteredMemberId() != null && createGroupRequestDTO.getPaidByExternalMemberId() == null)
-				|| (createGroupRequestDTO.getPaidByRegisteredMemberId() == null && createGroupRequestDTO.getPaidByExternalMemberId() != null);
-
-		if (!isValidPayer) {
-			return ResponseEntity.badRequest().body("Only one payer (either registered user or external member) should be selected.");
-		}
-
 		GroupResponseDTO groupResponseDTO = groupService.createGroup(createGroupRequestDTO);
 
 		return ResponseEntity.ok(groupResponseDTO);
