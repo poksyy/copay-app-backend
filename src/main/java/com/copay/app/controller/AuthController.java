@@ -1,5 +1,6 @@
 package com.copay.app.controller;
 
+import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.auth.request.UserLoginRequestDTO;
 import com.copay.app.dto.auth.request.UserRegisterStepOneRequestDTO;
 import com.copay.app.dto.auth.request.UserRegisterStepTwoRequestDTO;
@@ -68,6 +69,7 @@ public class AuthController {
 		// Call the service to handle the token invalidation
 		authServiceImpl.logout(token);
 
-		return ResponseEntity.ok("User logged out successfully");
+		return ResponseEntity.ok(new MessageResponseDTO("Logout successful."));
 	}
+
 }
