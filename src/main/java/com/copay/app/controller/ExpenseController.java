@@ -1,5 +1,6 @@
 package com.copay.app.controller;
 
+import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
 import com.copay.app.dto.expense.response.ExpenseResponseDTO;
 import com.copay.app.service.ValidationService;
@@ -62,8 +63,8 @@ public class ExpenseController {
     @DeleteMapping("/{groupId}/{expenseId}")
     public ResponseEntity<?> deleteExpense(@PathVariable Long groupId, @PathVariable Long expenseId) {
 
-        expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
+       MessageResponseDTO messageResponseDTO = expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
 
-        return ResponseEntity.ok("Expense deleted successfully.");
+        return ResponseEntity.ok("messageResponseDTO");
     }
 }
