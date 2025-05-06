@@ -12,14 +12,13 @@ import java.io.IOException;
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    private static final String UNAUTHORIZED_MESSAGE =
+            "{\"error\": \"Authentication is required to access this resource. Please log in or provide a valid token.\"}";
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-
-        // Customized HTTP 401 message.
-        // TODO Improved handling of 401s is needed.
-    	response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
-        response.getWriter().write("{\"error\": \"Unauthorized access :) You need to be authenticated to access this endpoint.\"}");
-
+        response.getWriter().write(UNAUTHORIZED_MESSAGE);
     }
 }
