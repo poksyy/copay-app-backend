@@ -100,6 +100,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         } else {
             throw new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId);
         }
+
         // Return success message.
         return new MessageResponseDTO("Group deleted successfully.");
     }
