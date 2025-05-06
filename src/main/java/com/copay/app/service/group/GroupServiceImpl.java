@@ -13,7 +13,9 @@ import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.entity.Expense;
 import com.copay.app.exception.group.*;
 import com.copay.app.repository.expense.ExpenseRepository;
-import com.copay.app.service.expense.ExpenseServiceImpl;
+
+import com.copay.app.service.expense.ExpenseService;
+import com.copay.app.service.expense.GroupExpenseService;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,28 +55,31 @@ public class GroupServiceImpl implements GroupService {
 
 	private final ExternalMemberRepository externalMemberRepository;
 
+	private final ExpenseRepository expenseRepository;
+
 	private final JwtService jwtService;
 
-	private final ExpenseServiceImpl expenseServiceImpl;
+	private final GroupExpenseService groupExpenseService;
 
-	private final ExpenseRepository expenseRepository;
+	private final ExpenseService expenseService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	// Constructor to initialize all the instances.
 	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
-			UserRepository userRepository, ExternalMemberRepository externalMemberRepository, JwtService jwtService, ExpenseServiceImpl expenseServiceImpl,
-			EntityManager entityManager, ExpenseRepository expenseRepository) {
+							UserRepository userRepository, ExternalMemberRepository externalMemberRepository, ExpenseRepository expenseRepository, JwtService jwtService, GroupExpenseService groupExpenseService,
+							ExpenseService expenseService, EntityManager entityManager) {
 
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
 		this.userRepository = userRepository;
 		this.externalMemberRepository = externalMemberRepository;
-		this.jwtService = jwtService;
-		this.expenseServiceImpl = expenseServiceImpl;
-		this.entityManager = entityManager;
 		this.expenseRepository = expenseRepository;
+		this.jwtService = jwtService;
+		this.groupExpenseService = groupExpenseService;
+		this.expenseService = expenseService;
+		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -189,8 +194,8 @@ public class GroupServiceImpl implements GroupService {
 					.orElseThrow(() -> new ExternalMemberNotFoundException("External member creditor with name " + payerName + " not found"));
 		}
 
-		// Create expense for the group through the expenseServiceImpl.
-		expenseServiceImpl.initializeExpenseFromGroup(group, group.getEstimatedPrice(), paidByUser, paidByExternalMember);
+		// Create expense for the group through the groupExpenseService interface.
+		groupExpenseService.initializeExpenseFromGroup(group, group.getEstimatedPrice(), paidByUser, paidByExternalMember);
 
 		// Map the group instance to GroupResponseDTO.
 		return mapToGroupResponseDTO(group, request.getCreatedBy(), paidByUser, paidByExternalMember);
@@ -325,65 +330,6 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public MessageResponseDTO deleteGroup(Long groupId, String token) {
-
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
-
-		// Invoke private method to validate the group creator.
-		validateGroupCreator(group, token);
-
-		// Delete expenses associated by the group.
-		List<Expense> expenses = expenseRepository.findAllByGroupId(group);
-
-		for (Expense expense : expenses) {
-			expenseServiceImpl.deleteExpenseByGroupAndId(group.getGroupId(), expense.getExpenseId());
-		}
-
-		// Persists deletion in the database.
-		groupRepository.delete(group);
-
-		return new MessageResponseDTO("Group " + group.getName() + " deleted successfully.");
-	}
-
-	@Override
-	@Transactional
-	public MessageResponseDTO leaveGroup(Long groupId, String token) {
-
-		/* TODO: validateGroupCreator() METHOD SHOULD BE USED HERE BUT ITS HARDER THAN THE OTHER IMPLEMENTATIONS SINCE
-		 * TODO: METHOD ALSO HAS VALIDATION TO CHECK IF THE GROUP MEMBER EXISTS IN THE GROUP. */
-
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
-
-		// Get the phoneNumber from the current token.
-		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-		// Check if the group member exists in the group with the provided phoneNumber.
-		GroupMember groupMember = group.getRegisteredMembers().stream()
-				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
-				.orElseThrow(() -> new UserNotFoundException("User with phone " + userPhoneNumber + " not found in the group"));
-
-		// Check if the user is the owner (creator) of the group.
-		if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
-			// If the user is the owner, delete the group entirely.
-			groupRepository.delete(group);
-
-			return new MessageResponseDTO("You have successfully left the group, and it has been deleted.");
-		}
-
-		// Remove the Registered member from the group.
-		group.getRegisteredMembers().remove(groupMember);
-
-		// Persists the group details in the database.
-		groupRepository.save(group);
-
-		// Return success message.
-		return new MessageResponseDTO("You have successfully left the group.");
-	}
-
-	@Override
-	@Transactional
 	public MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token) {
 
 		// Find the group or throw an exception if not found.
@@ -456,15 +402,15 @@ public class GroupServiceImpl implements GroupService {
 
 		groupRepository.save(group);
 
-		expenseServiceImpl.updateExpenseTotalAmount(group, request.getEstimatedPrice());
+		// Updates the new expense total through the groupExpenseService interface.
+		groupExpenseService.updateExpenseTotalAmount(group, request.getEstimatedPrice());
 
 		return new MessageResponseDTO("Estimated price updated and shares recalculated.");
     }
 
 	@Override
 	@Transactional
-	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId,
-														   UpdateGroupRegisteredMembersRequestDTO request, String token) {
+	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request, String token) {
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
@@ -483,8 +429,8 @@ public class GroupServiceImpl implements GroupService {
 
 		User userCreditor = group.getCreatedBy();
 
-		expenseServiceImpl.updateRegisteredUsers(group, userCreditor, null);
-		expenseServiceImpl.updateExternalMembers(group, userCreditor, null);
+		// Update the expense group members and the money distribution through the expenseService interface.
+		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, null);
 
 		// Return success message.
 		return new MessageResponseDTO("Group members updated successfully.");
@@ -517,16 +463,77 @@ public class GroupServiceImpl implements GroupService {
 			member.setName(dto.getName());
 
 			// Add member to the group if it's not already present.
-			addMemberToGroupIfMissing(group, member);
+			group.getExternalMembers().add(member);
 		}
 
 		User userCreditor = group.getCreatedBy();
 
-		expenseServiceImpl.updateRegisteredUsers(group, userCreditor, null);
-		expenseServiceImpl.updateExternalMembers(group, userCreditor, null);
+		// Update the expense group members and the money distribution through the expenseService interface.
+		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, null);
 
 		// Return success message.
 		return new MessageResponseDTO("Group external members updated successfully.");
+	}
+
+
+	@Override
+	@Transactional
+	public MessageResponseDTO deleteGroup(Long groupId, String token) {
+
+		// Find the group by ID or throw exception if not found.
+		Group group = findGroupOrThrow(groupId);
+
+		// Invoke private method to validate the group creator.
+		validateGroupCreator(group, token);
+
+		// Delete expenses associated by the group.
+		List<Expense> expenses = expenseRepository.findAllByGroupId(group);
+
+		// Deletes the expenses of the deleted group through the expenseService interface.
+		for (Expense expense : expenses) {
+			expenseService.deleteExpenseByGroupAndId(group.getGroupId(), expense.getExpenseId());
+		}
+
+		// Persists deletion in the database.
+		groupRepository.delete(group);
+
+		return new MessageResponseDTO("Group " + group.getName() + " deleted successfully.");
+	}
+
+	@Override
+	@Transactional
+	public MessageResponseDTO leaveGroup(Long groupId, String token) {
+
+		/* TODO: validateGroupCreator() METHOD SHOULD BE USED HERE BUT ITS HARDER THAN THE OTHER IMPLEMENTATIONS SINCE
+		 * TODO: METHOD ALSO HAS VALIDATION TO CHECK IF THE GROUP MEMBER EXISTS IN THE GROUP. */
+
+		// Find the group by ID or throw exception if not found.
+		Group group = findGroupOrThrow(groupId);
+
+		// Get the phoneNumber from the current token.
+		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Check if the group member exists in the group with the provided phoneNumber.
+		GroupMember groupMember = group.getRegisteredMembers().stream()
+				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
+				.orElseThrow(() -> new UserNotFoundException("User with phone " + userPhoneNumber + " not found in the group"));
+
+		// Check if the user is the owner (creator) of the group.
+		if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
+			// If the user is the owner, delete the group entirely.
+			groupRepository.delete(group);
+
+			return new MessageResponseDTO("You have successfully left the group, and it has been deleted.");
+		}
+
+		// Remove the Registered member from the group.
+		group.getRegisteredMembers().remove(groupMember);
+
+		// Persists the group details in the database.
+		groupRepository.save(group);
+
+		// Return success message.
+		return new MessageResponseDTO("You have successfully left the group.");
 	}
 
 	private void removeUninvitedRegisteredMembers(Group group, Set<String> invitedPhones) {
@@ -607,11 +614,5 @@ public class GroupServiceImpl implements GroupService {
 		newMember.setGroupId(group);
 
 		return newMember;
-	}
-
-	// Ensure the addition of the external member to the group.
-	private void addMemberToGroupIfMissing(Group group, ExternalMember member) {
-
-        group.getExternalMembers().add(member);
 	}
 }
