@@ -10,8 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.copay.app.dto.auth.request.UserLoginRequestDTO;
-import com.copay.app.dto.auth.request.UserRegisterStepOneDTO;
-import com.copay.app.dto.auth.request.UserRegisterStepTwoDTO;
+import com.copay.app.dto.auth.request.UserRegisterStepOneRequestDTO;
+import com.copay.app.dto.auth.request.UserRegisterStepTwoRequestDTO;
 
 import com.copay.app.dto.auth.response.RegisterStepOneResponseDTO;
 import com.copay.app.dto.auth.response.RegisterStepTwoResponseDTO;
@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	@Transactional
-	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneDTO request) {
+	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneRequestDTO request) {
 
 		boolean emailExists = userRepository.existsByEmail(request.getEmail());
 
@@ -125,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	@Transactional
-    public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoDTO request, String token) {
+    public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoRequestDTO request, String token) {
 
         try {
 

@@ -2,7 +2,7 @@ package com.copay.app.dto.auth.request;
 
 import jakarta.validation.constraints.*;
 
-public class UserRegisterStepOneDTO {
+public class UserRegisterStepOneRequestDTO {
 
 	@NotBlank(message = "Username cannot be empty")
 	@Size(min = 3, max = 15, message = "Username must be between 3 and 15 characters")
@@ -27,11 +27,11 @@ public class UserRegisterStepOneDTO {
 	}
 
 	// Constructor for deserialization.
-	public UserRegisterStepOneDTO() {
+	public UserRegisterStepOneRequestDTO() {
 	}
 
 	// Constructor with parameters.
-	public UserRegisterStepOneDTO(String username, String email, String password, String confirmPassword) {
+	public UserRegisterStepOneRequestDTO(String username, String email, String password, String confirmPassword) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

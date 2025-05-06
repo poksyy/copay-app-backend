@@ -40,6 +40,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public UserResponseDTO createUser(UserCreateDTO request) {
+
+        User newUser = new User();
+        newUser.setEmail(request.getEmail());
+        newUser.setPhoneNumber(request.getPhoneNumber());
+
+        // Validate user credentials availability.
+        userAvailabilityServiceImpl.checkUserExistence(newUser);
+
+        newUser.setUsername(request.getUsername());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setCompleted(true);
+
+        return new UserResponseDTO(userRepository.save(newUser));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByIdDTO(Long id) {
 
@@ -69,25 +88,6 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with provided email."));
-    }
-
-    @Override
-    @Transactional
-    public UserResponseDTO createUser(UserCreateDTO request) {
-
-        User newUser = new User();
-        newUser.setEmail(request.getEmail());
-        newUser.setPhoneNumber(request.getPhoneNumber());
-
-        // Validate user credentials availability.
-        userAvailabilityServiceImpl.checkUserExistence(newUser);
-
-        newUser.setUsername(request.getUsername());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setCreatedAt(LocalDateTime.now());
-        newUser.setCompleted(true);
-
-        return new UserResponseDTO(userRepository.save(newUser));
     }
 
     @Override

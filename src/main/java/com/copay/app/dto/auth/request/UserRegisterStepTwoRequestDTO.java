@@ -2,7 +2,7 @@ package com.copay.app.dto.auth.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class UserRegisterStepTwoDTO {
+public class UserRegisterStepTwoRequestDTO {
 
     @NotBlank(message = "Prefix number cannot be empty")
     private String phonePrefix;
@@ -10,11 +10,11 @@ public class UserRegisterStepTwoDTO {
     private String phoneNumber;
 
     // Constructor empty.
-    public UserRegisterStepTwoDTO() {
+    public UserRegisterStepTwoRequestDTO() {
     }
 
     // Constructor.
-    public UserRegisterStepTwoDTO(String phoneNumber, String phonePrefix) {
+    public UserRegisterStepTwoRequestDTO(String phoneNumber, String phonePrefix) {
         this.phoneNumber = phoneNumber;
         this.phonePrefix = phonePrefix;
     }

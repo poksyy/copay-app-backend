@@ -1,20 +1,17 @@
 package com.copay.app.controller;
 
 import com.copay.app.dto.auth.request.UserLoginRequestDTO;
-import com.copay.app.dto.auth.request.UserRegisterStepOneDTO;
-import com.copay.app.dto.auth.request.UserRegisterStepTwoDTO;
+import com.copay.app.dto.auth.request.UserRegisterStepOneRequestDTO;
+import com.copay.app.dto.auth.request.UserRegisterStepTwoRequestDTO;
 import com.copay.app.dto.auth.response.RegisterStepOneResponseDTO;
 import com.copay.app.dto.auth.response.RegisterStepTwoResponseDTO;
 import com.copay.app.dto.auth.response.LoginResponseDTO;
-import com.copay.app.service.ValidationService;
 import com.copay.app.service.auth.AuthServiceImpl;
-import com.copay.app.validation.ValidationErrorResponse;
 
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,23 +27,23 @@ public class AuthController {
 
     // Handles user registration request.
 	@PostMapping("/register/step-one")
-	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneDTO userRegisterStepOneDTO) {
+	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneRequestDTO userRegisterStepOneRequestDTO) {
 
 		// Registers the user and returns a JWT response.
-		RegisterStepOneResponseDTO registerStepOneResponseDTO = authServiceImpl.registerStepOne(userRegisterStepOneDTO);
+		RegisterStepOneResponseDTO registerStepOneResponseDTO = authServiceImpl.registerStepOne(userRegisterStepOneRequestDTO);
 		
 		return ResponseEntity.ok().body(registerStepOneResponseDTO);
 	}
 
 	// Update phone number of the user.
 	@PostMapping("/register/step-two")
-	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoDTO userRegisterStepTwoDTO) {
+	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoRequestDTO userRegisterStepTwoRequestDTO) {
 
 		// Get the authentication though the JwtAuthenticationFilter class.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Registers the user and returns a JWT response.
-		RegisterStepTwoResponseDTO registerStepTwoResponseDTO = authServiceImpl.registerStepTwo(userRegisterStepTwoDTO, token);
+		RegisterStepTwoResponseDTO registerStepTwoResponseDTO = authServiceImpl.registerStepTwo(userRegisterStepTwoRequestDTO, token);
 
 		return ResponseEntity.ok().body(registerStepTwoResponseDTO);
 	}
