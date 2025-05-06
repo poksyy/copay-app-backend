@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "e39b1af7-ab44-4f64-9dbf-3aff8e6e12d5",
+		"_postman_id": "15bedbc0-7f2c-4cf3-88bf-a43f90b4e241",
 		"name": "Copay",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38870768"
+		"_exporter_id": "38870746",
+		"_collection_link": "https://copay4.postman.co/workspace/My-Workspace~14b4384c-5522-4100-864b-44c269582d0f/collection/38870746-15bedbc0-7f2c-4cf3-88bf-a43f90b4e241?action=share&source=collection_link&creator=38870746"
 	},
 	"item": [
 		{
@@ -19,7 +20,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"username\" : \"CRUDtest\",\r\n    \"email\" : \"CRUDtest@example.com\",\r\n    \"password\" : \"Password123\",\r\n    \"phoneNumber\" : \"phonenumbertest\"\r\n}",
+									"raw": "{\r\n    \"username\" : \"\",\r\n    \"email\" : \"\",\r\n    \"password\" : \"\",\r\n    \"phoneNumber\" : \"\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -47,7 +48,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/users/1",
+									"raw": "http://localhost:8080/api/users/{userId}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -56,7 +57,7 @@
 									"path": [
 										"api",
 										"users",
-										"1"
+										"{userId}"
 									]
 								}
 							},
@@ -68,7 +69,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/users/phone/phonenumbertest",
+									"raw": "http://localhost:8080/api/users/phone/{phoneNumber}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -78,7 +79,7 @@
 										"api",
 										"users",
 										"phone",
-										"phonenumbertest"
+										"{phoneNumber}"
 									]
 								}
 							},
@@ -91,7 +92,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"username\" : \"updateCRUDtest\",\r\n    \"email\" : \"updatechangedCRUDtest@example.com\",\r\n    \"password\" : \"updatePassword123\",\r\n    \"phoneNumber\" : \"updatephonenumbertest\"\r\n}",
+									"raw": "{\r\n    \"username\" : \"\",\r\n    \"email\" : \"\",\r\n    \"password\" : \"\",\r\n    \"phoneNumber\" : \"\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -99,7 +100,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/users/1",
+									"raw": "http://localhost:8080/api/users/{userId}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -108,7 +109,7 @@
 									"path": [
 										"api",
 										"users",
-										"1"
+										"{userId}"
 									]
 								}
 							},
@@ -121,7 +122,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"username\" : \"CRUDtest\",\r\n    \"email\" : \"changedCRUDtest@example.com\",\r\n    \"password\" : \"Password123\",\r\n    \"phoneNumber\" : \"phonenumbertest\"\r\n}",
+									"raw": "{\r\n    \"username\" : \"Pau Carrera \",\r\n    \"email\" : \"poksy2002@gmail.com\",\r\n    \"password\" : \"Test12345\",\r\n    \"phoneNumber\" : \"603696144\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -129,7 +130,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/users/email/updatechangedCRUDtest@example.com",
+									"raw": "http://localhost:8080/api/users/email/{email}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -139,7 +140,7 @@
 										"api",
 										"users",
 										"email",
-										"updatechangedCRUDtest@example.com"
+										"{email}"
 									]
 								}
 							},
@@ -151,7 +152,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/users",
+									"raw": "http://localhost:8080/api/users/{userId}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -159,7 +160,8 @@
 									"port": "8080",
 									"path": [
 										"api",
-										"users"
+										"users",
+										"{userId}"
 									]
 								}
 							},
@@ -191,46 +193,13 @@
 					"name": "Groups",
 					"item": [
 						{
-							"name": "Get Group by user id",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost:8080/api/groups/2",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"api",
-										"groups",
-										"2"
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Create group",
 							"request": {
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"createdBy\": 2,\r\n  \"name\": \"Test\",\r\n  \"description\": \"Quedamos al Weekend\",\r\n  \"estimatedPrice\": 200,\r\n  \"currency\": \"EUR\",\r\n  \"invitedRegisteredMembers\": [\r\n    \"604395537\",\r\n    \"603696141\"\r\n\r\n  ],\r\n  \"invitedExternalMembers\": [\r\n    \"Cristian\",\r\n    \"Pau\"\r\n  ]\r\n}\r\n",
+									"raw": "{\r\n  \"createdBy\": 1,\r\n  \"name\": \"\",\r\n  \"description\": \"\",\r\n  \"estimatedPrice\": 100,\r\n  \"currency\": \"EUR\",\r\n  \"invitedRegisteredMembers\": [\r\n    { \"phoneNumber\": \"\", \"payer\": true },\r\n    { \"phoneNumber\": \"\", \"payer\": false }\r\n  ],\r\n  \"invitedExternalMembers\": [\r\n    { \"name\": \"\", \"payer\": false },\r\n    { \"name\": \"\", \"payer\": false },\r\n    { \"name\": \"\", \"payer\": false }\r\n  ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -253,13 +222,16 @@
 							"response": []
 						},
 						{
-							"name": "Update Group",
+							"name": "Get Group by user id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
 							"request": {
-								"method": "PATCH",
+								"method": "GET",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"estimatedPrice\": -2,\r\n  \"name\":\"\"\r\n}\r\n",
+									"raw": "",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -267,7 +239,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/groups/1",
+									"raw": "http://localhost:8080/api/groups/{userId}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -276,28 +248,19 @@
 									"path": [
 										"api",
 										"groups",
-										"1"
+										"{userId}"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Update Group Description",
+							"name": "List Group members by group id",
 							"request": {
-								"method": "PATCH",
+								"method": "GET",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"description\": \"Nuevo descripcion del grupo\"\r\n}\r\n",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
-									"raw": "http://localhost:8080/api/groups/1/description",
+									"raw": "http://localhost:8080/api/groups/{groupId}/members",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -306,21 +269,31 @@
 									"path": [
 										"api",
 										"groups",
-										"1",
-										"description"
+										"{groupId}",
+										"members"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Update Group CopayMembers",
+							"name": "Update Group Description & Name",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
 								"method": "PATCH",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"invitedCopayMembers\": [\r\n        \"+34603696141\"\r\n    ]\r\n}",
+									"raw": "{\r\n  \"name\": \"\",\r\n  \"description\": \"\"\r\n}\r\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -328,7 +301,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/groups/1/copaymembers",
+									"raw": "http://localhost:8080/api/groups/{groupId}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -337,21 +310,30 @@
 									"path": [
 										"api",
 										"groups",
-										"1",
-										"copaymembers"
+										"{groupId}"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Update Group ExternalMembers",
+							"name": "Update Group Price",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
 								"method": "PATCH",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"invitedExternalMembers\": [\r\n        {\r\n            \"externalMembersId\": 18,\r\n            \"name\": \"aaa\"\r\n        },\r\n        {\r\n            \"name\": \"bss\"\r\n        },\r\n        {\r\n            \"name\": \"css\"\r\n        },\r\n        {\r\n            \"name\": \"dss\"\r\n        }\r\n    ]\r\n}\r\n",
+									"raw": "{\r\n  \"estimatedPrice\": \"300\"\r\n}\r\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -359,7 +341,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/groups/1/externalmembers",
+									"raw": "http://localhost:8080/api/groups/{groupId}/estimatedprice",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -368,7 +350,89 @@
 									"path": [
 										"api",
 										"groups",
-										"1",
+										"{groupId}",
+										"estimatedprice"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Group Registered Members",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"invitedRegisteredMembers\": [\r\n        \"\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/{groupId}/registeredmembers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"{groupId}",
+										"registeredmembers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Group External Members",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"invitedExternalMembers\": [\r\n        {\r\n            \"externalMembersId\": \"\",\r\n            \"name\": \"\"\r\n        },\r\n        {\r\n            \"name\": \"test2\"\r\n        }\r\n    ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/groups/{groupId}/externalmembers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"groups",
+										"{groupId}",
 										"externalmembers"
 									]
 								}
@@ -383,7 +447,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2NDc3OTA2NDgiLCJpYXQiOjE3NDQ1NjgwOTQsImV4cCI6MTc0NDU3MTY5NH0.Li7PgnMzeoQnRIHy6urmlOseJRpQSiyjscLGgteBcw_1TaLPMQJMrwns7v3zQSK6lGRt1vu3R6v6ycn36lKXpA",
+											"value": "",
 											"type": "string"
 										}
 									]
@@ -400,7 +464,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/groups/8",
+									"raw": "http://localhost:8080/api/groups/{groupId}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -409,21 +473,21 @@
 									"path": [
 										"api",
 										"groups",
-										"8"
+										"{groupId}"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Leave group (need token)",
+							"name": "Leave group",
 							"request": {
 								"auth": {
 									"type": "bearer",
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMjM0NTY3ODk0IiwiaWF0IjoxNzQ0ODQ1NzkzLCJleHAiOjE3NDQ4NDkzOTN9.6Jln5tWc_sGwhNWX_4S26fZGB8JF5h1tMUBX4OBbeL0KHIZv9cpCcjD1fH2yx3J_OPTKjqvi4q6FYtAwjdaB_Q",
+											"value": "",
 											"type": "string"
 										}
 									]
@@ -431,7 +495,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/groups/2/leave",
+									"raw": "http://localhost:8080/api/groups/{groupId}/leave",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -440,8 +504,166 @@
 									"path": [
 										"api",
 										"groups",
-										"2",
+										"{groupId}",
 										"leave"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Expenses",
+					"item": [
+						{
+							"name": "WIP Create expense",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/expenses/{groupId}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"expenses",
+										"{groupId}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Expense by group id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/expenses/{groupId}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"expenses",
+										"{groupId}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "WIP Get specific Expense by group",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/expenses/{groupId}/{expenseId}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"expenses",
+										"{groupId}",
+										"{expenseId}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "WIP Get specific Expense by group",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/expenses/{groupId}/{expenseId}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"expenses",
+										"{groupId}",
+										"{expenseId}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "WIP Delete specific Expense by group",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/expenses/{groupId}/{expenseId}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"expenses",
+										"{groupId}",
+										"{expenseId}"
 									]
 								}
 							},
@@ -461,7 +683,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"taest\",\r\n    \"email\": \"taaest@example.com\",\r\n    \"password\": \"Password123\",\r\n    \"phoneNumber\": \"000000000\",\r\n    \"confirmPassword\": \"Password123\"\r\n}",
+							"raw": "{\r\n    \"username\": \"\",\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"confirmPassword\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -493,7 +715,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0YWFlc3RAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDQzODE0MTAsImV4cCI6MTc0NDM4MTcxMH0.E8qfwdqbxeIyn2E8icVdg9R2e4A19Lhwsfwo-UdNB4OfEeo0xg54MOxBICEojnqpvLpcQaksKvqWaXL_kDiwdQ",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXRAZ21haWwuY29tIiwicmVnaXN0ZXIiOnRydWUsImlhdCI6MTc0NjU0MTc5MywiZXhwIjoxNzQ2NTQyMDkzfQ.ueu48-6RbdpxtMHoBmAv2y-F5cEhu4xjoGCU2kVDt2KGWSfLYk1OMu5_5Ofwo6r6cjAlOUFJnEesT4f6v_-Rtg",
 									"type": "string"
 								}
 							]
@@ -502,7 +724,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phoneNumber\": \"0a0000s0000\"\r\n}",
+							"raw": "{\r\n    \"phonePrefix\": \"\",\r\n    \"phoneNumber\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -533,7 +755,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"phoneNumber\": \"1234567894\",\r\n    \"password\": \"Test12345\"\r\n}",
+							"raw": "{\r\n    \"phoneNumber\": \"\",\r\n    \"password\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -564,7 +786,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0dGVlc3N0dEBleGFtcGxlLmNvbSIsImlhdCI6MTc0MzE4MjAyMSwiZXhwIjoxNzQzMTgyMzIxfQ.SF8P-36pzcpXBqmflCQCZ4JwAekzHrT8LMx4YPQQaCk4Oiuf-nchnC3V8xydj5dS-eIdEu3ZL3AFwr38_rVoCQ",
+									"value": "",
 									"type": "string"
 								}
 							]
@@ -600,7 +822,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3MzAyNDE0MjMyIiwiaWF0IjoxNzQzNTI0MzgwLCJleHAiOjE3NDM1Mjc5ODB9.UmDhd5gbVymx-HssYlLkumGc6PBb2bptyJxrfVza3XfrfuvKFgF4AK5J3MoXY4VeI2P4H5qPd0wqygFXrvT-dQ",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MDM2OTYxNDQiLCJpYXQiOjE3NDY1NDI5MjYsImV4cCI6MTc0NjU0NjUyNn0.L3AW49MXGUIsVv94XYliJzeP4pEA4qPi7KiCq5gU8CIhYpux8KNhb8Ih1JSGDHEs4eyAGeJP16L4TOzR40JEWA",
 									"type": "string"
 								}
 							]
@@ -609,7 +831,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"currentPassword\": \"Test12345\",\r\n  \"newPassword\": \"Pass12345\",\r\n  \"confirmNewPassword\": \"Pass12345\"\r\n}",
+							"raw": "{\r\n  \"currentPassword\": \"\",\r\n  \"newPassword\": \"\",\r\n  \"confirmNewPassword\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -638,7 +860,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\" : \"test@example.com\"\r\n}",
+							"raw": "{\r\n    \"email\" : \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -677,7 +899,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"newPassword\": \"NewPassword123\",\r\n    \"confirmNewPassword\": \"NewPassword123\"\r\n}",
+							"raw": "{\r\n    \"newPassword\": \"\",\r\n    \"confirmNewPassword\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -759,11 +981,104 @@
 				},
 				{
 					"name": "Groups",
-					"item": []
-				},
-				{
-					"name": "Plans",
-					"item": []
+					"item": [
+						{
+							"name": "Fake Group Data",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/fake-data/groups?count=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"fake-data",
+										"groups"
+									],
+									"query": [
+										{
+											"key": "count",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Group Data",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/fake-data/clear-groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"fake-data",
+										"clear-groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fake Group Data",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/fake-data/groups?count=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"fake-data",
+										"groups"
+									],
+									"query": [
+										{
+											"key": "count",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Group Data",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/fake-data/clear-groups",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"fake-data",
+										"clear-groups"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -800,33 +1115,12 @@
 					"name": "Expenses",
 					"item": [
 						{
-							"name": "Truncate Payment_Confirmation Table",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:8080/api/db/reset-groups",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"api",
-										"db",
-										"reset-groups"
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Truncate User_Expenses Table",
 							"request": {
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/db/reset-groups",
+									"raw": "http://localhost:8080/api/db/reset-user-expenses",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -835,19 +1129,19 @@
 									"path": [
 										"api",
 										"db",
-										"reset-groups"
+										"reset-user-expenses"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Truncate Expenses Table Copy",
+							"name": "Truncate Expenses Table",
 							"request": {
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/db/reset-groups",
+									"raw": "http://localhost:8080/api/db/reset-expenses",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -856,7 +1150,28 @@
 									"path": [
 										"api",
 										"db",
-										"reset-groups"
+										"reset-expenses"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "WIP Truncate Payment_Confirmation Table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/db/reset-payment-confimations",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"db",
+										"reset-payment-confimations"
 									]
 								}
 							},
