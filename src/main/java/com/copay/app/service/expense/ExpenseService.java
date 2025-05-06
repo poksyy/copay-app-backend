@@ -16,5 +16,7 @@ public interface ExpenseService {
 
     ExpenseResponseDTO getExpense(Long groupId, Long expenseId);
 
+    MessageResponseDTO deleteExpenseByGroupAndId (Long groupId, Long expenseId);
+
     ConfirmPaymentResponseDTO confirmPayment(Long expenseId, Long userExpenseId);
 }
