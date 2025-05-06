@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.copay.app.entity.Group;
+import com.copay.app.repository.GroupRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class FakeDataService {
 	private final Faker faker = new Faker();
 	private final UserRepository userRepository;
+	private final GroupRepository groupRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	// Constructor
-	public FakeDataService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public FakeDataService(UserRepository userRepository, GroupRepository groupRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.groupRepository = groupRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -40,7 +44,31 @@ public class FakeDataService {
 	}
 
 	@Transactional
-	public void clearUsersFakeData() {
+	public void clearFakeUsers() {
 	    userRepository.deleteAll();
+	}
+
+	@Transactional
+	public List<Group> generateFakeGroups(int count) {
+        final User finalCreator = userRepository.findAll().getFirst();
+
+		List<Group> groups = IntStream.range(0, count).mapToObj(i -> {
+			Group group = new Group();
+			group.setName(faker.team().name());
+			group.setCreatedBy(finalCreator);
+			group.setCurrency("EUR");
+			group.setDescription(faker.lorem().sentence(5));
+			group.setEstimatedPrice((float) faker.number().randomDouble(2, 100, 5000));
+			group.setImageUrl(faker.internet().image());
+			group.setImageProvider("faker");
+			return group;
+		}).collect(Collectors.toList());
+
+		return groupRepository.saveAll(groups);
+	}
+
+	@Transactional
+	public void clearFakeGroups() {
+		groupRepository.deleteAll();
 	}
 }

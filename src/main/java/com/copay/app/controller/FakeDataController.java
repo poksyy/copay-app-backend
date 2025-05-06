@@ -19,15 +19,28 @@ public class FakeDataController {
 	}
 
 	@PostMapping("/users")
-	public ResponseEntity<List<User>> generateUsers(@RequestParam(defaultValue = "10") int count) {
+	public ResponseEntity<List<User>> generateFakeUsers(@RequestParam(defaultValue = "10") int count) {
 
 		return ResponseEntity.ok(fakeDataService.generateFakeUsers(count));
 	}
 
 	@DeleteMapping("/users")
-	public ResponseEntity<String> clearUsersFakeData() {
+	public ResponseEntity<String> clearUsers() {
 
-		fakeDataService.clearUsersFakeData();
+		fakeDataService.clearFakeUsers();
 		return ResponseEntity.ok("User data deleted");
+	}
+
+	@PostMapping("/groups")
+	public ResponseEntity<List<User>> generateFakeGroups(@RequestParam(defaultValue = "10") int count) {
+
+		return ResponseEntity.ok(fakeDataService.generateFakeUsers(count));
+	}
+
+	@DeleteMapping("/groups")
+	public ResponseEntity<String> clearFakeGroups() {
+
+		fakeDataService.clearFakeGroups();
+		return ResponseEntity.ok("Group data deleted");
 	}
 }
