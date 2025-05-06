@@ -117,8 +117,8 @@ public class GroupController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PatchMapping("/{groupId}/copaymembers")
-	public ResponseEntity<?> updateGroupCopayMembers(@PathVariable Long groupId,
+	@PatchMapping("/{groupId}/registeredmembers")
+	public ResponseEntity<?> updateGroupRegisteredMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request) {
 
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();

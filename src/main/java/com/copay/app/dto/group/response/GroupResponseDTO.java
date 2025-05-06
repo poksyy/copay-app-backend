@@ -22,7 +22,7 @@ public class GroupResponseDTO {
 	// Populated with GroupOwnerDTO data representing group groupOwner.
 	private GroupOwnerDTO groupOwner;
 
-	// Populated with CopayMemberDTO data representing the Copay members.
+	// Populated with RegisteredMemberDTO data representing the Copay members.
 	private List<RegisteredMemberDTO> registeredMembers;
 	// Populated with ExternalMemberDTO data representing the external members.
 	private List<ExternalMemberDTO> externalMembers;
