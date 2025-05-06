@@ -62,9 +62,9 @@ public class GroupController {
 	@GetMapping("/{groupId}/members")
 	public ResponseEntity<GetGroupMembersResponseDTO> getGroupMembersByGroup(@PathVariable Long groupId) {
 
-		GetGroupMembersResponseDTO members = groupService.getGroupMembersByGroup(groupId);
+		GetGroupMembersResponseDTO getGroupMembersResponseDTO = groupService.getGroupMembersByGroup(groupId);
 
-		return ResponseEntity.ok(members);
+		return ResponseEntity.ok(getGroupMembersResponseDTO);
 	}
 
 	@DeleteMapping("/{groupId}")
@@ -77,9 +77,9 @@ public class GroupController {
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		MessageResponseDTO response = groupService.deleteGroup(groupId, token);
+		MessageResponseDTO messageResponseDTO = groupService.deleteGroup(groupId, token);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(messageResponseDTO);
 	}
 
 	@DeleteMapping("/{groupId}/leave")
@@ -92,9 +92,9 @@ public class GroupController {
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		MessageResponseDTO response = groupService.leaveGroup(groupId, token);
+		MessageResponseDTO messageResponseDTO = groupService.leaveGroup(groupId, token);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(messageResponseDTO);
 	}
 
 	@PatchMapping("/{groupId}")
@@ -102,9 +102,9 @@ public class GroupController {
 
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		MessageResponseDTO response = groupService.updateGroup(groupId, fieldChanges, token);
+		MessageResponseDTO messageResponseDTO = groupService.updateGroup(groupId, fieldChanges, token);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(messageResponseDTO);
 	}
 
 	@PatchMapping("/{groupId}/estimatedprice")
@@ -112,9 +112,9 @@ public class GroupController {
 
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		MessageResponseDTO response = groupService.updateGroupEstimatedPrice(groupId, request, token);
+		MessageResponseDTO messageResponseDTO = groupService.updateGroupEstimatedPrice(groupId, request, token);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(messageResponseDTO);
 	}
 
 	@PatchMapping("/{groupId}/registeredmembers")
@@ -123,9 +123,9 @@ public class GroupController {
 
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		MessageResponseDTO response = groupService.updateGroupRegisteredMembers(groupId, request, token);
+		MessageResponseDTO messageResponseDTO = groupService.updateGroupRegisteredMembers(groupId, request, token);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(messageResponseDTO);
 	}
 
 	@PatchMapping("/{groupId}/externalmembers")
@@ -134,8 +134,8 @@ public class GroupController {
 
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		MessageResponseDTO response = groupService.updateGroupExternalMembers(groupId, request, token);
+		MessageResponseDTO messageResponseDTO = groupService.updateGroupExternalMembers(groupId, request, token);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(messageResponseDTO);
 	}
 }
