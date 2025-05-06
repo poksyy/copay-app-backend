@@ -7,6 +7,8 @@ import com.copay.app.exception.user.UserUniquenessException;
 import com.copay.app.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserAvailabilityServiceImpl implements UserAvailabilityService {
 
@@ -19,19 +21,16 @@ public class UserAvailabilityServiceImpl implements UserAvailabilityService {
 	@Override
 	public void checkUserExistence(User user) {
 
-		boolean phoneInUse = userRepository.existsByPhoneNumber(user.getPhoneNumber());
-		boolean emailInUse = userRepository.existsByEmail(user.getEmail());
+		Optional<User> existingByEmail = userRepository.findByEmail(user.getEmail());
+		Optional<User> existingByPhone = userRepository.findByPhoneNumber(user.getPhoneNumber());
 
-		if (phoneInUse && emailInUse) {
+		boolean emailInUse = existingByEmail.isPresent() && !existingByEmail.get().getUserId().equals(user.getUserId());
+		boolean phoneInUse = existingByPhone.isPresent() && !existingByPhone.get().getUserId().equals(user.getUserId());
+
+		if (emailInUse && phoneInUse) {
 			throw new UserUniquenessException(String.format(
 					"Both phone number '%s' and email '%s' are already in use.",
 					user.getPhoneNumber(), user.getEmail()
-			));
-		}
-
-		if (phoneInUse) {
-			throw new PhoneAlreadyExistsException(String.format(
-					"Phone number '%s' is already in use.", user.getPhoneNumber()
 			));
 		}
 
@@ -40,5 +39,12 @@ public class UserAvailabilityServiceImpl implements UserAvailabilityService {
 					"Email '%s' is already in use.", user.getEmail()
 			));
 		}
+
+		if (phoneInUse) {
+			throw new PhoneAlreadyExistsException(String.format(
+					"Phone number '%s' is already in use.", user.getPhoneNumber()
+			));
+		}
 	}
+
 }
