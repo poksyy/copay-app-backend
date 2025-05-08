@@ -1,13 +1,12 @@
 package com.copay.app.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
-import com.copay.app.dto.user.response.UserResponseDTO;
 import com.copay.app.dto.group.request.*;
 
+import com.copay.app.service.group.GroupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.dto.group.response.GetGroupResponseDTO;
-import com.copay.app.service.group.GroupServiceImpl;
 
 import jakarta.validation.Valid;
 
@@ -30,10 +28,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/groups")
 public class GroupController {
 
-	private final GroupServiceImpl groupService;
+	private final GroupService groupService;
 
-	// Constructor
-    public GroupController(GroupServiceImpl groupService) {
+	// Constructor.
+    public GroupController(GroupService groupService) {
         this.groupService = groupService;
     }
 
@@ -110,6 +108,7 @@ public class GroupController {
 	@PatchMapping("/{groupId}/estimatedprice")
 	public ResponseEntity<?> updateGroupEstimatedPrice(@PathVariable Long groupId, @RequestBody @Valid UpdateGroupEstimatedPriceRequestDTO request) {
 
+		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		MessageResponseDTO messageResponseDTO = groupService.updateGroupEstimatedPrice(groupId, request, token);
@@ -121,6 +120,7 @@ public class GroupController {
 	public ResponseEntity<?> updateGroupRegisteredMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupRegisteredMembersRequestDTO request) {
 
+		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		MessageResponseDTO messageResponseDTO = groupService.updateGroupRegisteredMembers(groupId, request, token);
@@ -132,6 +132,7 @@ public class GroupController {
 	public ResponseEntity<?> updateGroupExternalMembers(@PathVariable Long groupId,
 			@RequestBody @Valid UpdateGroupExternalMembersRequestDTO request) {
 
+		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		MessageResponseDTO messageResponseDTO = groupService.updateGroupExternalMembers(groupId, request, token);

@@ -8,6 +8,7 @@ import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.repository.expense.UserExpenseRepository;
+import com.copay.app.service.servicequeries.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,14 +26,17 @@ import java.util.List;
 @Service
 public class GroupExpenseServiceImpl implements GroupExpenseService{
 
-    ExpenseRepository expenseRepository;
+    private final ExpenseRepository expenseRepository;
 
-    UserExpenseRepository userExpenseRepository;
+    private final UserExpenseRepository userExpenseRepository;
 
-    public GroupExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository) {
+    private final UserQueryService userQueryService;
+
+    public GroupExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository, UserQueryService userQueryService) {
 
         this.expenseRepository = expenseRepository;
         this.userExpenseRepository = userExpenseRepository;
+        this.userQueryService = userQueryService;
     }
 
     @Override

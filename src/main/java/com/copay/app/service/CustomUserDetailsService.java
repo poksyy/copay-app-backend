@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 		// Token is null.
 		if (identifier == null || identifier.isBlank()) {
-			throw new UsernameNotFoundException("Identifier cannot be null or empty");
+			throw new UsernameNotFoundException("Token identifier cannot be null or empty");
 		}
 
 		// Token contains an email.
@@ -43,7 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		// Creates a UserDetails object with phone number and password.
 		User.withUsername(user.getPhoneNumber()).password(user.getPassword()).build()).orElseThrow(() ->
 		// Throws custom exception if user is not found.
-		new UsernameNotFoundException("Phone not found"));
+		new UsernameNotFoundException("Phone token identifier not found"));
 	}
 
 	// Method used in --> RegisterStepOne endpoint.
@@ -53,7 +53,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		// Creates a UserDetails object with email and password.
 		User.withUsername(user.getEmail()).password(user.getPassword()).build()).orElseThrow(() ->
 		// Throws custom exception if email is not found.
-		new UsernameNotFoundException("Email not found"));
+		new UsernameNotFoundException("Email token identified not found"));
 	}
 
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/db")
 public class DatabaseController {
+
 	private final JdbcTemplate jdbcTemplate;
 
 	public DatabaseController(JdbcTemplate jdbcTemplate) {

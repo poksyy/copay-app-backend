@@ -15,6 +15,7 @@ public class UserAvailabilityServiceImpl implements UserAvailabilityService {
 	private final UserRepository userRepository;
 
 	public UserAvailabilityServiceImpl(UserRepository userRepository) {
+
 		this.userRepository = userRepository;
 	}
 

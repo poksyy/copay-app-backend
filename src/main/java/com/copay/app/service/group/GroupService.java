@@ -1,6 +1,5 @@
 package com.copay.app.service.group;
 
-import java.util.List;
 import java.util.Map;
 
 import com.copay.app.dto.MessageResponseDTO;

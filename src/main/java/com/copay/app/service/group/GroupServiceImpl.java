@@ -16,6 +16,7 @@ import com.copay.app.repository.expense.ExpenseRepository;
 
 import com.copay.app.service.expense.ExpenseService;
 import com.copay.app.service.expense.GroupExpenseService;
+import com.copay.app.service.servicequeries.UserQueryService;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,13 +64,15 @@ public class GroupServiceImpl implements GroupService {
 
 	private final ExpenseService expenseService;
 
+	private final UserQueryService userQueryService;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	// Constructor to initialize all the instances.
 	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
-							UserRepository userRepository, ExternalMemberRepository externalMemberRepository, ExpenseRepository expenseRepository, JwtService jwtService, GroupExpenseService groupExpenseService,
-							ExpenseService expenseService, EntityManager entityManager) {
+                            UserRepository userRepository, ExternalMemberRepository externalMemberRepository, ExpenseRepository expenseRepository, JwtService jwtService, GroupExpenseService groupExpenseService,
+                            ExpenseService expenseService, UserQueryService userQueryService, EntityManager entityManager) {
 
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
@@ -79,20 +82,20 @@ public class GroupServiceImpl implements GroupService {
 		this.jwtService = jwtService;
 		this.groupExpenseService = groupExpenseService;
 		this.expenseService = expenseService;
-		this.entityManager = entityManager;
+        this.userQueryService = userQueryService;
+        this.entityManager = entityManager;
 	}
 
 	@Override
 	@Transactional
 	public GroupResponseDTO createGroup(CreateGroupRequestDTO request) {
 
-		// Check if the creator exists in the database and save the user_id.
-		User creator = userRepository.findById(request.getCreatedBy())
-				.orElseThrow(() -> new UserNotFoundException("User with ID " + request.getCreatedBy() + " not found"));
+		User creator = userQueryService.getUserById(request.getCreatedBy());
+
 
 		// Validate only one payer (only one can have Payer=true)
-		boolean hasRegisteredPayer = request.getInvitedRegisteredMembers().stream().anyMatch(InvitedRegisteredMemberDTO::isPayer);
-		boolean hasExternalPayer = request.getInvitedExternalMembers().stream().anyMatch(InvitedExternalMemberDTO::isPayer);
+		boolean hasRegisteredPayer = request.getInvitedRegisteredMembers().stream().anyMatch(InvitedRegisteredMemberDTO::isCreditor);
+		boolean hasExternalPayer = request.getInvitedExternalMembers().stream().anyMatch(InvitedExternalMemberDTO::isCreditor);
 
 		if ((hasRegisteredPayer && hasExternalPayer) || (!hasRegisteredPayer && !hasExternalPayer)) {
 			throw new InvalidPayerSelectionException("Exactly one payer must be selected, either registered or external.");
@@ -170,12 +173,12 @@ public class GroupServiceImpl implements GroupService {
 
 		// Check if any registered member is marked as the payer.
 		Optional<InvitedRegisteredMemberDTO> payerRegistered = request.getInvitedRegisteredMembers().stream()
-				.filter(InvitedRegisteredMemberDTO::isPayer)
+				.filter(InvitedRegisteredMemberDTO::isCreditor)
 				.findFirst();
 
 		// Check if any external member is marked as the payer.
 		Optional<InvitedExternalMemberDTO> payerExternal = request.getInvitedExternalMembers().stream()
-				.filter(InvitedExternalMemberDTO::isPayer)
+				.filter(InvitedExternalMemberDTO::isCreditor)
 				.findFirst();
 
 		if (payerRegistered.isPresent()) {

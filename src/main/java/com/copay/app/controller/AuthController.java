@@ -7,7 +7,7 @@ import com.copay.app.dto.auth.request.UserRegisterStepTwoRequestDTO;
 import com.copay.app.dto.auth.response.RegisterStepOneResponseDTO;
 import com.copay.app.dto.auth.response.RegisterStepTwoResponseDTO;
 import com.copay.app.dto.auth.response.LoginResponseDTO;
-import com.copay.app.service.auth.AuthServiceImpl;
+import com.copay.app.service.auth.AuthService;
 
 import jakarta.validation.Valid;
 
@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-	private final AuthServiceImpl authServiceImpl;
+	private final AuthService authService;
 
-	// Constructor
-	public AuthController(AuthServiceImpl authServiceImpl) {
-        this.authServiceImpl = authServiceImpl;
+	// Constructor.
+	public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     // Handles user registration request.
@@ -31,7 +31,7 @@ public class AuthController {
 	public ResponseEntity<?> registerStepOne(@RequestBody @Valid UserRegisterStepOneRequestDTO userRegisterStepOneRequestDTO) {
 
 		// Registers the user and returns a JWT response.
-		RegisterStepOneResponseDTO registerStepOneResponseDTO = authServiceImpl.registerStepOne(userRegisterStepOneRequestDTO);
+		RegisterStepOneResponseDTO registerStepOneResponseDTO = authService.registerStepOne(userRegisterStepOneRequestDTO);
 		
 		return ResponseEntity.ok().body(registerStepOneResponseDTO);
 	}
@@ -44,7 +44,7 @@ public class AuthController {
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Registers the user and returns a JWT response.
-		RegisterStepTwoResponseDTO registerStepTwoResponseDTO = authServiceImpl.registerStepTwo(userRegisterStepTwoRequestDTO, token);
+		RegisterStepTwoResponseDTO registerStepTwoResponseDTO = authService.registerStepTwo(userRegisterStepTwoRequestDTO, token);
 
 		return ResponseEntity.ok().body(registerStepTwoResponseDTO);
 	}
@@ -54,7 +54,7 @@ public class AuthController {
 	public ResponseEntity<?> loginUser(@RequestBody @Valid UserLoginRequestDTO loginRequest) {
 
 		// Authenticates the user and returns a JWT token.
-		LoginResponseDTO loginResponseDTO = authServiceImpl.loginUser(loginRequest);
+		LoginResponseDTO loginResponseDTO = authService.loginUser(loginRequest);
 
 		return ResponseEntity.ok(loginResponseDTO);
   	}
@@ -67,7 +67,7 @@ public class AuthController {
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Call the service to handle the token invalidation
-		authServiceImpl.logout(token);
+		authService.logout(token);
 
 		return ResponseEntity.ok(new MessageResponseDTO("Logout successful."));
 	}
