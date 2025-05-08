@@ -3,6 +3,7 @@ package com.copay.app.dto.user.response.profile;
 import com.copay.app.entity.User;
 
 public class EmailResponseDTO {
+
     private Long userId;
     private String email;
 
@@ -11,7 +12,7 @@ public class EmailResponseDTO {
         this.email = user.getEmail();
     }
 
-    // Getters and Setters
+    // Getters and Setters.
     public Long getUserId() {
         return userId;
     }

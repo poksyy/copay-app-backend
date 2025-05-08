@@ -7,7 +7,7 @@ public class DeleteGroupRequestDTO {
     @NotNull(message = "Group ID must not be null.")
     private Long groupId;
 
-    // Getters and setters
+    // Getters and setters.
     public Long getGroupId() {
         return groupId;
     }

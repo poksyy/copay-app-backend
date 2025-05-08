@@ -1,13 +1,18 @@
 package com.copay.app.dto.group.auxiliary;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class InvitedRegisteredMemberDTO {
 
+    @Pattern(regexp = "\\d+", message = "Phone number must contain only digits")
+    @Size(min = 6, max = 15, message = "Phone number must be between 6 and 15 digits")
     private String phoneNumber;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private boolean payer;
+    private boolean creditor;
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -17,11 +22,11 @@ public class InvitedRegisteredMemberDTO {
         this.phoneNumber = phoneNumber;
     }
 
-    public boolean isPayer() {
-        return payer;
+    public boolean isCreditor() {
+        return creditor;
     }
 
-    public void setPayer(boolean payer) {
-        this.payer = payer;
+    public void setIsCreditor(boolean creditor) {
+        this.creditor = creditor;
     }
 }

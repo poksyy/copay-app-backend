@@ -16,8 +16,7 @@ public class ForgotPasswordResetRequestDTO {
 		return newPassword != null && newPassword.equals(confirmNewPassword);
 	}
 
-	// Getters y setters
-
+	// Getters and setters.
 	public String getNewPassword() {
 		return newPassword;
 	}
