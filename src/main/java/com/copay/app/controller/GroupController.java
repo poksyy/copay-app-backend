@@ -65,36 +65,6 @@ public class GroupController {
 		return ResponseEntity.ok(getGroupMembersResponseDTO);
 	}
 
-	@DeleteMapping("/{groupId}")
-	public ResponseEntity<?> deleteGroup(@PathVariable Long groupId,
-			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO) {
-
-		// The groupId is manually added to the DTO for validation.
-		deleteGroupRequestDTO.setGroupId(groupId);
-
-		// Get the token from the SecurityContextHolder.
-		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
-		MessageResponseDTO messageResponseDTO = groupService.deleteGroup(groupId, token);
-
-		return ResponseEntity.ok(messageResponseDTO);
-	}
-
-	@DeleteMapping("/{groupId}/leave")
-	public ResponseEntity<?> leaveGroup(@PathVariable Long groupId,
-			@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO) {
-
-		// The groupId is manually added to the DTO for validation.
-		deleteGroupRequestDTO.setGroupId(groupId);
-
-		// Get the token from the SecurityContextHolder.
-		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
-		MessageResponseDTO messageResponseDTO = groupService.leaveGroup(groupId, token);
-
-		return ResponseEntity.ok(messageResponseDTO);
-	}
-
 	@PatchMapping("/{groupId}")
 	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges) {
 
@@ -136,6 +106,36 @@ public class GroupController {
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		MessageResponseDTO messageResponseDTO = groupService.updateGroupExternalMembers(groupId, request, token);
+
+		return ResponseEntity.ok(messageResponseDTO);
+	}
+
+	@DeleteMapping("/{groupId}")
+	public ResponseEntity<?> deleteGroup(@PathVariable Long groupId,
+										 @Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO) {
+
+		// The groupId is manually added to the DTO for validation.
+		deleteGroupRequestDTO.setGroupId(groupId);
+
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		MessageResponseDTO messageResponseDTO = groupService.deleteGroup(groupId, token);
+
+		return ResponseEntity.ok(messageResponseDTO);
+	}
+
+	@DeleteMapping("/{groupId}/leave")
+	public ResponseEntity<?> leaveGroup(@PathVariable Long groupId,
+										@Valid @ModelAttribute DeleteGroupRequestDTO deleteGroupRequestDTO) {
+
+		// The groupId is manually added to the DTO for validation.
+		deleteGroupRequestDTO.setGroupId(groupId);
+
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		MessageResponseDTO messageResponseDTO = groupService.leaveGroup(groupId, token);
 
 		return ResponseEntity.ok(messageResponseDTO);
 	}
