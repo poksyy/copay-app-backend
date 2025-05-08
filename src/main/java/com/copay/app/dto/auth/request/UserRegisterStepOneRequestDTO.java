@@ -4,21 +4,21 @@ import jakarta.validation.constraints.*;
 
 public class UserRegisterStepOneRequestDTO {
 
-	@NotBlank(message = "Username cannot be empty")
+	@NotBlank(message = "Username must not be null")
 	@Size(min = 3, max = 15, message = "Username must be between 3 and 15 characters")
 	private String username;
 
-	@NotBlank(message = "Email cannot be empty")
+	@NotBlank(message = "Email must not be null")
 	@Email(message = "Invalid email format")
 	private String email;
 
-	@NotBlank(message = "Password cannot be empty")
+	@NotBlank(message = "Password must not be null")
 	@Size(min = 8, message = "Password must be at least 8 characters long")
 	@Pattern(regexp = ".*[A-Z].*", message = "Password must contain at least one uppercase letter")
 	@Pattern(regexp = ".*\\d.*", message = "Password must contain at least one number")
 	private String password;
 
-	@NotBlank(message = "Confirm password cannot be empty")
+	@NotBlank(message = "Confirm password must not be null")
 	private String confirmPassword;
 
 	@AssertTrue(message = "Passwords must match")

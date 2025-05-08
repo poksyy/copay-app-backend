@@ -1,12 +1,17 @@
 package com.copay.app.dto.auth.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class UserRegisterStepTwoRequestDTO {
 
-    @NotBlank(message = "Prefix number cannot be empty")
+    @NotBlank(message = "Prefix number must not be null")
     private String phonePrefix;
-    @NotBlank(message = "Phone number cannot be empty")
+
+    @Pattern(regexp = "\\d+", message = "Phone number must contain only digits")
+    @Size(min = 6, max = 15, message = "Phone number must be between 6 and 15 digits")
+    @NotBlank(message = "Phone number must not be null")
     private String phoneNumber;
 
     // Constructor empty.

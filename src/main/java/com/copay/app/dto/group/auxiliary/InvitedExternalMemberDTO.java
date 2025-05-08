@@ -7,7 +7,7 @@ public class InvitedExternalMemberDTO {
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private boolean payer;
+    private boolean creditor;
 
     public String getName() {
         return name;
@@ -17,11 +17,11 @@ public class InvitedExternalMemberDTO {
         this.name = name;
     }
 
-    public boolean isPayer() {
-        return payer;
+    public boolean isCreditor() {
+        return creditor;
     }
 
-    public void setPayer(boolean payer) {
-        this.payer = payer;
+    public void setCreditor(boolean creditor) {
+        this.creditor = creditor;
     }
 }

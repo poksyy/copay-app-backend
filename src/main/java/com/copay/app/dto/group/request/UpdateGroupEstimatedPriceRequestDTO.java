@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class UpdateGroupEstimatedPriceRequestDTO {
 
-    @NotNull(message = "Estimated price is required")
+    @NotNull(message = "Estimated price must not be null")
     @DecimalMin(value = "0", message = "Estimated price must be greater than or equal to 0")
     @DecimalMax(value = "10000000", message = "Estimated price must be smaller than or equal to 10000000")
     private Float estimatedPrice;

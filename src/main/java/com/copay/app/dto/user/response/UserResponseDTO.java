@@ -7,9 +7,7 @@ public class UserResponseDTO {
 	private Long id;
 	private String username;
 	private String email;
-	private String password;
 	private String phoneNumber;
-	private boolean isProfileCompleted;
 
 	// Constructor
 	public UserResponseDTO(User user) {
@@ -17,8 +15,6 @@ public class UserResponseDTO {
 		this.username = user.getUsername();
 		this.email = user.getEmail();
 		this.phoneNumber = user.getPhoneNumber();
-		this.password = user.getPassword();
-		this.isProfileCompleted = user.isCompleted();
 	}
 
 	// Getters and Setters
@@ -46,14 +42,6 @@ public class UserResponseDTO {
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -62,11 +50,4 @@ public class UserResponseDTO {
 		this.phoneNumber = phoneNumber;
 	}
 
-	public boolean isProfileCompleted() {
-		return isProfileCompleted;
-	}
-
-	public void setProfileCompleted(boolean profileCompleted) {
-		isProfileCompleted = profileCompleted;
-	}
 }

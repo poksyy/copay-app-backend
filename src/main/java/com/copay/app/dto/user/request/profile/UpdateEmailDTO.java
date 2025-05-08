@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public class UpdateEmailDTO {
     
-    @NotBlank(message = "Email cannot be empty")
+    @NotBlank(message = "Email must not be null")
     @Email(message = "Invalid email format")
     private String email;
 

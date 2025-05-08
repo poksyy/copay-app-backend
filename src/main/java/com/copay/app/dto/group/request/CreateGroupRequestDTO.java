@@ -3,27 +3,26 @@ package com.copay.app.dto.group.request;
 import com.copay.app.dto.group.auxiliary.InvitedExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.InvitedRegisteredMemberDTO;
 import jakarta.validation.constraints.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CreateGroupRequestDTO {
 
-	@NotNull(message = "Creator user id is required")
+	@NotNull(message = "Creator user must not be null")
 	private Long createdBy;
 
-	@NotBlank(message = "Group name is required")
+	@NotBlank(message = "Group name must not be null")
 	@Size(max = 25, message = "Group name must be no longer than 25 characters")
 	private String name;
 
 	@Size(max = 50, message = "Description must be no longer than 50 characters")
 	private String description;
 
-	@NotNull(message = "Estimated price is required")
+	@NotNull(message = "Estimated price must not be null")
 	@DecimalMin(value = "0", message = "Estimated price must be greater than or equal to 0")
 	@DecimalMax(value = "10000000", message = "Estimated price must be smaller than or equal to 10000000")
 	private Float estimatedPrice;
 
-	@NotBlank(message = "Currency is required")
+	@NotBlank(message = "Currency must not be null")
 	@Size(max = 10, message = "Currency must be no longer than 10 characters")
 	private String currency;
 
