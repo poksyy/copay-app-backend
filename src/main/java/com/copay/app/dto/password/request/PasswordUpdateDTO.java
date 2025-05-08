@@ -4,19 +4,19 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public class ResetPasswordRequestDTO {
+public class PasswordUpdateDTO {
 
-    @NotBlank(message = "Current password must not be null")
+    @NotBlank(message = "Current password is required")
     private String currentPassword;
 
-    @NotBlank(message = "New password must not be null")
+    @NotBlank(message = "New password is required")
 	@Pattern(
 			regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$",
 			message = "Password must be at least 8 characters long, contain at least one uppercase letter and one number."
 	)
 	private String newPassword;
 
-    @NotBlank(message = "Confirm password must not be null")
+    @NotBlank(message = "Confirm password is required")
     private String confirmNewPassword;
 
 	@AssertTrue(message = "Passwords must match")

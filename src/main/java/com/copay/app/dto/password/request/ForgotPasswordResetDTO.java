@@ -3,12 +3,12 @@ package com.copay.app.dto.password.request;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 
-public class ForgotPasswordResetRequestDTO {
+public class ForgotPasswordResetDTO {
 
-	@NotBlank(message = "Password must not be null")
+	@NotBlank(message = "New password is required")
 	private String newPassword;
 
-	@NotBlank(message = "Confirm password must not be null")
+	@NotBlank(message = "Confirm password is required")
 	private String confirmNewPassword;
 
 	@AssertTrue(message = "Passwords must match")
