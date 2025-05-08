@@ -3,36 +3,35 @@ package com.copay.app.dto.user.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-public class UserUpdateDTO {
-	
-	@NotBlank(message = "Username cannot be empty")
+public class CreateUserRequestDTO {
+
+	@NotBlank(message = "Username must not be null")
     private String username;
     
-    @NotBlank(message = "Email cannot be empty")
+    @NotBlank(message = "Email must not be null")
     @Email(message = "Invalid email format")
     private String email;
-    
-    @NotBlank(message = "Phone number cannot be empty")
+
+    @Pattern(regexp = "\\d+", message = "Phone number must contain only digits")
+    @Size(min = 6, max = 15, message = "Phone number must be between 6 and 15 digits")
     private String phoneNumber;
     
-    @NotBlank(message = "Password cannot be empty")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$",
-            message = "Password must be at least 8 characters long, contain at least one uppercase letter and one number."
-    )
+    @NotBlank(message = "Password must not be null")
     private String password;
 
-    public UserUpdateDTO() {
+    public CreateUserRequestDTO() {
     }
 
-    public UserUpdateDTO(String username, String email, String phoneNumber, String password) {
+    public CreateUserRequestDTO(String username, String email, String phoneNumber, String password) {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
+    // Getters and Setters.
     public String getUsername() {
         return username;
     }
