@@ -92,7 +92,6 @@ public class GroupServiceImpl implements GroupService {
 
 		User creator = userQueryService.getUserById(request.getCreatedBy());
 
-
 		// Validate only one payer (only one can have Payer=true)
 		boolean hasRegisteredPayer = request.getInvitedRegisteredMembers().stream().anyMatch(InvitedRegisteredMemberDTO::isCreditor);
 		boolean hasExternalPayer = request.getInvitedExternalMembers().stream().anyMatch(InvitedExternalMemberDTO::isCreditor);
@@ -348,16 +347,14 @@ public class GroupServiceImpl implements GroupService {
 		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 		Set<ConstraintViolation<Group>> violations = validator.validate(group);
 
+		// Annotation validations through entities have to be managed manually.
 		if (!violations.isEmpty()) {
-			
-			// TODO: CHECK IF THIS VALIDATIOSN ARE BEING HANDLED BY METHODEXCEPTION IN GLOBALEXCEPTIONHANDLER.
 
 			// If there are validation errors, throw an exception with the messages.
 			String errorMessages = violations.stream().map(ConstraintViolation::getMessage)
 					.collect(Collectors.joining(", "));
-			
-			// TODO: ADD CUSTOM VALIDATIONS.
-			throw new IllegalArgumentException("Validation errors: " + errorMessages);
+
+			throw new InvalidGroupUpdateException("Validation errors: " + errorMessages);
 		}
 
 		// Save the group with the updated fields.
@@ -478,7 +475,6 @@ public class GroupServiceImpl implements GroupService {
 		return new MessageResponseDTO("Group external members updated successfully.");
 	}
 
-
 	@Override
 	@Transactional
 	public MessageResponseDTO deleteGroup(Long groupId, String token) {
@@ -506,9 +502,6 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	@Transactional
 	public MessageResponseDTO leaveGroup(Long groupId, String token) {
-
-		/* TODO: validateGroupCreator() METHOD SHOULD BE USED HERE BUT ITS HARDER THAN THE OTHER IMPLEMENTATIONS SINCE
-		 * TODO: METHOD ALSO HAS VALIDATION TO CHECK IF THE GROUP MEMBER EXISTS IN THE GROUP. */
 
 		// Find the group by ID or throw exception if not found.
 		Group group = findGroupOrThrow(groupId);
@@ -606,11 +599,10 @@ public class GroupServiceImpl implements GroupService {
 	// Return existing external member or create a new one.
 	private ExternalMember resolveOrCreateExternalMember(ExternalMemberDTO dto, Group group) {
 
-		// TODO: Add custom validation.
 		// Validates if the provided externalMemberID exists in the database.
 		if (dto.getExternalMembersId() != null) {
 			return externalMemberRepository.findById(dto.getExternalMembersId()).orElseThrow(
-					() -> new RuntimeException("External member with ID " + dto.getExternalMembersId() + " not found"));
+					() -> new ExternalMemberNotFoundException("External member with ID " + dto.getExternalMembersId() + " not found"));
 		}
 
 		ExternalMember newMember = new ExternalMember();
