@@ -94,7 +94,7 @@ public class PasswordServiceImpl implements PasswordService {
             return ResponseEntity.ok(responseDTO);
 
         } catch (MessagingException e) {
-            // TODO: Add custom validation in order to not send http 500 error.
+
             throw new EmailSendingException("Error sending the email. " + e);
         }
     }
