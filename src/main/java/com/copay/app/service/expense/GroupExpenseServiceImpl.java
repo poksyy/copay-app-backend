@@ -5,6 +5,7 @@ import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.UserExpense;
+import com.copay.app.exception.expense.DebtorNotFoundException;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.repository.expense.UserExpenseRepository;
@@ -117,9 +118,8 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         // Calculate total debtors (all members except the creditor).
         int totalDebtors = registeredMembers.size() + externalMembers.size() - 1;
 
-        // TODO: IMPLEMENT CUSTOM VALIDATION
         if (totalDebtors == 0) {
-            throw new IllegalArgumentException("There are no debtors to split the expense.");
+            throw new DebtorNotFoundException("There are no debtors for expense with ID " + expense.getGroupId());
         }
 
         // Calculate amount per debtor.

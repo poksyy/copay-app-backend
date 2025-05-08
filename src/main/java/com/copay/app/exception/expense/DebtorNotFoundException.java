@@ -1,10 +1,10 @@
 package com.copay.app.exception.expense;
 
-public class ExpenseNotFoundException extends RuntimeException {
+public class DebtorNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public ExpenseNotFoundException(String message) {
+    public DebtorNotFoundException(String message) {
         super(message);
     }
 }
