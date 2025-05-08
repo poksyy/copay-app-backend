@@ -27,9 +27,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     private final PaymentConfirmationRepository paymentConfirmationRepository;
 
-    ExpenseRepository expenseRepository;
+    private final ExpenseRepository expenseRepository;
 
-    UserExpenseRepository userExpenseRepository;
+    private final UserExpenseRepository userExpenseRepository;
 
     public ExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository, PaymentConfirmationRepository paymentConfirmationRepository) {
 

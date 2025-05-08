@@ -2,8 +2,8 @@ package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
 
+import com.copay.app.service.servicequeries.UserQueryService;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,85 +17,78 @@ import com.copay.app.dto.auth.response.RegisterStepOneResponseDTO;
 import com.copay.app.dto.auth.response.RegisterStepTwoResponseDTO;
 import com.copay.app.dto.auth.response.LoginResponseDTO;
 import com.copay.app.entity.User;
-import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.user.IncorrectPasswordException;
-import com.copay.app.exception.user.PhoneAlreadyExistsException;
 import com.copay.app.exception.user.UserNotFoundException;
-import com.copay.app.repository.RevokedTokenRepository;
 import com.copay.app.repository.UserRepository;
 import com.copay.app.service.JwtService;
-import com.copay.app.service.user.UserAvailabilityServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
 	private final AuthenticationManager authenticationManager;
+
 	private final JwtService jwtService;
+
 	private final UserRepository userRepository;
+
 	private final PasswordEncoder passwordEncoder;
 
-	// Constructor
-	public AuthServiceImpl(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
-						   JwtService jwtService, UserRepository userRepository, RevokedTokenRepository revokedTokenRepository,
-						   UserAvailabilityServiceImpl userValidationService) {
+	private final UserQueryService userQueryService;
 
-		// Constructor to initialize dependencies.
+	// Constructor.
+	public AuthServiceImpl(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
+						   JwtService jwtService, UserRepository userRepository, UserQueryService userQueryService) {
+
 		this.authenticationManager = authenticationManager;
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.userQueryService = userQueryService;
 	}
 
 	@Override
 	@Transactional
 	public LoginResponseDTO loginUser(UserLoginRequestDTO request) {
 
-		// Find the user by phone number before executing try-catch block.
-		User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
+		// Find user via UserQueryService, which delegates exception handling to UserValidator.
+		User user = userQueryService.getUserByPhone(request.getPhoneNumber());
 
-		try {
-
-			// Encapsulates the user's provided credentials.
-			UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(
-					request.getPhoneNumber(), request.getPassword());
-
-			// Authenticates encapsulated credentials with the AuthenticationManager.
-			Authentication authentication = authenticationManager.authenticate(authenticationRequest);
-
-			// Generates a JWT token with the phone number if authentication is successful.
-			String jwtToken = jwtService.generateToken(authentication.getName());
-
-			long expiresIn = jwtService.getExpirationTime(true);
-
-			return new LoginResponseDTO(
-					jwtToken,
-					expiresIn,
-					user.getUserId(),
-					user.getPhoneNumber(),
-					user.getPhonePrefix(),
-					user.getUsername(),
-					user.getEmail(),
-					"true"
-			);
-
-		} catch (BadCredentialsException e) {
-
+		// Validates if password is correct
+		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			throw new IncorrectPasswordException("Invalid password");
 		}
+
+		// Encapsulates the user's provided credentials.
+		UsernamePasswordAuthenticationToken authenticationRequest = new UsernamePasswordAuthenticationToken(
+				request.getPhoneNumber(), request.getPassword());
+
+		// Authenticates encapsulated credentials with the AuthenticationManager.
+		Authentication authentication = authenticationManager.authenticate(authenticationRequest);
+
+		// Generates a JWT token with the phone number if authentication is successful.
+		String jwtToken = jwtService.generateToken(authentication.getName());
+
+		long expiresIn = jwtService.getExpirationTime(true);
+
+		return new LoginResponseDTO(
+				jwtToken,
+				expiresIn,
+				user.getUserId(),
+				user.getPhoneNumber(),
+				user.getPhonePrefix(),
+				user.getUsername(),
+				user.getEmail(),
+				"true"
+		);
 	}
 
 	@Override
 	@Transactional
 	public RegisterStepOneResponseDTO registerStepOne(UserRegisterStepOneRequestDTO request) {
 
-		boolean emailExists = userRepository.existsByEmail(request.getEmail());
-
-		// Verify if the email exists or not.
-		if (emailExists) {
-			throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
-		}
+		// Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
+		userQueryService.existsUserByEmail(request.getEmail());
 
 		// Create user entity.
 		User user = new User();
@@ -133,12 +126,8 @@ public class AuthServiceImpl implements AuthService {
 
             jwtService.validateToken(token);
 
-            boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
-
-            // Verify if the phoneNumber exists or not.
-            if (phoneNumberExists) {
-                throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
-            }
+			// Checks if phone number exists via UserQueryService, which delegates exception handling to UserValidator.
+			userQueryService.existsUserByPhone(request.getPhoneNumber());
 
             // Get the email from the current token.
             String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);

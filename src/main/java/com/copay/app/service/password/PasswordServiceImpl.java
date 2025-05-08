@@ -1,8 +1,8 @@
 package com.copay.app.service.password;
 
-import com.copay.app.dto.password.request.ForgotPasswordDTO;
-import com.copay.app.dto.password.request.ForgotPasswordResetDTO;
-import com.copay.app.dto.password.request.ResetPasswordDTO;
+import com.copay.app.dto.password.request.ForgotPasswordRequestDTO;
+import com.copay.app.dto.password.request.ForgotPasswordResetRequestDTO;
+import com.copay.app.dto.password.request.ResetPasswordRequestDTO;
 import com.copay.app.dto.password.response.ForgotPasswordResetResponseDTO;
 import com.copay.app.dto.password.response.ForgotPasswordResponseDTO;
 import com.copay.app.dto.password.response.ResetPasswordResponseDTO;
@@ -22,9 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PasswordServiceImpl implements PasswordService {
+
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final JwtService jwtService;
+
     private final EmailService emailService;
 
     // Constructor
@@ -37,7 +41,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     @Transactional
-    public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordDTO request, String token) {
+    public ResponseEntity<ResetPasswordResponseDTO> resetPassword(ResetPasswordRequestDTO request, String token) {
 
         String phoneNumberToken = jwtService.getUserIdentifierFromToken(token);
 
@@ -62,7 +66,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     @Transactional
-    public ResponseEntity<ForgotPasswordResponseDTO> forgotPassword(ForgotPasswordDTO request) {
+    public ResponseEntity<ForgotPasswordResponseDTO> forgotPassword(ForgotPasswordRequestDTO request) {
 
         boolean emailExists = userRepository.existsByEmail(request.getEmail());
 
@@ -97,7 +101,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     @Transactional
-    public ResponseEntity<ForgotPasswordResetResponseDTO> forgotPasswordReset(String token, ForgotPasswordResetDTO request) {
+    public ResponseEntity<ForgotPasswordResetResponseDTO> forgotPasswordReset(String token, ForgotPasswordResetRequestDTO request) {
 
         String email = jwtService.getUserIdentifierFromToken(token);
 

@@ -2,7 +2,11 @@ package com.copay.app.validation;
 
 import java.util.List;
 
-// Validations of the Requests.
+/**
+ * This class is used to structure the validation error responses returned by the GlobalExceptionHandler.
+ * It encapsulates the list of specific validation errors, a general message, and the HTTP status code.
+ * This helps to provide consistent and informative error feedback for client-side handling.
+ */
 public class ValidationErrorResponse {
 	private List<String> errors;
 	private String message;

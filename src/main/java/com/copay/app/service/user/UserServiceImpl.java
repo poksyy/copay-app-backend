@@ -4,23 +4,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.copay.app.dto.MessageResponseDTO;
+import com.copay.app.service.servicequeries.UserQueryService;
+import com.copay.app.validation.user.UserValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.copay.app.dto.user.response.profile.EmailResponseDTO;
 import com.copay.app.dto.user.response.profile.PhoneNumberResponseDTO;
 import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
-import com.copay.app.dto.user.request.UserCreateDTO;
-import com.copay.app.dto.user.request.UserDeleteDTO;
+import com.copay.app.dto.user.request.CreateUserRequestDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
-import com.copay.app.dto.user.request.UserUpdateDTO;
+import com.copay.app.dto.user.request.UpdateUserRequestDTO;
 import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
 import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
 import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
 import com.copay.app.entity.User;
-import com.copay.app.exception.user.EmailAlreadyExistsException;
-import com.copay.app.exception.user.PhoneAlreadyExistsException;
-import com.copay.app.exception.user.UserNotFoundException;
 import com.copay.app.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,26 +27,32 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final UserAvailabilityServiceImpl userAvailabilityServiceImpl;
 
-    // Constructor
+    private final UserQueryService userQueryService;
+
+    // Constructor.
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           UserAvailabilityServiceImpl userAvailabilityServiceImpl) {
+                           UserAvailabilityServiceImpl userAvailabilityServiceImpl, UserQueryService userQueryService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userAvailabilityServiceImpl = userAvailabilityServiceImpl;
+        this.userQueryService = userQueryService;
     }
 
     @Override
     @Transactional
-    public UserResponseDTO createUser(UserCreateDTO request) {
+    public UserResponseDTO createUser(CreateUserRequestDTO request) {
 
         User newUser = new User();
+
         newUser.setEmail(request.getEmail());
         newUser.setPhoneNumber(request.getPhoneNumber());
 
-        // Validate user credentials availability.
+        // Validate user credentials availability (only unique fields in database).
         userAvailabilityServiceImpl.checkUserExistence(newUser);
 
         newUser.setUsername(request.getUsername());
@@ -55,134 +60,118 @@ public class UserServiceImpl implements UserService {
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setCompleted(true);
 
-        return new UserResponseDTO(userRepository.save(newUser));
+        User savedUser = userRepository.save(newUser);
+
+        return new UserResponseDTO(savedUser);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByIdDTO(Long id) {
 
-        return new UserResponseDTO(getUserById(id));
-    }
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
 
-    private User getUserById(Long id) {
-
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with provided ID."));
+        return new UserResponseDTO(user);
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByPhoneDTO(String phoneNumber) {
 
-        return new UserResponseDTO(getUserByPhone(phoneNumber));
-    }
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserByPhone(phoneNumber);
 
-    private User getUserByPhone(String phoneNumber) {
-
-        return userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new UserNotFoundException("User not found with provided phone number."));
-    }
-
-    public User getUserByEmail(String email) {
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with provided email."));
+        return new UserResponseDTO(user);
     }
 
     @Override
     @Transactional
-    public UserResponseDTO updateUser(Long id, UserUpdateDTO request) {
+    // TODO: USE REFLECTION UTILS IN THIS METHOD TO UPDATE EACH USER ENTITY FIELD THROUGH 1 SINGLE ENDPOINT
+    public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO request) {
 
-        User user = getUserById(id);
-        return updateUserDetails(user, request);
-    }
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
 
-    @Override
-    @Transactional
-    public UserResponseDTO updateUser(String email, UserUpdateDTO request) {
-
-        User user = getUserByEmail(email);
-        return updateUserDetails(user, request);
-    }
-
-    private UserResponseDTO updateUserDetails(User user, UserUpdateDTO request) {
-
-        // Update logic here
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Check user availability
+        // Validate user credentials availability (only unique fields in database).
         userAvailabilityServiceImpl.checkUserExistence(user);
 
-        return new UserResponseDTO(userRepository.save(user));
+        User updatedUser = userRepository.save(user);
+
+        return new UserResponseDTO(updatedUser);
     }
 
     @Override
     @Transactional
-    public UserDeleteDTO deleteUser(Long userId) {
+    public MessageResponseDTO deleteUser(Long id) {
 
-        User user = getUserById(userId);
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
+
         userRepository.delete(user);
 
-        return new UserDeleteDTO("User account deleted successfully.");
+        return new MessageResponseDTO("Your account has been deleted successfully.");
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
 
-        return userRepository.findAll().stream().map(UserResponseDTO::new).collect(Collectors.toList());
+        List<User> users = userRepository.findAll();
+
+        return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
 
-        User user = getUserById(id);
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
 
         user.setUsername(request.getUsername());
 
-        return new UsernameResponseDTO(userRepository.save(user));
+        User updatedUser = userRepository.save(user);
+
+        return new UsernameResponseDTO(updatedUser);
     }
 
     @Override
     @Transactional
     public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
 
-        User user = getUserById(id);
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
 
-        // Validates if the new phone number is already taken.
-        boolean phoneNumberExists = userRepository.existsByPhoneNumber(request.getPhoneNumber());
-
-        // Verify if the phoneNumber exists or not.
-        if (phoneNumberExists) {
-            throw new PhoneAlreadyExistsException("Phone number <" + request.getPhoneNumber() + "> already exists.");
-        }
+        // Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
+        userQueryService.existsUserByPhone(request.getPhoneNumber());
 
         user.setPhoneNumber(request.getPhoneNumber());
 
-        return new PhoneNumberResponseDTO(userRepository.save(user));
+        User updatedUser = userRepository.save(user);
+
+        return new PhoneNumberResponseDTO(updatedUser);
     }
 
     @Override
     @Transactional
     public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
 
-        User user = getUserById(id);
+        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
 
-        // Validates if the new email is already taken.
-        boolean emailExists = userRepository.existsByEmail(request.getEmail());
-
-        // Verify if the email exists or not.
-        if (emailExists) {
-            throw new EmailAlreadyExistsException("Email <" + request.getEmail() + "> already exists.");
-        }
+        // Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
+        userQueryService.existsUserByEmail(request.getEmail());
 
         user.setEmail(request.getEmail());
 
-        return new EmailResponseDTO(userRepository.save(user));
+        User updatedUser = userRepository.save(user);
+
+        return new EmailResponseDTO(updatedUser);
     }
 }

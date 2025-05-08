@@ -8,11 +8,7 @@ import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.GroupMember;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "groups")
@@ -23,7 +19,7 @@ public class Group {
     @Column(name = "group_id")
     private Long groupId;
 
-    @NotBlank(message = "Group name is required")
+    @NotBlank(message = "Group name must not be null")
     @Size(max = 25, message = "Group name must be no longer than 25 characters")
     @Column(name = "name", nullable = false, length = 25)
     private String name;
@@ -39,11 +35,11 @@ public class Group {
     @Column(name = "currency", nullable = false, length = 10)
     private String currency;
 
-    @Size(max = 50, message = "Description must be no longer than 50 characters")
+    @Size(max = 50, message = "Description must not be longer than 50 characters")
     @Column(name = "description", length = 50)
     private String description;
 
-    @NotNull(message = "Estimated price is required")
+    @NotNull(message = "Estimated price must not be null")
     @DecimalMin(value = "0", message = "Estimated price must be greater than or equal to 0")
     @DecimalMax(value = "10000000", message = "Estimated price must be smaller than or equal to 10000000")
     @Column(name = "estimated_price", nullable = false)

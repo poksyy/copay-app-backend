@@ -4,7 +4,7 @@ import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
 import com.copay.app.dto.expense.response.ExpenseResponseDTO;
 import com.copay.app.service.ValidationService;
-import com.copay.app.service.expense.ExpenseServiceImpl;
+import com.copay.app.service.expense.ExpenseService;
 import com.copay.app.validation.ValidationErrorResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +17,17 @@ import java.util.List;
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
-    private final ExpenseServiceImpl expenseService;
+    private final ExpenseService expenseService;
 
-    // Constructor
-    public ExpenseController(ExpenseServiceImpl expenseService) {
+    // Constructor.
+    public ExpenseController(ExpenseService expenseService) {
         this.expenseService = expenseService;
     }
 
     // Endpoint to create a new expense.
     @PostMapping("/{groupId}")
-    public ResponseEntity<?> createExpense(Long groupId, @RequestBody @Valid CreateExpenseRequestDTO createExpenseRequestDTO,
-                                         BindingResult result) {
+    public ResponseEntity<?> createExpense(@PathVariable Long groupId, @RequestBody @Valid CreateExpenseRequestDTO createExpenseRequestDTO,
+                                           BindingResult result) {
 
         ValidationErrorResponse validationResponse = ValidationService.validate(result);
 
@@ -52,7 +52,7 @@ public class ExpenseController {
 
     // Endpoint to retrieve details of one expense.
     @GetMapping("/{groupId}/{expenseId}")
-    public ResponseEntity<?> getExpense(@PathVariable Long groupId, Long expenseId) {
+    public ResponseEntity<?> getExpense(@PathVariable Long groupId, @PathVariable Long expenseId){
 
         ExpenseResponseDTO getExpense = expenseService.getExpense(groupId, expenseId);
 
