@@ -2,7 +2,9 @@ package com.copay.app.config;
 
 import java.util.List;
 
+import com.copay.app.exception.expense.DebtorNotFoundException;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
+import com.copay.app.exception.group.InvalidGroupUpdateException;
 import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.email.EmailSendingException;
 import com.copay.app.exception.group.GroupNotFoundException;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.copay.app.validation.ValidationErrorResponse;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 // Global exception handler to manage different exceptions in the application.
 @RestControllerAdvice
@@ -35,7 +38,7 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.badRequest().body(
 				new ValidationErrorResponse(
 						errors,
-						"Validation failed for request body",
+						"Some fields are invalid. Please check the inputs and try again.",
 						HttpStatus.BAD_REQUEST.value()
 				)
 		);
@@ -177,6 +180,16 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
+	// HTTP 400: Group not found with the provided ID.
+	@ExceptionHandler(InvalidGroupUpdateException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidGroupUpdateException(InvalidGroupUpdateException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Some fields are invalid. Please check the inputs and try again.", HttpStatus.BAD_REQUEST.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
+
 	// HTTP 404: Expense not found with the provided ID.
 	@ExceptionHandler(ExpenseNotFoundException.class)
 	public ResponseEntity<ValidationErrorResponse> handleExpenseNotFoundException(ExpenseNotFoundException ex) {
@@ -185,6 +198,35 @@ public class GlobalExceptionHandler {
 				"Specified expense doesn't exist.", HttpStatus.NOT_FOUND.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 404: Debtors not found with the provided ID.
+	@ExceptionHandler(DebtorNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleDebtorFoundException(DebtorNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"There are no debtors to split the expense.", HttpStatus.NOT_FOUND.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 400: Invalid endpoint parameter.
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ValidationErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+		String field = ex.getName();
+		String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+		String invalidValue = String.valueOf(ex.getValue());
+
+		String errorMessage = String.format("Invalid value '%s' for '%s'. Expected a '%s'. Please check the endpoint and try again.",
+				invalidValue, field, requiredType);
+
+		return ResponseEntity.badRequest().body(
+				new ValidationErrorResponse(
+						List.of(errorMessage),
+						"Invalid endpoint input detected. Ensure the parameter is correct and matches the expected format.",
+						HttpStatus.BAD_REQUEST.value()
+				)
+		);
 	}
 
 	// Handle other generic exceptions.
