@@ -2,6 +2,7 @@ package com.copay.app.dto.group.request;
 
 import com.copay.app.dto.group.auxiliary.InvitedExternalMemberDTO;
 import com.copay.app.dto.group.auxiliary.InvitedRegisteredMemberDTO;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.util.List;
 
@@ -32,8 +33,10 @@ public class CreateGroupRequestDTO {
 	@Size(max = 50, message = "Image provider must be no longer than 50 characters")
 	private String imageProvider;
 
-	// Initialize the ArrayLists null by default.
+	// Initialize the ArrayLists null by default and ensure they are valid.
+	@Valid
 	private List<InvitedRegisteredMemberDTO> invitedRegisteredMembers;
+	@Valid
 	private List<InvitedExternalMemberDTO> invitedExternalMembers;
 
 	// Getters and Setters.
