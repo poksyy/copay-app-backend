@@ -35,8 +35,8 @@ public class Group {
     @Column(name = "currency", nullable = false, length = 10)
     private String currency;
 
-    @Size(max = 50, message = "Description must not be longer than 50 characters")
-    @Column(name = "description", length = 50)
+    @Size(max = 150, message = "Description must not be longer than 150 characters")
+    @Column(name = "description", length = 150)
     private String description;
 
     @NotNull(message = "Estimated price must not be null")

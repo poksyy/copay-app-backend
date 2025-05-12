@@ -15,7 +15,7 @@ public class CreateGroupRequestDTO {
 	@Size(max = 25, message = "Group name must be no longer than 25 characters")
 	private String name;
 
-	@Size(max = 50, message = "Description must be no longer than 50 characters")
+	@Size(max = 150, message = "Description must be no longer than 150 characters")
 	private String description;
 
 	@NotNull(message = "Estimated price must not be null")
