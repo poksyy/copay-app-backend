@@ -1,4 +1,4 @@
-package com.copay.app.service.servicequeries;
+package com.copay.app.service.query;
 
 import com.copay.app.entity.User;
 import com.copay.app.repository.UserRepository;
@@ -14,9 +14,11 @@ import org.springframework.stereotype.Service;
 public class UserQueryService {
 
     private final UserRepository userRepository;
+
     private final UserValidator userValidator;
 
     public UserQueryService(UserRepository userRepository, UserValidator userValidator) {
+
         this.userRepository = userRepository;
         this.userValidator = userValidator;
     }

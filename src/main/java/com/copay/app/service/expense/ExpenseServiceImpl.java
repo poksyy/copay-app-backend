@@ -65,6 +65,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     @Transactional(readOnly = true)
     public ExpenseResponseDTO getExpense(Long groupId, Long expenseId) {
+
         Expense expense = expenseRepository.findByExpenseIdAndGroupId_GroupId(expenseId, groupId)
                 .orElseThrow(() -> new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId));
 
@@ -107,23 +108,25 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     private ExpenseResponseDTO mapToExpenseResponseDTO(Expense expense) {
 
-        // Get all user expenses associated with the expense
+        // Get all user expenses associated with the expense.
         List<UserExpense> userExpenses = userExpenseRepository.findByExpenseId(expense);
 
-        // Create separate lists for registered members and external members
+        // Create separate lists for registered members and external members.
         List<DebtorResponseDTO> registeredMembers = new ArrayList<>();
         List<DebtorResponseDTO> externalMembers = new ArrayList<>();
 
-        // Iterate through the user expenses to separate registered members from external members
+        // Iterate through the user expenses to separate registered members from external members.
         for (UserExpense userExpense : userExpenses) {
+
             Float amount = userExpense.getAmount();
+
             Long creditorUserId = Optional.ofNullable(userExpense.getCreditorUser()).map(User::getUserId).orElse(null);
             Long creditorExternalMemberId = Optional.ofNullable(userExpense.getCreditorExternalMember()).map(ExternalMember::getExternalMembersId).orElse(null);
 
-            // Create the DTO depending on whether it is a registered user or an external member
+            // Create the DTO depending on whether it is a registered user or an external member.
             DebtorResponseDTO dto = createDebtorResponseDTO(userExpense, creditorUserId, creditorExternalMemberId, amount);
 
-            // Separate into registered members and external members
+            // Separate into registered members and external members.
             if (userExpense.getDebtorUser() != null) {
                 registeredMembers.add(dto);
             } else if (userExpense.getDebtorExternalMember() != null) {
@@ -131,11 +134,11 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
         }
 
-        // Get creditor data (who paid)
+        // Get creditor data (who paid).
         Long creditorUserId = Optional.ofNullable(expense.getPaidByUser()).map(User::getUserId).orElse(null);
         Long creditorExternalMemberId = Optional.ofNullable(expense.getPaidByExternalMember()).map(ExternalMember::getExternalMembersId).orElse(null);
 
-        // Create the final DTO with debt information
+        // Create the final DTO with debt information.
         return new ExpenseResponseDTO(
                 expense.getExpenseId(),
                 expense.getTotalAmount(),
@@ -149,6 +152,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Helper method to create a debtor DTO (user or external member).
     private DebtorResponseDTO createDebtorResponseDTO(UserExpense ue, Long creditorUserId, Long creditorExternalMemberId, Float amount) {
+
         Long debtorUserId = Optional.ofNullable(ue.getDebtorUser()).map(User::getUserId).orElse(null);
         Long debtorExternalMemberId = Optional.ofNullable(ue.getDebtorExternalMember()).map(ExternalMember::getExternalMembersId).orElse(null);
 

@@ -9,7 +9,7 @@ import com.copay.app.exception.expense.DebtorNotFoundException;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.repository.expense.UserExpenseRepository;
-import com.copay.app.service.servicequeries.UserQueryService;
+import com.copay.app.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
