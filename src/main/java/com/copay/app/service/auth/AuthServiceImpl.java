@@ -2,7 +2,7 @@ package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
 
-import com.copay.app.service.servicequeries.UserQueryService;
+import com.copay.app.service.query.UserQueryService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

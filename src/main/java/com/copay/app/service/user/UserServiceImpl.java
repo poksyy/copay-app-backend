@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.copay.app.dto.MessageResponseDTO;
-import com.copay.app.service.servicequeries.UserQueryService;
-import com.copay.app.validation.user.UserValidator;
+import com.copay.app.service.query.UserQueryService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

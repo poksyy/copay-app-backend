@@ -16,7 +16,8 @@ import com.copay.app.repository.expense.ExpenseRepository;
 
 import com.copay.app.service.expense.ExpenseService;
 import com.copay.app.service.expense.GroupExpenseService;
-import com.copay.app.service.servicequeries.UserQueryService;
+import com.copay.app.service.query.GroupQueryService;
+import com.copay.app.service.query.UserQueryService;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,13 +67,15 @@ public class GroupServiceImpl implements GroupService {
 
 	private final UserQueryService userQueryService;
 
+	private final GroupQueryService groupQueryService;
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	// Constructor to initialize all the instances.
 	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
                             UserRepository userRepository, ExternalMemberRepository externalMemberRepository, ExpenseRepository expenseRepository, JwtService jwtService, GroupExpenseService groupExpenseService,
-                            ExpenseService expenseService, UserQueryService userQueryService, EntityManager entityManager) {
+                            ExpenseService expenseService, UserQueryService userQueryService, GroupQueryService groupQueryService, EntityManager entityManager) {
 
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
@@ -83,6 +86,7 @@ public class GroupServiceImpl implements GroupService {
 		this.groupExpenseService = groupExpenseService;
 		this.expenseService = expenseService;
         this.userQueryService = userQueryService;
+        this.groupQueryService = groupQueryService;
         this.entityManager = entityManager;
 	}
 
@@ -90,6 +94,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public GroupResponseDTO createGroup(CreateGroupRequestDTO request) {
 
+		// Find user via UserQueryService, which delegates exception handling to UserValidator.
 		User creator = userQueryService.getUserById(request.getCreatedBy());
 
 		// Validate only one payer (only one can have Payer=true)
@@ -316,8 +321,8 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional(readOnly = true)
 	public GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		List<RegisteredMemberDTO> registeredMembers = group.getRegisteredMembers().stream()
 				.map(registeredMember -> new RegisteredMemberDTO(registeredMember.getId().getUser().getUserId(), registeredMember.getId().getUser().getUsername(), registeredMember.getId().getUser().getPhoneNumber()))
@@ -334,8 +339,8 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token) {
 
-		// Find the group or throw an exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find the group by ID or throw exception if not found.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		// Invoke private method to validate the group creator.
 		validateGroupCreator(group, token);
@@ -392,8 +397,8 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO updateGroupEstimatedPrice(Long groupId, UpdateGroupEstimatedPriceRequestDTO request, String token) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		// Invoke private method to validate the group creator.
 		validateGroupCreator(group, token);
@@ -412,8 +417,8 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request, String token) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		// Invoke private method to validate the group creator.
 		validateGroupCreator(group, token);
@@ -441,8 +446,8 @@ public class GroupServiceImpl implements GroupService {
 	public MessageResponseDTO updateGroupExternalMembers(Long groupId,
 			UpdateGroupExternalMembersRequestDTO request, String token) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		// Invoke private method to validate the group creator.
 		validateGroupCreator(group, token);
@@ -479,8 +484,8 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO deleteGroup(Long groupId, String token) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		// Invoke private method to validate the group creator.
 		validateGroupCreator(group, token);
@@ -503,8 +508,8 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO leaveGroup(Long groupId, String token) {
 
-		// Find the group by ID or throw exception if not found.
-		Group group = findGroupOrThrow(groupId);
+		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
 
 		// Get the phoneNumber from the current token.
 		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
@@ -553,9 +558,8 @@ public class GroupServiceImpl implements GroupService {
 				continue;
 			}
 
-			// Find the user by phone number or throw exception if not found.
-			User user = userRepository.findByPhoneNumber(phone).orElseThrow(
-					() -> new UserNotFoundException("This phone number doesn't have an account: " + phone));
+			// Find user via userQueryService, which delegates exception handling to userValidator.
+			User user = userQueryService.getUserByPhone(phone);
 
 			// Create and add a new group member to the group.
 			GroupMemberId id = new GroupMemberId(group, user);
@@ -567,20 +571,13 @@ public class GroupServiceImpl implements GroupService {
 
 		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
 
-		User user = userRepository.findByPhoneNumber(userPhoneNumber)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
+		// Find user via UserQueryService, which delegates exception handling to UserValidator.
+		User user = userQueryService.getUserByPhone(userPhoneNumber);
 
 		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
 			throw new InvalidGroupCreatorException(
 					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
 		}
-	}
-
-	// Find group by ID or throw if not found.
-	private Group findGroupOrThrow(Long groupId) {
-
-		return groupRepository.findById(groupId)
-				.orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
 	}
 
 	// Extract IDs of invited external members from the request.
@@ -606,6 +603,7 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		ExternalMember newMember = new ExternalMember();
+
 		newMember.setGroupId(group);
 
 		return newMember;
