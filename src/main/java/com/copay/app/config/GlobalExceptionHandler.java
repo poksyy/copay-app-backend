@@ -4,12 +4,9 @@ import java.util.List;
 
 import com.copay.app.exception.expense.DebtorNotFoundException;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
-import com.copay.app.exception.group.InvalidGroupUpdateException;
+import com.copay.app.exception.group.*;
 import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.email.EmailSendingException;
-import com.copay.app.exception.group.GroupNotFoundException;
-import com.copay.app.exception.group.InvalidGroupCreatorException;
-import com.copay.app.exception.group.InvitedMemberNotFoundException;
 import com.copay.app.exception.user.PhoneAlreadyExistsException;
 import com.copay.app.exception.user.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -206,6 +203,16 @@ public class GlobalExceptionHandler {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"There are no debtors to split the expense.", HttpStatus.NOT_FOUND.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 400: Phone number already exists in the group.
+	@ExceptionHandler(RegisteredMemberAlreadyExistsException.class)
+	public ResponseEntity<ValidationErrorResponse> handleDebtorFoundException(RegisteredMemberAlreadyExistsException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Phone number is already in the group.", HttpStatus.NOT_FOUND.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}

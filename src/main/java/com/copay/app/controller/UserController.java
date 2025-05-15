@@ -12,9 +12,9 @@ import com.copay.app.dto.user.response.profile.EmailResponseDTO;
 import com.copay.app.dto.user.response.profile.PhoneNumberResponseDTO;
 import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
-import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
-import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
-import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
+import com.copay.app.dto.user.request.profile.UpdateEmailRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdatePhoneNumberRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdateUsernameRequestDTO;
 
 import jakarta.validation.Valid;
 
@@ -94,30 +94,30 @@ public class UserController {
 	
 	// Updates only the username of a user by ID.
 	@PutMapping("/edit-username/{id}")
-	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO updateUsernameDTO) {
+	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameRequestDTO updateUsernameRequestDTO) {
 
 	    // Delegate the username update to the service.
-	    UsernameResponseDTO response = userService.updateUsername(id, updateUsernameDTO);
+	    UsernameResponseDTO response = userService.updateUsername(id, updateUsernameRequestDTO);
 
 	    return ResponseEntity.ok(response);
 	}
 	
 	// Updates only the phone number of a user by ID.
 	@PutMapping("/edit-phone/{id}")
-	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO updatePhoneNumberDTO) {
+	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberRequestDTO updatePhoneNumberRequestDTO) {
 
 	    // Delegate the phone number update to the service.
-	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, updatePhoneNumberDTO);
+	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, updatePhoneNumberRequestDTO);
 
 	    return ResponseEntity.ok(response);
 	}
 
 	// Updates only the email of a user by ID.
 	@PutMapping("/edit-email/{id}")
-	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailDTO updateEmailDTO) {
+	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailRequestDTO updateEmailRequestDTO) {
 
 		// Delegate the email update to the service.
-		EmailResponseDTO response = userService.updateEmail(id, updateEmailDTO);
+		EmailResponseDTO response = userService.updateEmail(id, updateEmailRequestDTO);
 
 		return ResponseEntity.ok(response);
 	}

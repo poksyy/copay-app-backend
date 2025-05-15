@@ -547,15 +547,18 @@ public class GroupServiceImpl implements GroupService {
 	private void addNewRegisteredMembers(Group group, Set<String> invitedPhones) {
 
 		// Get phone numbers of the current group members.
-		Set<String> currentPhones = group.getRegisteredMembers().stream().map(m -> m.getId().getUser().getPhoneNumber())
+		Set<String> currentPhones = group.getRegisteredMembers().stream()
+				.map(m -> m.getId().getUser().getPhoneNumber())
 				.collect(Collectors.toSet());
 
 		// Iterate through invited phone numbers.
 		for (String phone : invitedPhones) {
 
-			// Skip if the member already exists in the group.
+			// If the member already exists in the group, throw exception
 			if (currentPhones.contains(phone)) {
-				continue;
+				throw new RegisteredMemberAlreadyExistsException(
+						String.format("User with phone number %s is already a member of the group", phone)
+				);
 			}
 
 			// Find user via userQueryService, which delegates exception handling to userValidator.

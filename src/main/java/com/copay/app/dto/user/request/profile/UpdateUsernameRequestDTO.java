@@ -2,13 +2,13 @@ package com.copay.app.dto.user.request.profile;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class UpdateUsernameDTO {
+public class UpdateUsernameRequestDTO {
     @NotBlank(message = "Username must not be null")
     private String username;
 
-    public UpdateUsernameDTO() {}
+    public UpdateUsernameRequestDTO() {}
 
-    public UpdateUsernameDTO(String username) {
+    public UpdateUsernameRequestDTO(String username) {
         this.username = username;
     }
 

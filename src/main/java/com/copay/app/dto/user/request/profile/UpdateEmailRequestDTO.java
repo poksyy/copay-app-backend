@@ -3,16 +3,16 @@ package com.copay.app.dto.user.request.profile;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class UpdateEmailDTO {
+public class UpdateEmailRequestDTO {
     
     @NotBlank(message = "Email must not be null")
     @Email(message = "Invalid email format")
     private String email;
 
-    public UpdateEmailDTO() {
+    public UpdateEmailRequestDTO() {
     }
 
-    public UpdateEmailDTO(String email) {
+    public UpdateEmailRequestDTO(String email) {
         this.email = email;
     }
 
