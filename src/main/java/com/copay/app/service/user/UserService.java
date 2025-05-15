@@ -9,9 +9,9 @@ import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
 import com.copay.app.dto.user.request.CreateUserRequestDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
 import com.copay.app.dto.user.request.UpdateUserRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdateEmailRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdatePhoneNumberRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdateUsernameRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
+import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
+import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
 
 public interface UserService {
 
@@ -27,9 +27,9 @@ public interface UserService {
 
     List<UserResponseDTO> getAllUsers();
 
-    UsernameResponseDTO updateUsername(Long id, UpdateUsernameRequestDTO request);
+    UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request);
 
-    PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberRequestDTO request);
+    PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request);
 
-    EmailResponseDTO updateEmail(Long id, UpdateEmailRequestDTO request);
+    EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request);
 }

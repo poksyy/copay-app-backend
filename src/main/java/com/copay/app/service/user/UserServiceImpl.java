@@ -15,9 +15,9 @@ import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
 import com.copay.app.dto.user.request.CreateUserRequestDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
 import com.copay.app.dto.user.request.UpdateUserRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdateEmailRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdatePhoneNumberRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdateUsernameRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
+import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
+import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
 import com.copay.app.entity.User;
 import com.copay.app.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UsernameResponseDTO updateUsername(Long id, UpdateUsernameRequestDTO request) {
+    public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
 
         // Find user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberRequestDTO request) {
+    public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
 
         // Find user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public EmailResponseDTO updateEmail(Long id, UpdateEmailRequestDTO request) {
+    public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
 
         // Find user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
