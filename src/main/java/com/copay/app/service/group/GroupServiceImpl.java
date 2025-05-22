@@ -319,6 +319,33 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public GroupResponseDTO getGroupByGroupId(Long groupId) {
+
+		// Find the group by ID or throw exception if not found.
+		Group group = groupRepository.findById(groupId)
+				.orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
+
+		// Fetch all expenses associated with the group.
+		List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
+
+		User paidByUser = null;
+		ExternalMember paidByExternalMember = null;
+
+		if (!expenses.isEmpty()) {
+			Expense expense = expenses.getFirst();
+			paidByUser = expense.getPaidByUser();
+			paidByExternalMember = expense.getPaidByExternalMember();
+		}
+
+		// Get the creator ID to determine if the user is the owner (used in DTO mapping)
+		Long userId = group.getCreatedBy().getUserId();
+
+		// Map the group entity to a response DTO and return it.
+		return mapToGroupResponseDTO(group, userId, paidByUser, paidByExternalMember);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId) {
 
 		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.

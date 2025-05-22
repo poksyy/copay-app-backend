@@ -15,6 +15,8 @@ public interface GroupService {
 
 	GetGroupResponseDTO getGroupsByUserId(Long userId);
 
+	GroupResponseDTO getGroupByGroupId(Long groupId);
+
 	GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId);
 
 	GroupResponseDTO createGroup(CreateGroupRequestDTO request);
