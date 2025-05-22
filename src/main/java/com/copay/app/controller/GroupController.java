@@ -44,6 +44,15 @@ public class GroupController {
 		return ResponseEntity.ok(groupResponseDTO);
 	}
 
+	// Endpoint to retrieve a single group by its group ID.
+	@GetMapping("/{groupId}/group")
+	public ResponseEntity<?> getGroupByGroupId(@PathVariable Long groupId) {
+
+		GroupResponseDTO GroupResponseDTO = groupService.getGroupByGroupId(groupId);
+
+		return ResponseEntity.ok(GroupResponseDTO);
+	}
+
 	// Endpoint to retrieve groups for a given user (HomeScreen display).
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getGroupsByUser(@PathVariable Long userId,
