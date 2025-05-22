@@ -205,7 +205,7 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ValidationErrorResponse> handleDebtorFoundException(DebtorNotFoundException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"There are no debtors to split the expense.", HttpStatus.NOT_FOUND.value());
+				"You must invite at least 1 member", HttpStatus.NOT_FOUND.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
