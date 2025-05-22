@@ -70,8 +70,7 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ValidationErrorResponse> handlePhoneAlreadyExists(PhoneAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number already exists, please change it.", HttpStatus.BAD_REQUEST.value());
-
+				"Phone number already in use. Please enter a different one.", HttpStatus.BAD_REQUEST.value());
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
@@ -80,7 +79,8 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ValidationErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Email already exists, please change it.", HttpStatus.BAD_REQUEST.value());
+				"Email already in use. Please enter a different one."
+				, HttpStatus.BAD_REQUEST.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
