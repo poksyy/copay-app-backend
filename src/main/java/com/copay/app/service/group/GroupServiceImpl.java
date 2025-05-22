@@ -477,7 +477,7 @@ public class GroupServiceImpl implements GroupService {
 		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, null);
 
 		// Return success message.
-		return new MessageResponseDTO("Group external members updated successfully.");
+		return new MessageResponseDTO("Group members updated successfully.");
 	}
 
 	@Override
