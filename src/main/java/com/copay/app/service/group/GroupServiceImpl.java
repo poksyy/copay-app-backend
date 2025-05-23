@@ -369,8 +369,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find the group by ID or throw exception if not found.
 		Group group = groupQueryService.getGroupById(groupId);
 
-		// Invoke private method to validate the group creator.
-		validateGroupCreator(group, token);
+		// Validates if the user is the group creator.
+		groupQueryService.validateGroupCreator(group, token);
 
 		// Update only the fields present in the Map.
 		updateGroupFields(group, fields);
@@ -427,8 +427,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
-		// Invoke private method to validate the group creator.
-		validateGroupCreator(group, token);
+		// Validates if the user is the group creator.
+		groupQueryService.validateGroupCreator(group, token);
 
 		group.setEstimatedPrice(request.getEstimatedPrice());
 
@@ -447,8 +447,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
-		// Invoke private method to validate the group creator.
-		validateGroupCreator(group, token);
+		// Validates if the user is the group creator.
+		groupQueryService.validateGroupCreator(group, token);
 
 		// List invited phone numbers.
 		Set<String> invitedPhoneNumbers = new HashSet<>(request.getInvitedRegisteredMembers());
@@ -476,8 +476,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
-		// Invoke private method to validate the group creator.
-		validateGroupCreator(group, token);
+		// Validates if the user is the group creator.
+		groupQueryService.validateGroupCreator(group, token);
 
 		// Extract the set of external member IDs from the request.
 		Set<Long> newIds = extractExternalMemberIds(request);
@@ -514,8 +514,8 @@ public class GroupServiceImpl implements GroupService {
 		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
-		// Invoke private method to validate the group creator.
-		validateGroupCreator(group, token);
+		// Validates if the user is the group creator.
+		groupQueryService.validateGroupCreator(group, token);
 
 		// Delete expenses associated by the group.
 		List<Expense> expenses = expenseRepository.findAllByGroupId(group);
@@ -591,19 +591,6 @@ public class GroupServiceImpl implements GroupService {
 			// Create and add a new group member to the group.
 			GroupMemberId id = new GroupMemberId(group, user);
 			group.getRegisteredMembers().add(new GroupMember(id));
-		}
-	}
-
-	private void validateGroupCreator(Group group, String token) {
-
-		String userPhoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-		// Find user via UserQueryService, which delegates exception handling to UserValidator.
-		User user = userQueryService.getUserByPhone(userPhoneNumber);
-
-		if (!group.getCreatedBy().getUserId().equals(user.getUserId())) {
-			throw new InvalidGroupCreatorException(
-					"User " + user.getUserId() + " has no permissions to update group " + group.getGroupId());
 		}
 	}
 

@@ -35,18 +35,13 @@ public class GroupController {
         this.groupService = groupService;
     }
 
-	// Endpoint to create a new group.
-	@PostMapping
-	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO) {
-
-		GroupResponseDTO groupResponseDTO = groupService.createGroup(createGroupRequestDTO);
-
-		return ResponseEntity.ok(groupResponseDTO);
-	}
-
 	// Endpoint to retrieve a single group by its group ID.
 	@GetMapping("/{groupId}/group")
-	public ResponseEntity<?> getGroupByGroupId(@PathVariable Long groupId) {
+	public ResponseEntity<?> getGroupByGroupId(@PathVariable Long groupId,
+											   @Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+
+		// The userId is manually added to the DTO for validation.
+		getGroupRequestDTO.setGroupId(groupId);
 
 		GroupResponseDTO GroupResponseDTO = groupService.getGroupByGroupId(groupId);
 
@@ -67,11 +62,24 @@ public class GroupController {
 	}
 
 	@GetMapping("/{groupId}/members")
-	public ResponseEntity<GetGroupMembersResponseDTO> getGroupMembersByGroup(@PathVariable Long groupId) {
+	public ResponseEntity<?> getGroupMembersByGroup(@PathVariable Long groupId,
+													@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+
+		// The groupId is manually added to the DTO for validation.
+		getGroupRequestDTO.setGroupId(groupId);
 
 		GetGroupMembersResponseDTO getGroupMembersResponseDTO = groupService.getGroupMembersByGroup(groupId);
 
 		return ResponseEntity.ok(getGroupMembersResponseDTO);
+	}
+
+	// Endpoint to create a new group.
+	@PostMapping
+	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO) {
+
+		GroupResponseDTO groupResponseDTO = groupService.createGroup(createGroupRequestDTO);
+
+		return ResponseEntity.ok(groupResponseDTO);
 	}
 
 	@PatchMapping("/{groupId}")

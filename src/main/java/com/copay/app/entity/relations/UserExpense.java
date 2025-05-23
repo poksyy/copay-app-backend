@@ -25,7 +25,7 @@ public class UserExpense {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_expenses_id") 
-    private Long user_expense_id;
+    private Long userExpenseId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expense_id", nullable = false)
@@ -59,11 +59,11 @@ public class UserExpense {
 
     // Getters and Setters.
 	public Long getUserExpenseId() {
-		return user_expense_id;
+		return userExpenseId;
 	}
 
-	public void setUserExpenseId(Long user_expense_id) {
-		this.user_expense_id = user_expense_id;
+	public void setUserExpenseId(Long userExpenseId) {
+		this.userExpenseId = userExpenseId;
 	}
 
 	public Expense getExpense() {

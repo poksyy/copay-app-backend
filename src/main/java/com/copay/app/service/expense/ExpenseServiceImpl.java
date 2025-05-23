@@ -2,7 +2,7 @@ package com.copay.app.service.expense;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
-import com.copay.app.dto.expense.response.ConfirmPaymentResponseDTO;
+import com.copay.app.dto.paymentconfirmation.response.PaymentResponseDTO;
 import com.copay.app.dto.expense.response.DebtorResponseDTO;
 import com.copay.app.dto.expense.response.ExpenseResponseDTO;
 import com.copay.app.entity.Expense;
@@ -74,13 +74,6 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional
-    public ConfirmPaymentResponseDTO confirmPayment(Long expenseId, Long userExpenseId) {
-        // TODO
-        return null;
-    }
-
-    @Override
-    @Transactional
     // Delete an expense of a specific group by retrieving expense id and group id.
     public MessageResponseDTO deleteExpenseByGroupAndId(Long groupId, Long expenseId) {
 
@@ -89,11 +82,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         if (expenseOptional.isPresent()) {
             Expense expense = expenseOptional.get();
 
-            // Delete associated UserExpense records
+            // Delete associated UserExpense records.
             userExpenseRepository.deleteByExpenseId(expense);
 
-            // TODO: Delete payment confirmations related to the expense
-            // paymentConfirmationRepository.deleteByExpense(expense);
+            // Delete payment confirmations related to the expense.
+            paymentConfirmationRepository.deleteByUserExpense_ExpenseId(expense);
 
             // Finally, delete the expense itself.
             expenseRepository.delete(expense);
