@@ -116,14 +116,14 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         userExpenseRepository.deleteAll(existingExpenses);
 
         // Calculate total debtors (all members except the creditor).
-        int totalDebtors = registeredMembers.size() + externalMembers.size() - 1;
+        int totalDebtors = registeredMembers.size() + externalMembers.size();
 
         if (totalDebtors == 0) {
             throw new DebtorNotFoundException("There are no debtors for expense with ID " + expense.getGroupId());
         }
 
         // Calculate amount per debtor.
-        BigDecimal amountPerDebtor = BigDecimal.valueOf(expense.getTotalAmount())
+        BigDecimal amountPerMember = BigDecimal.valueOf(expense.getTotalAmount())
                 .divide(BigDecimal.valueOf(totalDebtors), 2, RoundingMode.HALF_UP);
 
         List<UserExpense> updatedExpenses = new ArrayList<>();
@@ -131,18 +131,13 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         // Process registered users.
         for (User user : registeredMembers) {
 
-            // Skip if this user is the creditor.
-            if (userCreditor != null && user.getUserId().equals(userCreditor.getUserId())) {
-                continue;
-            }
-
             // Set the expense for the debt.
             UserExpense userExpense = new UserExpense();
 
             userExpense.setExpense(expense);
             userExpense.setDebtorUser(user);
 
-            userExpense.setAmount(amountPerDebtor.floatValue());
+            userExpense.setAmount(amountPerMember.floatValue());
 
             // Set the creditor (either a user or an external member).
             setUserExpenseCreditor(userExpense, userCreditor, externalCreditor);
@@ -153,16 +148,11 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         // Process external members.
         for (ExternalMember externalMember : externalMembers) {
 
-            // Skip if this external member is the creditor.
-            if (externalCreditor != null && externalMember.getExternalMembersId().equals(externalCreditor.getExternalMembersId())) {
-                continue;
-            }
-
             UserExpense userExpense = new UserExpense();
 
             userExpense.setExpense(expense);
             userExpense.setDebtorExternalMember(externalMember);
-            userExpense.setAmount(amountPerDebtor.floatValue());
+            userExpense.setAmount(amountPerMember.floatValue());
 
             // Set the creditor (either a user or an external member).
             setUserExpenseCreditor(userExpense, userCreditor, externalCreditor);
