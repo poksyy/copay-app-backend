@@ -3,6 +3,8 @@ package com.copay.app.controller;
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
 import com.copay.app.dto.expense.response.ExpenseResponseDTO;
+import com.copay.app.dto.expense.response.UserExpenseDTO;
+import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.expense.ExpenseService;
 import com.copay.app.validation.ValidationErrorResponse;
@@ -57,6 +59,13 @@ public class ExpenseController {
         ExpenseResponseDTO getExpense = expenseService.getExpense(groupId, expenseId);
 
         return ResponseEntity.ok(getExpense);
+    }
+
+    // Endpoint to user expenses of one group.
+    @GetMapping("/{groupId}/user-expenses")
+    public ResponseEntity<List<UserExpenseDTO>> getUserExpensesByGroup(@PathVariable Long groupId) {
+        List<UserExpenseDTO> userExpenses = expenseService.getAllUserExpensesByGroupId(groupId);
+        return ResponseEntity.ok(userExpenses);
     }
 
     // TODO: Implement delete expense when more than one expense in one group is implemented.
