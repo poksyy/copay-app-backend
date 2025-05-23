@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 
 public class GetGroupRequestDTO {
 
-    @NotNull(message = "User ID must not be null")
     private Long userId;
 
     private Long groupId;
