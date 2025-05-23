@@ -19,6 +19,7 @@ import com.copay.app.repository.GroupRepository;
 import com.copay.app.repository.paymentconfirmation.PaymentConfirmationRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.expense.GroupExpenseService;
+import com.copay.app.service.notification.NotificationService;
 import com.copay.app.service.query.GroupQueryService;
 import com.copay.app.service.query.UserQueryService;
 import jakarta.persistence.EntityNotFoundException;
@@ -45,17 +46,21 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
     private final GroupQueryService groupQueryService;
 
+    private final NotificationService notificationService;
+
 
     public PaymentConfirmationServiceImpl(
             PaymentConfirmationRepository paymentConfirmationRepository,
             UserExpenseRepository userExpenseRepository,
-            ExpenseRepository expenseRepository, JwtService jwtService, UserQueryService userQueryService, GroupQueryService groupQueryService) {
+            ExpenseRepository expenseRepository, JwtService jwtService, UserQueryService userQueryService, 
+            GroupQueryService groupQueryService, NotificationService notificationService) {
         this.paymentConfirmationRepository = paymentConfirmationRepository;
         this.userExpenseRepository = userExpenseRepository;
         this.expenseRepository = expenseRepository;
         this.jwtService = jwtService;
         this.userQueryService = userQueryService;
         this.groupQueryService = groupQueryService;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -165,99 +170,88 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     @Transactional
     public PaymentResponseDTO confirmPayment(ConfirmPaymentRequestDTO request, String token) {
 
-        // Get specific UserExpense (do not create or delete any).
+        // Get UserExpense by ID.
         UserExpense userExpense = userExpenseRepository.findById(request.getUserExpenseId())
                 .orElseThrow(() -> new UserExpenseNotFoundException(
                         "UserExpense with ID " + request.getUserExpenseId() + " not found"));
 
-        // Get expense and group.
+        // Get related Expense and Group.
         Expense expense = userExpense.getExpense();
         Group group = expense.getGroupId();
 
-        // Validates the group creator.
+        // Validate group creator.
         groupQueryService.validateGroupCreator(group, token);
 
         Float confirmationAmount = request.getConfirmationAmount();
         Float currentDebt = userExpense.getAmount();
 
-        // Validates that the amount to confirm is correct.
+        // Validate requested amount.
         confirmationAmount = getAmountToConfirm(confirmationAmount, currentDebt);
 
-        // Check for an existing PaymentConfirmation.
+        // Get existing confirmation if any.
         Optional<PaymentConfirmation> optionalConfirmation =
                 paymentConfirmationRepository.findByUserExpense_UserExpenseId(userExpense.getUserExpenseId());
 
-        // Initialized in null to avoid uninitialized variable error.
-        PaymentConfirmation confirmation = null;
+        PaymentConfirmation confirmation;
 
-        // Case 1: No confirmation exists yet.
-        if (optionalConfirmation.isEmpty()) {
-
-            confirmation = new PaymentConfirmation();
-            confirmation.setUserExpense(userExpense);
-            confirmation.setConfirmationAmount(confirmationAmount);
-            confirmation.setConfirmationDate(LocalDateTime.now());
-            confirmation.setIsConfirmed(true);
-            confirmation.setConfirmedAt(LocalDateTime.now());
-        }
-
-        // Case 2: A pending confirmation exists (isConfirmed == false).
+        // Confirm pending payment if amount matches. Otherwise, create new.
         if (optionalConfirmation.isPresent() && !optionalConfirmation.get().getIsConfirmed()) {
+            PaymentConfirmation existing = optionalConfirmation.get();
+            Float existingAmount = existing.getConfirmationAmount();
 
-            confirmation = optionalConfirmation.get();
-            Float existingAmount = confirmation.getConfirmationAmount();
-
-            // Validate combined payments do not exceed the debt.
+            // Validate combined amount does not exceed debt.
             validateCombinedPaymentDoesNotExceedDebt(existingAmount, confirmationAmount, currentDebt);
 
-            // If it's the same amount, sets on true the payment confirmation that was in isConfirmed == false.
             if (Objects.equals(existingAmount, confirmationAmount)) {
-
-                // Confirm the existing one.
-                confirmation.setIsConfirmed(true);
-                confirmation.setConfirmedAt(LocalDateTime.now());
+                // Confirm the pending one.
+                existing.setIsConfirmed(true);
+                existing.setConfirmedAt(LocalDateTime.now());
+                confirmation = existing;
+            } else {
+                // Create new confirmation with different amount.
+                confirmation = createPaymentConfirmation(userExpense, confirmationAmount);
             }
-
-            // If it's not same amount, creates a new payment confirmation.
-            if (!Objects.equals(existingAmount, confirmationAmount)) {
-
-                // Create a new confirmation.
-                confirmation = new PaymentConfirmation();
-                confirmation.setUserExpense(userExpense);
-                confirmation.setConfirmationAmount(confirmationAmount);
-                confirmation.setConfirmationDate(LocalDateTime.now());
-                confirmation.setIsConfirmed(true);
-                confirmation.setConfirmedAt(LocalDateTime.now());
-            }
+        } else {
+            // No pending confirmation. Always create new.
+            confirmation = createPaymentConfirmation(userExpense, confirmationAmount);
         }
 
-        // Case 3: A confirmed payment already exists for that user_expense_id (isConfirmed == true).
-        if (optionalConfirmation.isPresent() && optionalConfirmation.get().getIsConfirmed()) {
-
-            // Still allow a new payment if there is remaining debt.
-            confirmation = new PaymentConfirmation();
-            confirmation.setUserExpense(userExpense);
-            confirmation.setConfirmationAmount(confirmationAmount);
-            confirmation.setConfirmationDate(LocalDateTime.now());
-            confirmation.setIsConfirmed(true);
-            confirmation.setConfirmedAt(LocalDateTime.now());
-        }
-
-        // Persist confirmation.
+        // Save confirmation.
         paymentConfirmationRepository.save(confirmation);
 
-        // Update debtor's remaining amount.
+        // Update user debt.
         userExpense.setAmount(currentDebt - confirmationAmount);
         userExpenseRepository.save(userExpense);
 
-        // Update creditor's remaining balance.
+        // Update total amount in expense.
         Float currentTotal = expense.getTotalAmount();
         expense.setTotalAmount(currentTotal - confirmationAmount);
         expenseRepository.save(expense);
 
-        // Return confirmation response.
+        // Notify debtor.
+        User debtorUser = userExpense.getDebtorUser();
+        String notificationMessage = String.format(
+                "Your payment of %.2f in group '%s' has been confirmed.",
+                confirmationAmount,
+                group.getName()
+        );
+
+        notificationService.createNotification(debtorUser, notificationMessage);
+
+        // Return response.
         return createResponseDTO(confirmation);
     }
+
+    private PaymentConfirmation buildNewConfirmation(UserExpense userExpense, Float amount) {
+        PaymentConfirmation confirmation = new PaymentConfirmation();
+        confirmation.setUserExpense(userExpense);
+        confirmation.setConfirmationAmount(amount);
+        confirmation.setConfirmationDate(LocalDateTime.now());
+        confirmation.setIsConfirmed(true);
+        confirmation.setConfirmedAt(LocalDateTime.now());
+        return confirmation;
+    }
+
 
     /**
      * Marks a pending payment confirmation as confirmed by the group creator.
@@ -303,6 +297,15 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
         expense.setTotalAmount(expenseTotal);
         expenseRepository.save(expense);
 
+        // Send notification to debtor user
+        User debtorUser = userExpense.getDebtorUser();
+        String notificationMessage = String.format(
+            "Your payment of %.2f in group '%s' has been confirmed.", 
+            amount, 
+            group.getName()
+        );
+        notificationService.createNotification(debtorUser, notificationMessage);
+
         return createResponseDTO(confirmation);
     }
 
@@ -333,7 +336,8 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     }
 
     // TODO: Make sure this is used when creating a payment confirmation instance.
-    private PaymentConfirmation createNewConfirmation(UserExpense userExpense, Float amount) {
+    private PaymentConfirmation createPaymentConfirmation(UserExpense userExpense, Float amount) {
+        
         PaymentConfirmation confirmation = new PaymentConfirmation();
         confirmation.setUserExpense(userExpense);
         confirmation.setConfirmationAmount(amount);
