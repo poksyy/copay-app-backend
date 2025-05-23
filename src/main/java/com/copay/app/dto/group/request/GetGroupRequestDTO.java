@@ -7,7 +7,6 @@ public class GetGroupRequestDTO {
     @NotNull(message = "User ID must not be null")
     private Long userId;
 
-    @NotNull(message = "Group ID must not be null")
     private Long groupId;
 
     // Getters and Setters.
