@@ -185,97 +185,86 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
         Float confirmationAmount = request.getConfirmationAmount();
         Float currentDebt = userExpense.getAmount();
 
-        // Validate requested amount.
+        // Validate requested amount does not exceed the current debt.
         confirmationAmount = getAmountToConfirm(confirmationAmount, currentDebt);
 
-        // Get existing confirmation if any.
-        Optional<PaymentConfirmation> optionalConfirmation =
-                paymentConfirmationRepository.findByUserExpense_UserExpenseId(userExpense.getUserExpenseId());
+        // Get all pending PaymentConfirmations for the UserExpense
+        List<PaymentConfirmation> pendingConfirmations =
+                paymentConfirmationRepository.findAllByUserExpense_UserExpenseIdAndIsConfirmed(
+                        userExpense.getUserExpenseId(), false);
 
-        PaymentConfirmation confirmation;
-
-        // Case 1: No confirmation exists yet.
-        if (optionalConfirmation.isEmpty()) {
-            confirmation = new PaymentConfirmation();
-            confirmation.setUserExpense(userExpense);
-            confirmation.setConfirmationAmount(confirmationAmount);
-            confirmation.setConfirmationDate(LocalDateTime.now());
-            confirmation.setIsConfirmed(true);
-            confirmation.setConfirmedAt(LocalDateTime.now());
+        // Case 1: No existing confirmations
+        if (pendingConfirmations.isEmpty()) {
+            // Create and confirm a new PaymentConfirmation
+            return createAndConfirmNewPayment(confirmationAmount, userExpense, expense, group);
         }
 
-        // Case 2: A confirmation exists.
+        // Case 2: There are pending confirmations
         else {
-            PaymentConfirmation existing = optionalConfirmation.get();
-
-            if (!existing.getIsConfirmed()) {
-                Float existingAmount = existing.getConfirmationAmount();
-
-                // Check combined amount doesn't exceed the debt.
-                validateCombinedPaymentDoesNotExceedDebt(existingAmount, confirmationAmount, currentDebt);
-
-                if (Objects.equals(existingAmount, confirmationAmount)) {
-                    // Confirm the existing one.
-                    existing.setIsConfirmed(true);
-                    existing.setConfirmedAt(LocalDateTime.now());
-                    confirmation = existing;
-                } else {
-                    // Create a new confirmation with different amount.
-                    confirmation = new PaymentConfirmation();
-                    confirmation.setUserExpense(userExpense);
-                    confirmation.setConfirmationAmount(confirmationAmount);
-                    confirmation.setConfirmationDate(LocalDateTime.now());
-                    confirmation.setIsConfirmed(true);
-                    confirmation.setConfirmedAt(LocalDateTime.now());
+            // Check if one of the existing confirmations matches the confirmation amount
+            for (PaymentConfirmation pending : pendingConfirmations) {
+                if (Objects.equals(pending.getConfirmationAmount(), confirmationAmount)) {
+                    // Confirm the existing one
+                    return markPaymentAsConfirmed(pending.getPaymentConfirmationId(), token);
                 }
-
-            } else {
-                // Already confirmed: create new if valid.
-                confirmation = new PaymentConfirmation();
-                confirmation.setUserExpense(userExpense);
-                confirmation.setConfirmationAmount(confirmationAmount);
-                confirmation.setConfirmationDate(LocalDateTime.now());
-                confirmation.setIsConfirmed(true);
-                confirmation.setConfirmedAt(LocalDateTime.now());
             }
-        }
 
-        // Save confirmation.
+            // Case 3: No matching confirmation found, validate combined payment
+            Float totalPendingAmount = (float) pendingConfirmations.stream()
+                    .mapToDouble(PaymentConfirmation::getConfirmationAmount)
+                    .sum();
+
+            // Check that the combined amount (pending + new) does not exceed the debt
+            if (confirmationAmount + totalPendingAmount > currentDebt) {
+                throw new InvalidPaymentConfirmationException(
+                        "The total payment amount exceeds the current debt.");
+            }
+
+            // Create and confirm a new PaymentConfirmation for the additional amount
+            return createAndConfirmNewPayment(confirmationAmount, userExpense, expense, group);
+        }
+    }
+
+    // Helper method to create and confirm a new PaymentConfirmation
+    private PaymentResponseDTO createAndConfirmNewPayment(
+            Float confirmationAmount,
+            UserExpense userExpense,
+            Expense expense,
+            Group group) {
+
+        // Create the new PaymentConfirmation
+        PaymentConfirmation confirmation = new PaymentConfirmation();
+        confirmation.setUserExpense(userExpense);
+        confirmation.setConfirmationAmount(confirmationAmount);
+        confirmation.setConfirmationDate(LocalDateTime.now());
+        confirmation.setIsConfirmed(true);
+        confirmation.setConfirmedAt(LocalDateTime.now());
+
+        // Save the new confirmation
         paymentConfirmationRepository.save(confirmation);
 
-        // Update user debt.
+        // Update user debt
+        Float currentDebt = userExpense.getAmount();
         userExpense.setAmount(currentDebt - confirmationAmount);
         userExpenseRepository.save(userExpense);
 
-        // Update total amount in expense.
+        // Update total amount in expense
         Float currentTotal = expense.getTotalAmount();
         expense.setTotalAmount(currentTotal - confirmationAmount);
         expenseRepository.save(expense);
 
-        // Notify debtor.
+        // Notify debtor
         User debtorUser = userExpense.getDebtorUser();
         String notificationMessage = String.format(
                 "Your payment of %.2f in group '%s' has been confirmed.",
                 confirmationAmount,
                 group.getName()
         );
-
         notificationService.createNotification(debtorUser, notificationMessage);
 
-        // Return response.
+        // Return the response DTO
         return createResponseDTO(confirmation);
     }
-
-    private PaymentConfirmation buildNewConfirmation(UserExpense userExpense, Float amount) {
-        PaymentConfirmation confirmation = new PaymentConfirmation();
-        confirmation.setUserExpense(userExpense);
-        confirmation.setConfirmationAmount(amount);
-        confirmation.setConfirmationDate(LocalDateTime.now());
-        confirmation.setIsConfirmed(true);
-        confirmation.setConfirmedAt(LocalDateTime.now());
-        return confirmation;
-    }
-
 
     /**
      * Marks a pending payment confirmation as confirmed by the group creator.
