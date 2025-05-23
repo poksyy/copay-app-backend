@@ -194,26 +194,50 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
         PaymentConfirmation confirmation;
 
-        // Confirm pending payment if amount matches. Otherwise, create new.
-        if (optionalConfirmation.isPresent() && !optionalConfirmation.get().getIsConfirmed()) {
+        // Case 1: No confirmation exists yet.
+        if (optionalConfirmation.isEmpty()) {
+            confirmation = new PaymentConfirmation();
+            confirmation.setUserExpense(userExpense);
+            confirmation.setConfirmationAmount(confirmationAmount);
+            confirmation.setConfirmationDate(LocalDateTime.now());
+            confirmation.setIsConfirmed(true);
+            confirmation.setConfirmedAt(LocalDateTime.now());
+        }
+
+        // Case 2: A confirmation exists.
+        else {
             PaymentConfirmation existing = optionalConfirmation.get();
-            Float existingAmount = existing.getConfirmationAmount();
 
-            // Validate combined amount does not exceed debt.
-            validateCombinedPaymentDoesNotExceedDebt(existingAmount, confirmationAmount, currentDebt);
+            if (!existing.getIsConfirmed()) {
+                Float existingAmount = existing.getConfirmationAmount();
 
-            if (Objects.equals(existingAmount, confirmationAmount)) {
-                // Confirm the pending one.
-                existing.setIsConfirmed(true);
-                existing.setConfirmedAt(LocalDateTime.now());
-                confirmation = existing;
+                // Check combined amount doesn't exceed the debt.
+                validateCombinedPaymentDoesNotExceedDebt(existingAmount, confirmationAmount, currentDebt);
+
+                if (Objects.equals(existingAmount, confirmationAmount)) {
+                    // Confirm the existing one.
+                    existing.setIsConfirmed(true);
+                    existing.setConfirmedAt(LocalDateTime.now());
+                    confirmation = existing;
+                } else {
+                    // Create a new confirmation with different amount.
+                    confirmation = new PaymentConfirmation();
+                    confirmation.setUserExpense(userExpense);
+                    confirmation.setConfirmationAmount(confirmationAmount);
+                    confirmation.setConfirmationDate(LocalDateTime.now());
+                    confirmation.setIsConfirmed(true);
+                    confirmation.setConfirmedAt(LocalDateTime.now());
+                }
+
             } else {
-                // Create new confirmation with different amount.
-                confirmation = createPaymentConfirmation(userExpense, confirmationAmount);
+                // Already confirmed: create new if valid.
+                confirmation = new PaymentConfirmation();
+                confirmation.setUserExpense(userExpense);
+                confirmation.setConfirmationAmount(confirmationAmount);
+                confirmation.setConfirmationDate(LocalDateTime.now());
+                confirmation.setIsConfirmed(true);
+                confirmation.setConfirmedAt(LocalDateTime.now());
             }
-        } else {
-            // No pending confirmation. Always create new.
-            confirmation = createPaymentConfirmation(userExpense, confirmationAmount);
         }
 
         // Save confirmation.
@@ -337,7 +361,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
     // TODO: Make sure this is used when creating a payment confirmation instance.
     private PaymentConfirmation createPaymentConfirmation(UserExpense userExpense, Float amount) {
-        
+
         PaymentConfirmation confirmation = new PaymentConfirmation();
         confirmation.setUserExpense(userExpense);
         confirmation.setConfirmationAmount(amount);
