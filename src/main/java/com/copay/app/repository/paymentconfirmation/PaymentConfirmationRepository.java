@@ -15,6 +15,16 @@ import java.util.List;
 @Repository
 public interface PaymentConfirmationRepository extends JpaRepository<PaymentConfirmation, Long> {
 
+
+    /**
+     * Finds all PaymentConfirmations by UserExpenseId and isConfirmed status.
+     *
+     * @param userExpenseId the ID of the UserExpense.
+     * @param isConfirmed whether the PaymentConfirmation is confirmed.
+     * @return a list of matching PaymentConfirmations.
+     */
+    List<PaymentConfirmation> findAllByUserExpense_UserExpenseIdAndIsConfirmed(Long userExpenseId, boolean isConfirmed);
+
     // Search by the UserExpense object's ID.
     Optional<PaymentConfirmation> findByUserExpense_UserExpenseId(Long userExpenseId);
 
