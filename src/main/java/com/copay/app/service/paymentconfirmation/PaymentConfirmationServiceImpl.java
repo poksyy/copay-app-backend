@@ -13,13 +13,14 @@ import com.copay.app.exception.expense.ExpenseNotFoundException;
 import com.copay.app.exception.paymentconfirmation.InvalidPaymentConfirmationException;
 import com.copay.app.exception.paymentconfirmation.UnauthorizedPaymentConfirmationException;
 import com.copay.app.exception.paymentconfirmation.UserExpenseNotFoundException;
+import com.copay.app.repository.UserRepository;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.repository.expense.UserExpenseRepository;
 import com.copay.app.repository.GroupRepository;
 import com.copay.app.repository.paymentconfirmation.PaymentConfirmationRepository;
 import com.copay.app.service.JwtService;
 import com.copay.app.service.expense.GroupExpenseService;
-import com.copay.app.service.notification.NotificationService;
+//import com.copay.app.service.notification.NotificationService;
 import com.copay.app.service.query.GroupQueryService;
 import com.copay.app.service.query.UserQueryService;
 import jakarta.persistence.EntityNotFoundException;
@@ -45,22 +46,24 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     private final UserQueryService userQueryService;
 
     private final GroupQueryService groupQueryService;
+    private final UserRepository userRepository;
 
-    private final NotificationService notificationService;
+//    private final NotificationService notificationService;
 
 
     public PaymentConfirmationServiceImpl(
             PaymentConfirmationRepository paymentConfirmationRepository,
             UserExpenseRepository userExpenseRepository,
-            ExpenseRepository expenseRepository, JwtService jwtService, UserQueryService userQueryService, 
-            GroupQueryService groupQueryService, NotificationService notificationService) {
+            ExpenseRepository expenseRepository, JwtService jwtService, UserQueryService userQueryService,
+            GroupQueryService groupQueryService, UserRepository userRepository) {
         this.paymentConfirmationRepository = paymentConfirmationRepository;
         this.userExpenseRepository = userExpenseRepository;
         this.expenseRepository = expenseRepository;
         this.jwtService = jwtService;
         this.userQueryService = userQueryService;
         this.groupQueryService = groupQueryService;
-        this.notificationService = notificationService;
+//        this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -260,7 +263,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
                 confirmationAmount,
                 group.getName()
         );
-        notificationService.createNotification(debtorUser, notificationMessage);
+//        notificationService.createNotification(debtorUser, notificationMessage);
 
         // Return the response DTO
         return createResponseDTO(confirmation);
@@ -317,7 +320,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
             amount, 
             group.getName()
         );
-        notificationService.createNotification(debtorUser, notificationMessage);
+//        notificationService.createNotification(debtorUser, notificationMessage);
 
         return createResponseDTO(confirmation);
     }
@@ -407,13 +410,18 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     }
 
     private PaymentResponseDTO createResponseDTO(PaymentConfirmation confirmation) {
+
+        // Search the username of who did the request of the payment.
+        String username = confirmation.getUserExpense().getDebtorUser().getUsername();
+
         return new PaymentResponseDTO(
                 confirmation.getPaymentConfirmationId(),
                 confirmation.getUserExpense().getUserExpenseId(),
                 confirmation.getConfirmationAmount(),
                 confirmation.getConfirmationDate(),
                 confirmation.getIsConfirmed(),
-                confirmation.getConfirmedAt()
+                confirmation.getConfirmedAt(),
+                username
         );
     }
 }
