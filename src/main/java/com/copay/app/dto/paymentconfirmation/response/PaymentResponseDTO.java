@@ -9,18 +9,19 @@ public class PaymentResponseDTO {
     private LocalDateTime confirmationDate;
     private Boolean isConfirmed;
     private LocalDateTime confirmedAt;
+    private String username;
 
     public PaymentResponseDTO() {
     }
 
-    public PaymentResponseDTO(Long paymentConfirmationId, Long userExpenseId, Float confirmationAmount,
-                                    LocalDateTime confirmationDate, Boolean isConfirmed, LocalDateTime confirmedAt) {
+    public PaymentResponseDTO(Long paymentConfirmationId, Long userExpenseId, Float confirmationAmount, LocalDateTime confirmationDate, Boolean isConfirmed, LocalDateTime confirmedAt, String username) {
         this.paymentConfirmationId = paymentConfirmationId;
         this.userExpenseId = userExpenseId;
         this.confirmationAmount = confirmationAmount;
         this.confirmationDate = confirmationDate;
         this.isConfirmed = isConfirmed;
         this.confirmedAt = confirmedAt;
+        this.username = username;
     }
 
     // Getters and Setters.
@@ -71,4 +72,8 @@ public class PaymentResponseDTO {
     public void setConfirmedAt(LocalDateTime confirmedAt) {
         this.confirmedAt = confirmedAt;
     }
+
+    public String getUsername() {return username;}
+
+    public void setUsername(String username) {this.username = username;}
 }
