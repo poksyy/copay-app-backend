@@ -85,6 +85,7 @@ public class GroupController {
 	@PatchMapping("/{groupId}")
 	public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @RequestBody Map<String, Object> fieldChanges) {
 
+		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		MessageResponseDTO messageResponseDTO = groupService.updateGroup(groupId, fieldChanges, token);

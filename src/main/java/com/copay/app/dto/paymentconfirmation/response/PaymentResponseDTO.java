@@ -16,12 +16,15 @@ public class PaymentResponseDTO {
 
     private LocalDateTime confirmedAt;
 
-    private String username;
+    private String debtorUsername;
+
+    private String creditorUsername;
 
     public PaymentResponseDTO() {
     }
 
-    public PaymentResponseDTO(Long paymentConfirmationId, Long userExpenseId, Float confirmationAmount, LocalDateTime confirmationDate, Boolean isConfirmed, LocalDateTime confirmedAt, String username) {
+    public PaymentResponseDTO(Long paymentConfirmationId, Long userExpenseId, Float confirmationAmount, LocalDateTime confirmationDate,
+                              Boolean isConfirmed, LocalDateTime confirmedAt, String debtorUsername, String creditorUsername) {
         
         this.paymentConfirmationId = paymentConfirmationId;
         this.userExpenseId = userExpenseId;
@@ -29,7 +32,8 @@ public class PaymentResponseDTO {
         this.confirmationDate = confirmationDate;
         this.isConfirmed = isConfirmed;
         this.confirmedAt = confirmedAt;
-        this.username = username;
+        this.debtorUsername = debtorUsername;
+        this.creditorUsername = creditorUsername;
     }
 
     // Getters and Setters.
@@ -81,7 +85,16 @@ public class PaymentResponseDTO {
         this.confirmedAt = confirmedAt;
     }
 
-    public String getUsername() {return username;}
+    public String getDebtorUsername() {return debtorUsername;}
 
-    public void setUsername(String username) {this.username = username;}
+    public void setDebtorUsername(String debtorUsername) {this.debtorUsername = debtorUsername;}
+
+
+    public String getCreditorUsername() {
+        return creditorUsername;
+    }
+
+    public void setCreditorUsername(String creditorUsername) {
+        this.creditorUsername = creditorUsername;
+    }
 }

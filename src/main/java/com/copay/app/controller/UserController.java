@@ -35,7 +35,7 @@ public class UserController {
 
 		UserResponseDTO userResponseDTO = userService.createUser(createUserRequestDTO);
 
-		return ResponseEntity.ok().body(userResponseDTO);
+		return ResponseEntity.ok(userResponseDTO);
 	}
 
 	// Retrieves a user by their ID and returns it as a DTO.

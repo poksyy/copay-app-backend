@@ -74,8 +74,6 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
         Group group = groupQueryService.getGroupById(groupId);
 
-        groupQueryService.validateGroupCreator(group, token);
-
         return paymentConfirmationRepository.findAllUserExpensesByGroupId(groupId);
     }
 
@@ -407,9 +405,6 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
     private PaymentResponseDTO createResponseDTO(PaymentConfirmation confirmation) {
 
-        // Search the username of who did the request of the payment.
-        String username = confirmation.getUserExpense().getDebtorUser().getUsername();
-
         return new PaymentResponseDTO(
                 confirmation.getPaymentConfirmationId(),
                 confirmation.getUserExpense().getUserExpenseId(),
@@ -417,7 +412,8 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
                 confirmation.getConfirmationDate(),
                 confirmation.getIsConfirmed(),
                 confirmation.getConfirmedAt(),
-                username
+                confirmation.getUserExpense().getDebtorUser().getUsername(),
+                confirmation.getUserExpense().getCreditorUser().getUsername()
         );
     }
 }
