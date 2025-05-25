@@ -26,11 +26,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	// Finds a user by username, returning full entity if found.
 	Optional<User> findByUsername(String username);
 
+	// Finds a user by Google ID, returning full entity if found.
+	Optional<User> findByGoogleId(String googleId);
+
 	// Checks if an email already exists without loading the entity.
 	boolean existsByEmail(String email);
 
 	// Checks if a phone number already exists without loading the entity.
 	boolean existsByPhoneNumber(String phoneNumber);
+
+	// Checks if a Google ID already exists without loading the entity.
+	boolean existsByGoogleId(String googleId);
 
 	// Deletes all users who have not completed the registration process.
 	@Transactional

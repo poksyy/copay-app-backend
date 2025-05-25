@@ -56,7 +56,7 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         expenseRepository.save(expense);
 
         // Calculate and save all individual expenses.
-        updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
+        createExpenseDistribution(group, expense, userCreditor, externalCreditor);
     }
 
     @Override
@@ -68,12 +68,8 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         Expense expense = findExpenseByGroup(group);
         expense.setTotalAmount(newPrice);
 
-        // One of the creditors is going to be null, since only 1 creditor can be available
-        User userCreditor = expense.getPaidByUser();
-        ExternalMember externalCreditor = expense.getPaidByExternalMember();
-
-        // Recalculates the individual amount of each user with new changes.
-        updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
+        // Update the numbers of existing user expenses without creating new ones.
+        adjustExpenseAmounts(group, expense);
 
         expenseRepository.save(expense);
     }
@@ -85,59 +81,29 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
 
         Expense expense = findExpenseByGroup(group);
 
-        // Recalculates the individual amount of each user with new changes.
-        updateExpenseDistribution(group, expense, userCreditor, externalCreditor);
+        // Update expenses based on member changes
+        adjustExpenseMembers(group, expense, userCreditor, externalCreditor);
     }
 
 
     // Updates the distribution after expenses changes.
-    private void updateExpenseDistribution(Group group, Expense expense, User userCreditor, ExternalMember externalCreditor) {
+    private void createExpenseDistribution(Group group, Expense expense, User userCreditor, ExternalMember externalCreditor) {
 
-        // Get all registeredMembers (including the creditor if they're a registered member).
-        List<User> registeredMembers = new ArrayList<>(group.getRegisteredMembers().stream()
-                .map(gm -> gm.getId().getUser())
-                .toList());
-
-        // Store the group creator.
-        User creator = group.getCreatedBy();
-
-        // Ensure that the creator is being added to the expense distribution if he's not the payer.
-        if (registeredMembers.stream().noneMatch(u -> u.getUserId().equals(creator.getUserId()))) {
-            registeredMembers.add(creator);
-        }
-
-        // Get all external members (including the creditor if they're an external member).
-        List<ExternalMember> externalMembers = group.getExternalMembers().stream()
-                .toList();
+        List<User> users = collectRegisteredUsers(group);
+        List<ExternalMember> externals = collectExternalMembers(group);
+        BigDecimal perMember = calculatePerMember(expense.getTotalAmount(), users.size() + externals.size());
 
         // Remove existing debts.
-        List<UserExpense> existingExpenses = userExpenseRepository.findByExpenseId(expense);
-
-        userExpenseRepository.deleteAll(existingExpenses);
-
-        // Calculate total debtors (all members except the creditor).
-        int totalDebtors = registeredMembers.size() + externalMembers.size();
-
-        if (totalDebtors == 0) {
-            throw new DebtorNotFoundException("There are no debtors for expense with ID " + expense.getGroupId());
-        }
-
-        // Calculate amount per debtor.
-        BigDecimal amountPerMember = BigDecimal.valueOf(expense.getTotalAmount())
-                .divide(BigDecimal.valueOf(totalDebtors), 2, RoundingMode.HALF_UP);
+        userExpenseRepository.deleteAll(userExpenseRepository.findByExpenseId(expense));
 
         List<UserExpense> updatedExpenses = new ArrayList<>();
 
         // Process registered users.
-        for (User user : registeredMembers) {
-
-            // Set the expense for the debt.
+        for (User user : users) {
             UserExpense userExpense = new UserExpense();
-
             userExpense.setExpense(expense);
             userExpense.setDebtorUser(user);
-
-            userExpense.setAmount(amountPerMember.floatValue());
+            userExpense.setAmount(perMember.floatValue());
 
             // Set the creditor (either a user or an external member).
             setUserExpenseCreditor(userExpense, userCreditor, externalCreditor);
@@ -146,13 +112,11 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         }
 
         // Process external members.
-        for (ExternalMember externalMember : externalMembers) {
-
+        for (ExternalMember externalMember : externals) {
             UserExpense userExpense = new UserExpense();
-
             userExpense.setExpense(expense);
             userExpense.setDebtorExternalMember(externalMember);
-            userExpense.setAmount(amountPerMember.floatValue());
+            userExpense.setAmount(perMember.floatValue());
 
             // Set the creditor (either a user or an external member).
             setUserExpenseCreditor(userExpense, userCreditor, externalCreditor);
@@ -163,19 +127,155 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         userExpenseRepository.saveAll(updatedExpenses);
     }
 
+    // Updates only the numbers of existing user expenses without creating new ones.
+    private void adjustExpenseAmounts(Group group, Expense expense) {
+
+        // Store registered members.
+        List<User> users = collectRegisteredUsers(group);
+
+        // Store external members.
+        List<ExternalMember> externals = collectExternalMembers(group);
+
+        BigDecimal perMember = calculatePerMember(expense.getTotalAmount(), users.size() + externals.size());
+
+        // Get existing user expenses.
+        List<UserExpense> existingExpenses = userExpenseRepository.findByExpenseId(expense);
+
+        // Update amounts for existing user expenses.
+        for (UserExpense userExpense : existingExpenses) {
+            userExpense.setAmount(perMember.floatValue());
+        }
+
+        userExpenseRepository.saveAll(existingExpenses);
+    }
+
+    // Updates expenses based on member changes.
+    private void adjustExpenseMembers(Group group, Expense expense, User userCreditor, ExternalMember externalCreditor) {
+
+        // Store registered members.
+        List<User> users = collectRegisteredUsers(group);
+
+        // Store external members.
+        List<ExternalMember> externals = collectExternalMembers(group);
+
+        BigDecimal perMember = calculatePerMember(expense.getTotalAmount(), users.size() + externals.size());
+
+        List<UserExpense> existingExpenses = userExpenseRepository.findByExpenseId(expense);
+
+        List<UserExpense> expensesToKeep = new ArrayList<>();
+        List<UserExpense> expensesToDelete = new ArrayList<>();
+        List<UserExpense> expensesToCreate = new ArrayList<>();
+
+        // Identify expenses to keep and delete.
+        for (UserExpense userExpense : existingExpenses) {
+
+            if (userExpense.getDebtorUser() != null) {
+
+                boolean stillMember = users.stream()
+                        .anyMatch(u -> u.getUserId().equals(userExpense.getDebtorUser().getUserId()));
+
+                if (stillMember) {
+                    expensesToKeep.add(userExpense);
+                } else {
+                    expensesToDelete.add(userExpense);
+                }
+
+            } else if (userExpense.getDebtorExternalMember() != null) {
+                boolean stillMember = externals.stream()
+                        .anyMatch(em -> em.getExternalMembersId().equals(userExpense.getDebtorExternalMember().getExternalMembersId()));
+
+                if (stillMember) {
+                    expensesToKeep.add(userExpense);
+                } else {
+                    expensesToDelete.add(userExpense);
+                }
+            }
+        }
+
+        // Identify new members that need expenses created.
+        for (User user : users) {
+
+            boolean hasExpense = expensesToKeep.stream()
+                    .anyMatch(ue -> ue.getDebtorUser() != null && ue.getDebtorUser().getUserId().equals(user.getUserId()));
+
+            if (!hasExpense) {
+                // Creates user_expenses_id for the new registered members added.
+                UserExpense newUserExpense = new UserExpense();
+                newUserExpense.setExpense(expense);
+                newUserExpense.setDebtorUser(user);
+                setUserExpenseCreditor(newUserExpense, userCreditor, externalCreditor);
+                newUserExpense.setAmount(perMember.floatValue());
+                expensesToCreate.add(newUserExpense);
+            }
+        }
+
+        for (ExternalMember externalMember : externals) {
+
+            boolean hasExpense = expensesToKeep.stream()
+                    .anyMatch(ue -> ue.getDebtorExternalMember() != null && ue.getDebtorExternalMember().getExternalMembersId().equals(externalMember.getExternalMembersId()));
+
+            if (!hasExpense) {
+                // Creates user_expenses_id for the new external members added.
+                UserExpense newUserExpense = new UserExpense();
+                newUserExpense.setExpense(expense);
+                newUserExpense.setDebtorExternalMember(externalMember);
+                setUserExpenseCreditor(newUserExpense, userCreditor, externalCreditor);
+                newUserExpense.setAmount(perMember.floatValue());
+                expensesToCreate.add(newUserExpense);
+            }
+        }
+
+        // Delete expenses for removed members.
+        userExpenseRepository.deleteAll(expensesToDelete);
+
+        // Update amounts for existing user expenses.
+        for (UserExpense userExpense : expensesToKeep) {
+            userExpense.setAmount(perMember.floatValue());
+        }
+
+        // Save all expenses.
+        userExpenseRepository.saveAll(expensesToKeep);
+        userExpenseRepository.saveAll(expensesToCreate);
+    }
+
     // Finds an expense by group or throws an exception.
     private Expense findExpenseByGroup(Group group) {
-
         return expenseRepository.findByGroupId(group)
                 .orElseThrow(() -> new ExpenseNotFoundException("Expense of the group " + group.getGroupId() + " not found"));
     }
 
+    // Collects registered users including creator
+    private List<User> collectRegisteredUsers(Group group) {
+        List<User> registeredMembers = new ArrayList<>(group.getRegisteredMembers().stream()
+                .map(gm -> gm.getId().getUser()).toList());
+        User creator = group.getCreatedBy();
+        if (registeredMembers.stream().noneMatch(u -> u.getUserId().equals(creator.getUserId()))) {
+            registeredMembers.add(creator);
+        }
+        return registeredMembers;
+    }
+
+    // Collects external members
+    private List<ExternalMember> collectExternalMembers(Group group) {
+
+        return new ArrayList<>(group.getExternalMembers().stream().toList());
+    }
+
+    // Calculates amount per member and validates debtors
+    private BigDecimal calculatePerMember(Float totalAmount, int totalDebtors) {
+
+        if (totalDebtors == 0) {
+            throw new DebtorNotFoundException("There are no debtors for expense with total " + totalAmount);
+        }
+
+        return BigDecimal.valueOf(totalAmount)
+                .divide(BigDecimal.valueOf(totalDebtors), 2, RoundingMode.HALF_UP);
+    }
+
     // Sets the creditor (payer) for a general expense.
-    // This method is used to assign the creditor to an Expense object (general expense).
     private void setCreditor(Expense expense, User userCreditor, ExternalMember externalCreditor) {
 
         if (userCreditor != null) {
-
             expense.setPaidByUser(userCreditor);
 
         } else if (externalCreditor != null) {
@@ -184,7 +284,6 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
     }
 
     // Sets the creditor (payer) for a user-specific expense.
-    // This method is used to assign the creditor to a UserExpense object (individual user’s share of the expense).
     private void setUserExpenseCreditor(UserExpense userExpense, User userCreditor, ExternalMember externalCreditor) {
 
         if (userCreditor != null) {

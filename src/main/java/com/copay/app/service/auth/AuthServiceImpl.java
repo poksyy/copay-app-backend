@@ -1,12 +1,23 @@
 package com.copay.app.service.auth;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+import com.copay.app.dto.auth.request.GoogleLoginRequestDTO;
 import com.copay.app.service.query.UserQueryService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import com.copay.app.dto.auth.request.UserLoginRequestDTO;
@@ -36,15 +47,19 @@ public class AuthServiceImpl implements AuthService {
 
 	private final UserQueryService userQueryService;
 
+	private final JwtDecoder jwtDecoder;
+
 	// Constructor.
 	public AuthServiceImpl(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
-						   JwtService jwtService, UserRepository userRepository, UserQueryService userQueryService) {
+						   JwtService jwtService, UserRepository userRepository, UserQueryService userQueryService,
+						   JwtDecoder jwtDecoder) {
 
 		this.authenticationManager = authenticationManager;
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.userQueryService = userQueryService;
+		this.jwtDecoder = jwtDecoder;
 	}
 
 	@Override
@@ -168,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
     public void logout(String token) {
-    	
+
         try {
 
             JwtService.setCurrentContext(JwtService.TokenValidationContext.LOGOUT);
@@ -179,6 +194,87 @@ public class AuthServiceImpl implements AuthService {
         } finally {
 
             JwtService.clearContext();
+        }
+    }
+
+    @Override
+    @Transactional
+    public LoginResponseDTO loginWithGoogle(GoogleLoginRequestDTO request) {
+        try {
+            // Decode and verify the Google ID token
+            Jwt jwt = jwtDecoder.decode(request.getIdToken());
+
+            // Extract user information from the token
+            String googleId = jwt.getSubject();
+            String email = jwt.getClaimAsString("email");
+            String name = jwt.getClaimAsString("name");
+
+            // Check if user exists by googleId
+            User user = userRepository.findByGoogleId(googleId).orElse(null);
+
+            if (user == null) {
+                // User doesn't exist, create a new one
+                user = new User();
+                user.setGoogleId(googleId);
+                user.setEmail(email);
+                user.setUsername(name);
+
+                // Generate a random password as placeholder for Google users
+                String randomPassword = UUID.randomUUID().toString();
+                user.setPassword(passwordEncoder.encode(randomPassword));
+
+                user.setCreatedAt(LocalDateTime.now());
+                user.setCompleted(false); // User needs to complete registerStepTwo
+
+                userRepository.save(user);
+
+                // Generate a temporary token for registerStepTwo
+                String tempToken = jwtService.generateTemporaryToken(email);
+                long expiresIn = jwtService.getExpirationTime(false);
+
+                return new LoginResponseDTO(
+                    tempToken,
+                    expiresIn,
+                    user.getUserId(),
+                    null, // phoneNumber is null
+                    null, // phonePrefix is null
+                    user.getUsername(),
+                    user.getEmail(),
+                    "false" // isLogin is false because registration is not completed
+                );
+            } else if (!user.isCompleted()) {
+                // User exists but hasn't completed registration
+                String tempToken = jwtService.generateTemporaryToken(email);
+                long expiresIn = jwtService.getExpirationTime(false);
+
+                return new LoginResponseDTO(
+                    tempToken,
+                    expiresIn,
+                    user.getUserId(),
+                    user.getPhoneNumber(),
+                    user.getPhonePrefix(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    "false" // isLogin is false because registration is not completed
+                );
+            } else {
+                // User exists and has completed registration
+                String jwtToken = jwtService.generateToken(user.getPhoneNumber());
+                long expiresIn = jwtService.getExpirationTime(true);
+
+                return new LoginResponseDTO(
+                    jwtToken,
+                    expiresIn,
+                    user.getUserId(),
+                    user.getPhoneNumber(),
+                    user.getPhonePrefix(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    "true" // isLogin is true
+                );
+            }
+        } catch (JwtException e) {
+            throw new OAuth2AuthenticationException("Invalid Google ID token");
         }
     }
 }

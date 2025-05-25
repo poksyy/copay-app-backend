@@ -4,12 +4,9 @@ import java.util.List;
 
 import com.copay.app.exception.expense.DebtorNotFoundException;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
-import com.copay.app.exception.group.InvalidGroupUpdateException;
+import com.copay.app.exception.group.*;
 import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.email.EmailSendingException;
-import com.copay.app.exception.group.GroupNotFoundException;
-import com.copay.app.exception.group.InvalidGroupCreatorException;
-import com.copay.app.exception.group.InvitedMemberNotFoundException;
 import com.copay.app.exception.user.PhoneAlreadyExistsException;
 import com.copay.app.exception.user.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -85,7 +82,7 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
-	// HTTP 403: User is trying to modify password of another user.
+	// HTTP 403: User is trying to modify the password of another user.
 	@ExceptionHandler(UserPermissionException.class)
 	public ResponseEntity<ValidationErrorResponse> handleUserPermissionException(UserPermissionException ex) {
 
@@ -180,12 +177,22 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
-	// HTTP 400: Group not found with the provided ID.
+	// HTTP 400: Invalid group name or description update.
 	@ExceptionHandler(InvalidGroupUpdateException.class)
 	public ResponseEntity<ValidationErrorResponse> handleInvalidGroupUpdateException(InvalidGroupUpdateException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Some fields are invalid. Please check the inputs and try again.", HttpStatus.BAD_REQUEST.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
+
+	// HTTP 400: Triggered when trying to remove the creditor from the group.
+	@ExceptionHandler(InvalidCreditorRemovalException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidCreditorRemovedException(InvalidCreditorRemovalException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"You can't kick the creditor of the group.", HttpStatus.BAD_REQUEST.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}

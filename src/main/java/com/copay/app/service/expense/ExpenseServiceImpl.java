@@ -2,9 +2,9 @@ package com.copay.app.service.expense;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
-import com.copay.app.dto.paymentconfirmation.response.PaymentResponseDTO;
 import com.copay.app.dto.expense.response.DebtorResponseDTO;
 import com.copay.app.dto.expense.response.ExpenseResponseDTO;
+import com.copay.app.dto.expense.response.UserExpenseDTO;
 import com.copay.app.entity.Expense;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
@@ -59,6 +59,12 @@ public class ExpenseServiceImpl implements ExpenseService {
         return expenses.stream()
                 .map(this::mapToExpenseResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // Find user expenses of a group by id.
+    @Override
+    public List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId) {
+        return userExpenseRepository.findAllByGroupId(groupId);
     }
 
     // Find an expense by id of a specific group by id.

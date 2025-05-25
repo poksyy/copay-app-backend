@@ -1,5 +1,6 @@
 package com.copay.app.service.auth;
 
+import com.copay.app.dto.auth.request.GoogleLoginRequestDTO;
 import com.copay.app.dto.auth.request.UserLoginRequestDTO;
 import com.copay.app.dto.auth.request.UserRegisterStepOneRequestDTO;
 import com.copay.app.dto.auth.request.UserRegisterStepTwoRequestDTO;
@@ -16,4 +17,6 @@ public interface AuthService {
     RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoRequestDTO request, String token);
 
     void logout(String token);
+
+    LoginResponseDTO loginWithGoogle(GoogleLoginRequestDTO request);
 }

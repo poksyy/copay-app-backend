@@ -1,6 +1,7 @@
 package com.copay.app.controller;
 
 import com.copay.app.dto.MessageResponseDTO;
+import com.copay.app.dto.auth.request.GoogleLoginRequestDTO;
 import com.copay.app.dto.auth.request.UserLoginRequestDTO;
 import com.copay.app.dto.auth.request.UserRegisterStepOneRequestDTO;
 import com.copay.app.dto.auth.request.UserRegisterStepTwoRequestDTO;
@@ -32,7 +33,7 @@ public class AuthController {
 
 		// Registers the user and returns a JWT response.
 		RegisterStepOneResponseDTO registerStepOneResponseDTO = authService.registerStepOne(userRegisterStepOneRequestDTO);
-		
+
 		return ResponseEntity.ok().body(registerStepOneResponseDTO);
 	}
 
@@ -70,6 +71,16 @@ public class AuthController {
 		authService.logout(token);
 
 		return ResponseEntity.ok(new MessageResponseDTO("Logout successful."));
+	}
+
+	// Handles Google authentication request.
+	@PostMapping("/google/login")
+	public ResponseEntity<?> loginWithGoogle(@RequestBody @Valid GoogleLoginRequestDTO googleLoginRequest) {
+
+		// Authenticates the user with Google and returns a JWT token.
+		LoginResponseDTO loginResponseDTO = authService.loginWithGoogle(googleLoginRequest);
+
+		return ResponseEntity.ok(loginResponseDTO);
 	}
 
 }

@@ -15,8 +15,18 @@ import java.util.List;
 @Repository
 public interface PaymentConfirmationRepository extends JpaRepository<PaymentConfirmation, Long> {
 
-    // Search by the UserExpense object's ID.
-    Optional<PaymentConfirmation> findByUserExpense_UserExpenseId(Long userExpenseId);
+
+    /**
+     * Finds all PaymentConfirmations by UserExpenseId and isConfirmed status.
+     *
+     * @param userExpenseId the ID of the UserExpense.
+     * @param isConfirmed whether the PaymentConfirmation is confirmed.
+     * @return a list of matching PaymentConfirmations.
+     */
+    List<PaymentConfirmation> findAllByUserExpense_UserExpenseIdAndIsConfirmed(Long userExpenseId, boolean isConfirmed);
+
+    // Search the payment confirmations that are not confirmed.
+    Optional<PaymentConfirmation> findFirstByUserExpense_UserExpenseIdAndIsConfirmedFalse(Long userExpenseId);
 
     // Delete all PaymentConfirmations whose UserExpense has a specific Expense
     void deleteByUserExpense_ExpenseId(Expense expense);
@@ -32,7 +42,8 @@ public interface PaymentConfirmationRepository extends JpaRepository<PaymentConf
         p.confirmationAmount,
         p.confirmationDate,
         p.isConfirmed,
-        p.confirmedAt
+        p.confirmedAt,
+        ue.debtorUser.username
     )
     FROM PaymentConfirmation p
     JOIN p.userExpense ue
@@ -49,18 +60,25 @@ public interface PaymentConfirmationRepository extends JpaRepository<PaymentConf
                     p.confirmationAmount,
                     p.confirmationDate,
                     p.isConfirmed,
-                    p.confirmedAt
+                    p.confirmedAt,
+                    p.userExpense.debtorUser.username
                 )
                 FROM PaymentConfirmation p
                 WHERE p.userExpense.expenseId.groupId.groupId = :groupId
                 AND (p.userExpense.debtorUser.userId = :userId OR p.userExpense.creditorUser.userId = :userId)
+            
             """)
     List<PaymentResponseDTO> findUserExpenseIdsByGroupIdAndUserId(@Param("groupId") Long groupId, @Param("userId") Long userId);
 
     // Get all unconfirmed payment confirmation requests.
-    @Query("SELECT new com.copay.app.dto.paymentconfirmation.response.ListUnconfirmedPaymentConfirmationResponseDTO(p.userExpense.userExpenseId, p.confirmationAmount) " +
+    @Query("SELECT new com.copay.app.dto.paymentconfirmation.response.ListUnconfirmedPaymentConfirmationResponseDTO(" +
+            "p.paymentConfirmationId, " +
+            "p.userExpense.userExpenseId, " +
+            "p.confirmationAmount, " +
+            "p.userExpense.debtorUser.username) " +
             "FROM PaymentConfirmation p " +
             "WHERE p.isConfirmed = false AND p.userExpense.expenseId.groupId.groupId = :groupId")
+
     List<ListUnconfirmedPaymentConfirmationResponseDTO> findUnconfirmedByGroupId(@Param("groupId") Long groupId);
 
 }

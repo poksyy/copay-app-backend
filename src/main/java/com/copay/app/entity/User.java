@@ -43,8 +43,11 @@ public class User {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	@Column(name = "is_completed", columnDefinition = "TINYINT(1)")
+ 	@Column(name = "is_completed", columnDefinition = "TINYINT(1)")
 	private boolean isCompleted = false;
+
+	@Column(name = "google_id", unique = true, nullable = true)
+	private String googleId;
 
 	// CascadeType.ALL propagates all persistence operations to GroupMember.
 	// orphanRemoval ensures deletion of GroupMember when removed from the Set.
@@ -63,7 +66,7 @@ public class User {
     // UserExpenses where this user is the creditor
     @OneToMany(mappedBy = "creditorUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserExpense> debtsReceivable = new HashSet<>();
-	
+
 	// Constructor for fake data.
 	public User(String username, String email, String password, String phonePrefix, String phoneNumber) {
 		this.username = username;
@@ -176,5 +179,13 @@ public class User {
 
 	public void setDebtsReceivable(Set<UserExpense> debtsReceivable) {
 		this.debtsReceivable = debtsReceivable;
+	}
+
+	public String getGoogleId() {
+		return googleId;
+	}
+
+	public void setGoogleId(String googleId) {
+		this.googleId = googleId;
 	}
 }

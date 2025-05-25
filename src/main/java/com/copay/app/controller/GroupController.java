@@ -38,10 +38,10 @@ public class GroupController {
 	// Endpoint to retrieve a single group by its group ID.
 	@GetMapping("/{groupId}/group")
 	public ResponseEntity<?> getGroupByGroupId(@PathVariable Long groupId,
-											   @Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+											   @Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
 
 		// The userId is manually added to the DTO for validation.
-		getGroupRequestDTO.setGroupId(groupId);
+		getGroupsByGroupRequestDTO.setGroupId(groupId);
 
 		GroupResponseDTO GroupResponseDTO = groupService.getGroupByGroupId(groupId);
 
@@ -51,10 +51,10 @@ public class GroupController {
 	// Endpoint to retrieve groups for a given user (HomeScreen display).
 	@GetMapping("/{userId}")
 	public ResponseEntity<?> getGroupsByUser(@PathVariable Long userId,
-			@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+			@Valid @ModelAttribute GetGroupsByUserRequestDTO getGroupsByUserRequestDTO) {
 
 		// The userId is manually added to the DTO for validation.
-		getGroupRequestDTO.setUserId(userId);
+		getGroupsByUserRequestDTO.setUserId(userId);
 
 		GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
 
@@ -63,10 +63,10 @@ public class GroupController {
 
 	@GetMapping("/{groupId}/members")
 	public ResponseEntity<?> getGroupMembersByGroup(@PathVariable Long groupId,
-													@Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+													@Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
 
 		// The groupId is manually added to the DTO for validation.
-		getGroupRequestDTO.setGroupId(groupId);
+		getGroupsByGroupRequestDTO.setGroupId(groupId);
 
 		GetGroupMembersResponseDTO getGroupMembersResponseDTO = groupService.getGroupMembersByGroup(groupId);
 

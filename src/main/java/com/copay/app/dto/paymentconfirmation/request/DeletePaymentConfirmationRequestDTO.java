@@ -1,10 +1,11 @@
 package com.copay.app.dto.paymentconfirmation.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class DeletePaymentConfirmationRequestDTO {
 
-    @NotBlank(message = "Payment confirmation id must not be null")
+    @NotNull(message = "Payment confirmation id must not be null")
     private Long paymentConfirmationId;
 
     // Getters and setters.
