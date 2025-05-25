@@ -33,8 +33,8 @@ public class AuthController {
 
 		// Registers the user and returns a JWT response.
 		RegisterStepOneResponseDTO registerStepOneResponseDTO = authService.registerStepOne(userRegisterStepOneRequestDTO);
-
-		return ResponseEntity.ok().body(registerStepOneResponseDTO);
+		
+		return ResponseEntity.ok(registerStepOneResponseDTO);
 	}
 
 	// Update phone number of the user.
@@ -47,7 +47,7 @@ public class AuthController {
 		// Registers the user and returns a JWT response.
 		RegisterStepTwoResponseDTO registerStepTwoResponseDTO = authService.registerStepTwo(userRegisterStepTwoRequestDTO, token);
 
-		return ResponseEntity.ok().body(registerStepTwoResponseDTO);
+		return ResponseEntity.ok(registerStepTwoResponseDTO);
 	}
 
 	// Handles user login request.
