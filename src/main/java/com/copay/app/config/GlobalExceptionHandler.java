@@ -244,6 +244,16 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
+	// HTTP 401: Deleting a notification that doesn't belong to the user.
+	@ExceptionHandler(NotificationAccessDeniedException.class)
+	public ResponseEntity<ValidationErrorResponse> handleNotificationAccessDeniedException(NotificationAccessDeniedException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Permission denied: unable to delete a notification not owned by the user", HttpStatus.UNAUTHORIZED.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+	}
+
 	// Handle other generic exceptions.
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<ValidationErrorResponse> handleRuntimeException(RuntimeException ex) {
