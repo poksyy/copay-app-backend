@@ -300,6 +300,7 @@ public class GroupServiceImpl implements GroupService {
 
 		// Send notifications to all invited registered members.
 		for (InvitedRegisteredMemberDTO registeredMember : request.getInvitedRegisteredMembers()) {
+
 			User invitedUser = userRepository.findByPhoneNumber(registeredMember.getPhoneNumber()).get();
 			String notificationMessage = String.format(
 				"You have been added to group '%s' by %s", 
@@ -317,7 +318,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token) {
 
-		// Find the group by ID or throw exception if not found.
+		// Find the group by ID or throw an exception if not found.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		// Validates if the user is the group creator.
@@ -376,7 +377,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO updateGroupEstimatedPrice(Long groupId, UpdateGroupEstimatedPriceRequestDTO request, String token) {
 
-		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		// Validates if the user is the group creator.
@@ -445,7 +446,7 @@ public class GroupServiceImpl implements GroupService {
 			notificationService.createNotification(user, notificationMessage);
 		}
 
-		// Return success message.
+		// Return a success message.
 		return new MessageResponseDTO("Group members updated successfully.");
 	}
 
@@ -502,7 +503,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO deleteGroup(Long groupId, String token) {
 
-		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		// Validates if the user is the group creator.
@@ -516,6 +517,22 @@ public class GroupServiceImpl implements GroupService {
 			expenseService.deleteExpenseByGroupAndId(group.getGroupId(), expense.getExpenseId());
 		}
 
+		// Notify all registered members that the group has been deleted.
+		for (GroupMember member : group.getRegisteredMembers()) {
+
+			// Retrieve the user associated with the current group member.
+			User user = member.getId().getUser();
+
+			// Build the message depending on whether the user is the group creator or not.
+			String message = user.getUserId().equals(group.getCreatedBy().getUserId())
+					? String.format("You have successfully deleted the group '%s'.", group.getName())
+					: String.format("The group '%s' has been deleted by its creator %s.",
+					group.getName(), group.getCreatedBy().getUsername());
+
+			// Send the corresponding notification to the user.
+			notificationService.createNotification(user, message);
+	}
+
 		// Persists deletion in the database.
 		groupRepository.delete(group);
 
@@ -526,7 +543,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	public MessageResponseDTO leaveGroup(Long groupId, String token) {
 
-		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		// Get the phoneNumber from the current token.
@@ -536,6 +553,9 @@ public class GroupServiceImpl implements GroupService {
 		GroupMember groupMember = group.getRegisteredMembers().stream()
 				.filter(member -> member.getId().getUser().getPhoneNumber().equals(userPhoneNumber)).findFirst()
 				.orElseThrow(() -> new UserNotFoundException("User with phone " + userPhoneNumber + " not found in the group"));
+
+		// Store the leaving user for notification purposes.
+		User leavingUser = groupMember.getId().getUser();
 
 		// Check if the user is the owner (creator) of the group.
 		if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
@@ -550,6 +570,17 @@ public class GroupServiceImpl implements GroupService {
 
 		// Persists the group details in the database.
 		groupRepository.save(group);
+
+		// Notify that the leavingUser left the group to the registered members.
+		for (GroupMember member : group.getRegisteredMembers()) {
+
+			// Retrieve the User associated with the current group member to send them a notification.
+			User user = member.getId().getUser();
+
+			String message = String.format("%s has left the group '%s'.", leavingUser.getUsername(), group.getName());
+
+			notificationService.createNotification(user, message);
+		}
 
 		// Return a success message.
 		return new MessageResponseDTO("You have successfully left the group.");
