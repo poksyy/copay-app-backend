@@ -46,6 +46,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     private final UserQueryService userQueryService;
 
     private final GroupQueryService groupQueryService;
+    
     private final UserRepository userRepository;
 
 //    private final NotificationService notificationService;
@@ -141,7 +142,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
         // Validate that there is no existing pending unconfirmed payment for this UserExpense.
         Optional<PaymentConfirmation> existingPending =
-                paymentConfirmationRepository.findByUserExpense_UserExpenseId(request.getUserExpenseId())
+                paymentConfirmationRepository.findFirstByUserExpense_UserExpenseIdAndIsConfirmedFalse(request.getUserExpenseId())
                         .filter(pc -> !pc.getIsConfirmed());
 
         if (existingPending.isPresent()) {
@@ -320,6 +321,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
             amount, 
             group.getName()
         );
+        
 //        notificationService.createNotification(debtorUser, notificationMessage);
 
         return createResponseDTO(confirmation);

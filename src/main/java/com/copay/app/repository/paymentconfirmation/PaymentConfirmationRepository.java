@@ -25,8 +25,8 @@ public interface PaymentConfirmationRepository extends JpaRepository<PaymentConf
      */
     List<PaymentConfirmation> findAllByUserExpense_UserExpenseIdAndIsConfirmed(Long userExpenseId, boolean isConfirmed);
 
-    // Search by the UserExpense object's ID.
-    Optional<PaymentConfirmation> findByUserExpense_UserExpenseId(Long userExpenseId);
+    // Search the payment confirmations that are not confirmed.
+    Optional<PaymentConfirmation> findFirstByUserExpense_UserExpenseIdAndIsConfirmedFalse(Long userExpenseId);
 
     // Delete all PaymentConfirmations whose UserExpense has a specific Expense
     void deleteByUserExpense_ExpenseId(Expense expense);
@@ -78,6 +78,7 @@ public interface PaymentConfirmationRepository extends JpaRepository<PaymentConf
             "p.userExpense.debtorUser.username) " +
             "FROM PaymentConfirmation p " +
             "WHERE p.isConfirmed = false AND p.userExpense.expenseId.groupId.groupId = :groupId")
+
     List<ListUnconfirmedPaymentConfirmationResponseDTO> findUnconfirmedByGroupId(@Param("groupId") Long groupId);
 
 }
