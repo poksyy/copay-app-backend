@@ -80,8 +80,6 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
         Group group = groupQueryService.getGroupById(groupId);
 
-        groupQueryService.validateGroupCreator(group, token);
-
         return paymentConfirmationRepository.findAllUserExpensesByGroupId(groupId);
     }
 
