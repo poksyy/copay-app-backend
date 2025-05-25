@@ -2,13 +2,11 @@ package com.copay.app.config;
 
 import java.util.List;
 
-import com.copay.app.exception.expense.DebtorNotFoundException;
-import com.copay.app.exception.expense.ExpenseNotFoundException;
+import com.copay.app.exception.expense.*;
 import com.copay.app.exception.group.*;
-import com.copay.app.exception.user.EmailAlreadyExistsException;
 import com.copay.app.exception.email.EmailSendingException;
-import com.copay.app.exception.user.PhoneAlreadyExistsException;
 import com.copay.app.exception.user.*;
+import com.copay.app.exception.notification.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -209,7 +207,7 @@ public class GlobalExceptionHandler {
 
 	// HTTP 404: Debtors not found with the provided ID.
 	@ExceptionHandler(DebtorNotFoundException.class)
-	public ResponseEntity<ValidationErrorResponse> handleDebtorFoundException(DebtorNotFoundException ex) {
+	public ResponseEntity<ValidationErrorResponse> handleDebtorNotFoundException(DebtorNotFoundException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"You must invite at least 1 member", HttpStatus.NOT_FOUND.value());
@@ -234,6 +232,26 @@ public class GlobalExceptionHandler {
 						HttpStatus.BAD_REQUEST.value()
 				)
 		);
+	}
+
+	// HTTP 404: Debtors not found with the provided ID.
+	@ExceptionHandler(NotificationNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleNotificationNotFoundException(NotificationNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Notification with that id was not found", HttpStatus.NOT_FOUND.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	// HTTP 401: Deleting a notification that doesn't belong to the user.
+	@ExceptionHandler(NotificationAccessDeniedException.class)
+	public ResponseEntity<ValidationErrorResponse> handleNotificationAccessDeniedException(NotificationAccessDeniedException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"Permission denied: unable to delete a notification not owned by the user", HttpStatus.UNAUTHORIZED.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
 	}
 
 	// Handle other generic exceptions.
