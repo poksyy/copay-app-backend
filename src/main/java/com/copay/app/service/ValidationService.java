@@ -23,7 +23,7 @@ public class ValidationService {
 				errorMessages.add(error.getDefaultMessage());
 			}
 			
-			// Return the errors to the AuthController.
+			// TODO: CHECK IF THIS CLASS IS BEIND USED IN THE PROJECT AND IF NOT, DELETE IT.
 			return new ValidationErrorResponse(errorMessages, errorMessages.getFirst(), HttpStatus.BAD_REQUEST.value());
 		}
 
