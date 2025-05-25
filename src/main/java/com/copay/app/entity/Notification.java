@@ -20,7 +20,7 @@ public class Notification {
     private String message;
 
     @Column(name = "is_read", columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isRead = false;
+    private boolean read;
 
     @Column(name = "created_at", nullable = false, updatable = false, 
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -35,7 +35,7 @@ public class Notification {
     public Notification(User user, String message) {
         this.user = user;
         this.message = message;
-        this.isRead = false;
+        this.read = false;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -65,11 +65,11 @@ public class Notification {
     }
 
     public boolean isRead() {
-        return isRead;
+        return read;
     }
 
     public void setRead(boolean read) {
-        isRead = read;
+        this.read = read;
     }
 
     public LocalDateTime getCreatedAt() {
