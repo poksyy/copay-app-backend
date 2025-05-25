@@ -3,18 +3,26 @@ package com.copay.app.dto.paymentconfirmation.response;
 import java.time.LocalDateTime;
 
 public class PaymentResponseDTO {
+
     private Long paymentConfirmationId;
+
     private Long userExpenseId;
+
     private Float confirmationAmount;
+
     private LocalDateTime confirmationDate;
+
     private Boolean isConfirmed;
+
     private LocalDateTime confirmedAt;
+
     private String username;
 
     public PaymentResponseDTO() {
     }
 
     public PaymentResponseDTO(Long paymentConfirmationId, Long userExpenseId, Float confirmationAmount, LocalDateTime confirmationDate, Boolean isConfirmed, LocalDateTime confirmedAt, String username) {
+        
         this.paymentConfirmationId = paymentConfirmationId;
         this.userExpenseId = userExpenseId;
         this.confirmationAmount = confirmationAmount;
