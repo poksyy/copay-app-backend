@@ -1,7 +1,8 @@
 package com.copay.app.controller;
 
 import com.copay.app.dto.MessageResponseDTO;
-import com.copay.app.dto.group.request.GetGroupRequestDTO;
+import com.copay.app.dto.group.request.GetGroupsByGroupRequestDTO;
+import com.copay.app.dto.group.request.GetGroupsByUserRequestDTO;
 import com.copay.app.dto.paymentconfirmation.request.ConfirmPaymentRequestDTO;
 import com.copay.app.dto.paymentconfirmation.request.DeletePaymentConfirmationRequestDTO;
 import com.copay.app.dto.paymentconfirmation.response.PaymentResponseDTO;
@@ -34,10 +35,10 @@ public class PaymentConfirmationController {
      */
     @GetMapping("/groups/{groupId}/user-expenses/ids")
     public ResponseEntity<List<PaymentResponseDTO>> getUserExpenseIds(@PathVariable Long groupId,
-                                                                      @Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+                                                                      @Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
 
         // The groupId is manually added to the DTO for validation.
-        getGroupRequestDTO.setGroupId(groupId);
+        getGroupsByGroupRequestDTO.setGroupId(groupId);
 
         // Get the token from the SecurityContextHolder.
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
@@ -56,10 +57,10 @@ public class PaymentConfirmationController {
      */
     @GetMapping("/groups/{groupId}/user-expenses")
     public ResponseEntity<List<PaymentResponseDTO>> getAllUserExpensesByGroup(@PathVariable Long groupId,
-                                                                              @Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+                                                                              @Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
 
         // The groupId is manually added to the DTO for validation.
-        getGroupRequestDTO.setGroupId(groupId);
+        getGroupsByGroupRequestDTO.setGroupId(groupId);
 
         // Get the token from the SecurityContextHolder.
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
@@ -76,10 +77,10 @@ public class PaymentConfirmationController {
      */
     @GetMapping("/groups/{groupId}/unconfirmed")
     public ResponseEntity<List<ListUnconfirmedPaymentConfirmationResponseDTO>> getUnconfirmedConfirmations(@PathVariable Long groupId,
-                                                                                                           @Valid @ModelAttribute GetGroupRequestDTO getGroupRequestDTO) {
+                                                                                                           @Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
 
         // The groupId is manually added to the DTO for validation.
-        getGroupRequestDTO.setGroupId(groupId);
+        getGroupsByGroupRequestDTO.setGroupId(groupId);
 
         List<ListUnconfirmedPaymentConfirmationResponseDTO> unconfirmedPayments = paymentConfirmationService.getAllUnconfirmedConfirmations(groupId);
 

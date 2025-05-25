@@ -464,7 +464,7 @@ public class GroupServiceImpl implements GroupService {
 		// Update the expense group members and the money distribution through the expenseService interface.
 		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, null);
 
-		// Return success message.
+		// Return a success message.
 		return new MessageResponseDTO("Group members updated successfully.");
 	}
 
@@ -560,11 +560,28 @@ public class GroupServiceImpl implements GroupService {
 		// Persists the group details in the database.
 		groupRepository.save(group);
 
-		// Return success message.
+		// Return a success message.
 		return new MessageResponseDTO("You have successfully left the group.");
 	}
 
 	private void removeUninvitedRegisteredMembers(Group group, Set<String> invitedPhones) {
+
+		// Verify if a debtor is being removed.
+		User creditorUser = expenseRepository.findByGroupId_GroupId(group.getGroupId())
+				.stream()
+				.findFirst()
+				.map(Expense::getPaidByUser)
+				.orElse(null);
+
+		if (creditorUser != null) {
+			boolean isCreditorInvited = invitedPhones.contains(creditorUser.getPhoneNumber());
+
+			// If the removed member is the creditor, throw a custom exception.
+			if (!isCreditorInvited) {
+
+				throw new InvalidCreditorRemovalException("The creditor can't be removed from the group.");
+			}
+		}
 
 		// Remove current members whose phone numbers are not in the invited list.
 		group.getRegisteredMembers()
