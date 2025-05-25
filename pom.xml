@@ -49,6 +49,12 @@
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
 		</dependency>
 
+		<!-- Spring Security OAuth2 Client -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-client</artifactId>
+		</dependency>
+
 		<!-- Spring Boot Starter Validation -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -110,7 +116,7 @@
 		    <artifactId>jjwt</artifactId>
 		    <version>0.12.6</version>
 		</dependency>
-	
+
 		<!-- Developer Tools -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
