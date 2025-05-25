@@ -5,6 +5,7 @@ import com.copay.app.dto.notification.response.NotificationListResponseDTO;
 import com.copay.app.dto.notification.response.NotificationResponseDTO;
 import com.copay.app.entity.Notification;
 import com.copay.app.entity.User;
+import com.copay.app.exception.notification.NotificationAccessDeniedException;
 import com.copay.app.exception.notification.NotificationNotFoundException;
 import com.copay.app.repository.notification.NotificationRepository;
 import com.copay.app.service.JwtService;
@@ -32,113 +33,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional
-    public Notification createNotification(User user, String message) {
-
-        Notification notification = new Notification();
-        notification.setUser(user);
-        notification.setMessage(message);
-        notification.setRead(false);
-        notification.setCreatedAt(LocalDateTime.now());
-
-        return notificationRepository.save(notification);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Notification> getNotificationsByUserId(Long userId) {
-
-        // Find user via UserQueryService, which delegates exception handling to UserValidator
-        userQueryService.getUserById(userId); // Validate user exists
-        return notificationRepository.findByUserUserId(userId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Notification> getNotificationsByUser(User user) {
-
-        return notificationRepository.findByUser(user);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Notification> getUnreadNotificationsByUserId(Long userId) {
-
-        // Find user via UserQueryService, which delegates exception handling to UserValidator
-        userQueryService.getUserById(userId); // Validate user exists
-        return notificationRepository.findByUserUserIdAndIsRead(userId, false);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Notification> getUnreadNotificationsByUser(User user) {
-
-        return notificationRepository.findByUserAndIsRead(user, false);
-    }
-
-    @Override
-    @Transactional
-    public Notification markNotificationAsRead(Long notificationId) {
-
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationNotFoundException("Notification not found with ID: " + notificationId));
-
-        notification.setRead(true);
-
-        return notificationRepository.save(notification);
-    }
-
-    @Override
-    @Transactional
-    public int markAllNotificationsAsRead(String token) {
-
-        // Get the phone number from the current token.
-        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
-
-        // Find the user through the UserQueryService.
-        User user =  userQueryService.getUserByPhone(phoneNumber);
-
-        List<Notification> unreadNotifications = notificationRepository.findByUserAndIsRead(user, false);
-        for (Notification notification : unreadNotifications) {
-            notification.setRead(true);
-            notificationRepository.save(notification);
-        }
-
-        return unreadNotifications.size();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public long countUnreadNotifications(Long userId) {
-
-        // Find user via UserQueryService, which delegates exception handling to UserValidator
-        userQueryService.getUserById(userId); // Validate user exists
-        return notificationRepository.countByUserUserIdAndIsRead(userId, false);
-    }
-
-    @Override
-    @Transactional
-    public MessageResponseDTO deleteNotification(Long notificationId) {
-
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationNotFoundException("Notification not found with ID: " + notificationId));
-
-        notificationRepository.delete(notification);
-
-        return new MessageResponseDTO("Notification deleted successfully");
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public NotificationResponseDTO getNotificationDTOById(Long notificationId) {
-
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationNotFoundException("Notification not found with ID: " + notificationId));
-
-        return new NotificationResponseDTO(notification);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public NotificationListResponseDTO getAllNotifications(String token) {
 
@@ -156,19 +50,24 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(NotificationResponseDTO::new)
                 .collect(Collectors.toList());
 
-        long unreadCount = notificationRepository.countByUserUserIdAndIsRead(user.getUserId(), false);
+        long unreadCount = notificationRepository.countByUserUserIdAndRead(user.getUserId(), false);
 
         return new NotificationListResponseDTO(notificationDTOs, (int) unreadCount);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public NotificationListResponseDTO getUnreadNotificationDTOsByUserId(Long userId) {
+    public NotificationListResponseDTO getUnreadNotifications(String token) {
 
-        // Find user via UserQueryService, which delegates exception handling to UserValidator
-        userQueryService.getUserById(userId);
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
 
-        List<Notification> notifications = notificationRepository.findByUserUserIdAndIsRead(userId, false);
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserByPhone(phoneNumber);
+
+        // Query to filter all the unread notifications of the user.
+        List<Notification> notifications = notificationRepository.findByUserUserIdAndRead(user.getUserId(), false);
+
+        // Map the notifications to DTO response and count the unread notifications.
         List<NotificationResponseDTO> notificationDTOs = notifications.stream()
                 .map(NotificationResponseDTO::new)
                 .collect(Collectors.toList());
@@ -176,5 +75,80 @@ public class NotificationServiceImpl implements NotificationService {
         long unreadCount = notifications.size();
 
         return new NotificationListResponseDTO(notificationDTOs, (int) unreadCount);
+    }
+    
+    @Override
+    @Transactional
+    public MessageResponseDTO markNotificationAsRead(Long notificationId, String token) {
+
+        // Validate the notification ownership before marking it as read.
+        Notification notification = validateNotificationOwnership(notificationId, token);
+
+        // Mark the notification as read.
+        notification.setRead(true);
+
+        return new MessageResponseDTO("Notification marked as read");
+    }
+
+    @Override
+    @Transactional
+    public int markAllNotificationsAsRead(String token) {
+
+        // Get the phone number from the current token.
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+        // Find the user through the UserQueryService.
+        User user =  userQueryService.getUserByPhone(phoneNumber);
+
+        // Use a custom query to mark all unread notifications as read for the given user.
+        return notificationRepository.markAllAsReadByUser(user);
+    }
+
+    @Override
+    @Transactional
+    public void createNotification(User user, String message) {
+
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setMessage(message);
+        notification.setRead(false);
+        notification.setCreatedAt(LocalDateTime.now());
+
+        // Persist the notification in the database.
+        notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public MessageResponseDTO deleteNotification(Long notificationId, String token) {
+
+        // Validate the notification ownership before deleting it.
+        Notification notification = validateNotificationOwnership(notificationId, token);
+
+        notificationRepository.delete(notification);
+
+        return new MessageResponseDTO("Notification deleted successfully");
+    }
+
+    // Helper method.
+    private Notification validateNotificationOwnership(Long notificationId, String token) {
+
+        // Get the phone number from the current token.
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+        // Find the user through the UserQueryService.
+        User user = userQueryService.getUserByPhone(phoneNumber);
+
+        // Check if the notification exists in the database.
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotificationNotFoundException("Notification not found with ID: " + notificationId));
+
+        // Check ownership and throws exception if the user does not own the notification.
+        if (!notification.getUser().getUserId().equals(user.getUserId())) {
+            throw new NotificationAccessDeniedException("Access denied: user " + user.getUserId() +
+                    " tried to access notification " + notificationId + " without ownership.");
+        }
+
+        return notification;
     }
 }
