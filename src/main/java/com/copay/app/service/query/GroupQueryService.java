@@ -45,6 +45,7 @@ public class GroupQueryService {
 
         User user = userQueryService.getUserByPhone(phoneNumber);
 
+        // Validates if the user is the group creator.
         groupValidator.validateGroupCreator(group, user.getUserId());
     }
 
