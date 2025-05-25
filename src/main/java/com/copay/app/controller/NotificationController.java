@@ -16,17 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final JwtService jwtService;
-    private final UserQueryService userQueryService;
 
-    public NotificationController(NotificationService notificationService, JwtService jwtService, UserQueryService userQueryService) {
+    public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.jwtService = jwtService;
-        this.userQueryService = userQueryService;
     }
 
     /**
-     * Get all notifications for the authenticated user
+     * Get all notifications for the logged user
      *
      * @return ResponseEntity containing a list of notifications
      */
@@ -52,24 +48,9 @@ public class NotificationController {
         // Get the token from the SecurityContextHolder.
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
-        Long userId = userQueryService.getUserByPhone(phoneNumber).getUserId();
+        NotificationListResponseDTO notificationListResponseDTO = notificationService.getUnreadNotifications(token);
 
-        NotificationListResponseDTO notifications = notificationService.getUnreadNotificationDTOsByUserId(userId);
-        return ResponseEntity.ok(notifications);
-    }
-
-    /**
-     * Get a specific notification by ID
-     *
-     * @param notificationId ID of the notification to retrieve
-     * @return ResponseEntity containing the notification
-     */
-    @GetMapping("/{notificationId}")
-    public ResponseEntity<NotificationResponseDTO> getNotificationById(@PathVariable Long notificationId) {
-
-        NotificationResponseDTO notification = notificationService.getNotificationDTOById(notificationId);
-        return ResponseEntity.ok(notification);
+        return ResponseEntity.ok(notificationListResponseDTO);
     }
 
     /**
@@ -78,14 +59,15 @@ public class NotificationController {
      * @param notificationId ID of the notification to mark as read
      * @return ResponseEntity containing the updated notification
      */
-    @PutMapping("/{notificationId}/read")
-    public ResponseEntity<NotificationResponseDTO> markNotificationAsRead(@PathVariable Long notificationId) {
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<MessageResponseDTO> markNotificationAsRead(@PathVariable Long notificationId) {
 
-        notificationService.markNotificationAsRead(notificationId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-        NotificationResponseDTO notification = notificationService.getNotificationDTOById(notificationId);
+        MessageResponseDTO messageResponseDTO = notificationService.markNotificationAsRead(notificationId, token);
 
-        return ResponseEntity.ok(notification);
+        return ResponseEntity.ok(messageResponseDTO);
     }
 
     /**
@@ -93,7 +75,7 @@ public class NotificationController {
      *
      * @return ResponseEntity containing a success message
      */
-    @PutMapping("/read-all")
+    @PatchMapping("/read-all")
     public ResponseEntity<MessageResponseDTO> markAllNotificationsAsRead() {
 
         // Get the token from the SecurityContextHolder.
@@ -113,7 +95,10 @@ public class NotificationController {
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<MessageResponseDTO> deleteNotification(@PathVariable Long notificationId) {
 
-        MessageResponseDTO messageResponseDTO =  notificationService.deleteNotification(notificationId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        MessageResponseDTO messageResponseDTO =  notificationService.deleteNotification(notificationId, token);
 
         return ResponseEntity.ok(messageResponseDTO);
     }
