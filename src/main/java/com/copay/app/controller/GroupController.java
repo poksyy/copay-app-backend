@@ -63,7 +63,7 @@ public class GroupController {
 		if (getGroupResponseDTO.getGroups() == null || getGroupResponseDTO.getGroups().isEmpty()) {
 			return ResponseEntity.noContent().build();
 		}
-		
+
 		return ResponseEntity.ok(getGroupResponseDTO);
 	}
 
