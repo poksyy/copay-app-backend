@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ValidationErrorResponse> handleUserPermissionException(UserPermissionException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"You can only update your own password.", HttpStatus.FORBIDDEN.value());
+				"You can only update your own account information.", HttpStatus.FORBIDDEN.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
