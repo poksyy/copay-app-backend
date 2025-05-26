@@ -2,9 +2,7 @@ package com.copay.app.service.expense;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
-import com.copay.app.dto.expense.response.DebtorResponseDTO;
-import com.copay.app.dto.expense.response.ExpenseResponseDTO;
-import com.copay.app.dto.expense.response.UserExpenseDTO;
+import com.copay.app.dto.expense.response.*;
 import com.copay.app.entity.Expense;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
@@ -164,4 +162,21 @@ public class ExpenseServiceImpl implements ExpenseService {
         );
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TotalDebtResponseDTO getTotalUserDebt(Long userId) {
+
+        Float totalDebt = userExpenseRepository.getTotalDebtByUserId(userId);
+
+        return new TotalDebtResponseDTO(totalDebt != null ? totalDebt : 0.0f);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TotalSpentResponseDTO getTotalUserSpent(Long userId) {
+
+        Float totalSpent = paymentConfirmationRepository.getTotalSpentByUserId(userId);
+
+        return new TotalSpentResponseDTO(totalSpent != null ? totalSpent : 0.0f);
+    }
 }
