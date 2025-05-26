@@ -66,10 +66,10 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional
 	public LoginResponseDTO loginUser(UserLoginRequestDTO request) {
 
-		// Find user via UserQueryService, which delegates exception handling to UserValidator.
+		// Find a user via UserQueryService, which delegates exception handling to UserValidator.
 		User user = userQueryService.getUserByPhone(request.getPhoneNumber());
 
-		// Validates if password is correct
+		// Validates if the password is correct
 		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			throw new IncorrectPasswordException("Invalid password");
 		}
@@ -105,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
 		// Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
 		userQueryService.existsUserByEmail(request.getEmail());
 
-		// Create user entity.
+		// Create a user entity.
 		User user = new User();
 		user.setUsername(request.getUsername());
 		user.setEmail(request.getEmail());
@@ -133,148 +133,164 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	@Transactional
-    public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoRequestDTO request, String token) {
+	public RegisterStepTwoResponseDTO registerStepTwo(UserRegisterStepTwoRequestDTO request, String token) {
 
-        try {
+		try {
 
-            JwtService.setCurrentContext(JwtService.TokenValidationContext.REGISTER_STEP_TWO);
+			JwtService.setCurrentContext(JwtService.TokenValidationContext.REGISTER_STEP_TWO);
 
-            jwtService.validateToken(token);
+			jwtService.validateToken(token);
 
-			// Checks if phone number exists via UserQueryService, which delegates exception handling to UserValidator.
+			// Checks if a phone number exists via UserQueryService, which delegates exception handling to UserValidator.
 			userQueryService.existsUserByPhone(request.getPhoneNumber());
 
-            // Get the email from the current token.
-            String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
+			// Get the email from the current token.
+			String emailTemporaryToken = jwtService.getUserIdentifierFromToken(token);
 
-            // Find user by email through the temporal token.
-            User user = userRepository.findByEmail(emailTemporaryToken)
-                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+			// Find a user by email through the temporal token.
+			User user = userRepository.findByEmail(emailTemporaryToken)
+					.orElseThrow(() -> new UserNotFoundException("User not found"));
 
-            // Update the user's phone number and mark user registration as completed.
+			// Update the user's phone number and mark user registration as completed.
 			user.setPhonePrefix(request.getPhonePrefix());
 			user.setPhoneNumber(request.getPhoneNumber());
-            user.setCompleted(true);
+			user.setCompleted(true);
 
-            userRepository.save(user);
+			userRepository.save(user);
 
-            // Revoke the step-one token.
-            jwtService.revokeToken(token);
+			// Revoke the step-one token.
+			jwtService.revokeToken(token);
 
-            // Create the 1 hour with the phone number.
-            String jwtToken = jwtService.generateToken(request.getPhoneNumber());
-            long expiresIn = jwtService.getExpirationTime(true);
+			// Create the 1 hour with the phone number.
+			String jwtToken = jwtService.generateToken(request.getPhoneNumber());
+			long expiresIn = jwtService.getExpirationTime(true);
 
-            // Return the token trough the DTO.
-            return new RegisterStepTwoResponseDTO(
-                    jwtToken,
-                    expiresIn,
-                    user.getUserId(),
-                    user.getPhoneNumber(),
-                    user.getUsername(),
-                    user.getEmail());
-        } finally {
+			// Return the token through the DTO.
+			return new RegisterStepTwoResponseDTO(
+					jwtToken,
+					expiresIn,
+					user.getUserId(),
+					user.getPhoneNumber(),
+					user.getUsername(),
+					user.getEmail());
+		} finally {
 
-            JwtService.clearContext();
-        }
-
-    }
+			JwtService.clearContext();
+		}
+	}
 
 	@Override
 	@Transactional
-    public void logout(String token) {
+	public void logout(String token) {
 
-        try {
+		try {
 
-            JwtService.setCurrentContext(JwtService.TokenValidationContext.LOGOUT);
+			JwtService.setCurrentContext(JwtService.TokenValidationContext.LOGOUT);
 
-            // Revoke the token when the user logs out
-            jwtService.revokeToken(token);
+			// Revoke the token when the user logs out
+			jwtService.revokeToken(token);
 
-        } finally {
+		} finally {
 
-            JwtService.clearContext();
-        }
-    }
+			JwtService.clearContext();
+		}
+	}
 
-    @Override
-    @Transactional
-    public LoginResponseDTO loginWithGoogle(GoogleLoginRequestDTO request) {
-        try {
-            // Decode and verify the Google ID token
-            Jwt jwt = jwtDecoder.decode(request.getIdToken());
+	@Override
+	@Transactional
+	public LoginResponseDTO loginWithGoogle(GoogleLoginRequestDTO request) {
 
-            // Extract user information from the token
-            String googleId = jwt.getSubject();
-            String email = jwt.getClaimAsString("email");
-            String name = jwt.getClaimAsString("name");
+		// Decode and verify the Google ID token.
+		Jwt jwt = jwtDecoder.decode(request.getIdToken());
 
-            // Check if user exists by googleId
-            User user = userRepository.findByGoogleId(googleId).orElse(null);
+		// Extract user information from the token
+		String googleId = jwt.getSubject();
+		String email = jwt.getClaimAsString("email");
+		String name = jwt.getClaimAsString("name");
 
-            if (user == null) {
-                // User doesn't exist, create a new one
-                user = new User();
-                user.setGoogleId(googleId);
-                user.setEmail(email);
-                user.setUsername(name);
+		// Try to find user by Google Ads.
+		User user = userRepository.findByGoogleId(googleId).orElse(null);
 
-                // Generate a random password as placeholder for Google users
-                String randomPassword = UUID.randomUUID().toString();
-                user.setPassword(passwordEncoder.encode(randomPassword));
+		if (user == null) {
+			// Try to find user by email
+			user = userRepository.findByEmail(email).orElse(null);
 
-                user.setCreatedAt(LocalDateTime.now());
-                user.setCompleted(false); // User needs to complete registerStepTwo
+			if (user != null) {
+				if (user.getGoogleId() == null) {
+					// Associate existing user with Google account
+					user.setGoogleId(googleId);
+					userRepository.save(user);
+				} else {
+					// Conflict: email already linked to another Google account
+					throw new OAuth2AuthenticationException("This email is already linked to another Google account.");
+				}
+			}
+		}
 
-                userRepository.save(user);
+		if (user == null) {
+			// Create a new Google user (force phone input later)
+			user = new User();
+			user.setGoogleId(googleId);
+			user.setEmail(email);
+			user.setUsername(name);
 
-                // Generate a temporary token for registerStepTwo
-                String tempToken = jwtService.generateTemporaryToken(email);
-                long expiresIn = jwtService.getExpirationTime(false);
+			// Force no phone number on first Google login
+			user.setPhoneNumber(null);
+			user.setPhonePrefix(null);
+			user.setCompleted(false);
 
-                return new LoginResponseDTO(
-                    tempToken,
-                    expiresIn,
-                    user.getUserId(),
-                    null, // phoneNumber is null
-                    null, // phonePrefix is null
-                    user.getUsername(),
-                    user.getEmail(),
-                    "false" // isLogin is false because registration is not completed
-                );
-            } else if (!user.isCompleted()) {
-                // User exists but hasn't completed registration
-                String tempToken = jwtService.generateTemporaryToken(email);
-                long expiresIn = jwtService.getExpirationTime(false);
+			// Placeholder password
+			String randomPassword = UUID.randomUUID().toString();
+			user.setPassword(passwordEncoder.encode(randomPassword));
 
-                return new LoginResponseDTO(
-                    tempToken,
-                    expiresIn,
-                    user.getUserId(),
-                    user.getPhoneNumber(),
-                    user.getPhonePrefix(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    "false" // isLogin is false because registration is not completed
-                );
-            } else {
-                // User exists and has completed registration
-                String jwtToken = jwtService.generateToken(user.getPhoneNumber());
-                long expiresIn = jwtService.getExpirationTime(true);
+			user.setCreatedAt(LocalDateTime.now());
 
-                return new LoginResponseDTO(
-                    jwtToken,
-                    expiresIn,
-                    user.getUserId(),
-                    user.getPhoneNumber(),
-                    user.getPhonePrefix(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    "true" // isLogin is true
-                );
-            }
-        } catch (JwtException e) {
-            throw new OAuth2AuthenticationException("Invalid Google ID token");
-        }
-    }
+			userRepository.save(user);
+
+			// Generate temporary token and redirect to registerStepTwo
+			String tempToken = jwtService.generateTemporaryToken(email);
+			long expiresIn = jwtService.getExpirationTime(false);
+
+			return new LoginResponseDTO(
+					tempToken,
+					expiresIn,
+					user.getUserId(),
+					null,
+					null,
+					user.getUsername(),
+					user.getEmail(),
+					"false"
+			);
+		}
+
+		if (!user.isCompleted()) {
+			String tempToken = jwtService.generateTemporaryToken(email);
+			long expiresIn = jwtService.getExpirationTime(false);
+
+			return new LoginResponseDTO(
+					tempToken,
+					expiresIn,
+					user.getUserId(),
+					user.getPhoneNumber(),
+					user.getPhonePrefix(),
+					user.getUsername(),
+					user.getEmail(),
+					"false"
+			);
+		}
+
+		String jwtToken = jwtService.generateToken(user.getPhoneNumber());
+		long expiresIn = jwtService.getExpirationTime(true);
+
+		return new LoginResponseDTO(
+				jwtToken,
+				expiresIn,
+				user.getUserId(),
+				user.getPhoneNumber(),
+				user.getPhonePrefix(),
+				user.getUsername(),
+				user.getEmail(),
+				"true"
+		);
+	}
 }
