@@ -60,24 +60,24 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
-	// HTTP 400: Phone number already exists.
+	// HTTP 409: Phone number already exists.
 	@ExceptionHandler(PhoneAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handlePhoneAlreadyExists(PhoneAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number already in use. Please enter a different one.", HttpStatus.BAD_REQUEST.value());
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+				"Phone number already in use. Please enter a different one.", HttpStatus.CONFLICT.value());
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
-	// HTTP 400: Email already exists.
+	// HTTP 409: Email already exists.
 	@ExceptionHandler(EmailAlreadyExistsException.class)
 	public ResponseEntity<ValidationErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
 				"Email already in use. Please enter a different one."
-				, HttpStatus.BAD_REQUEST.value());
+				, HttpStatus.CONFLICT.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
 	// HTTP 403: User is trying to modify the password of another user.
@@ -100,15 +100,15 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
-	// HTTP 400: User uniqueness violation (Phone number and email already exist).
+	// HTTP 409: User uniqueness violation (Phone number and email already exist).
 	@ExceptionHandler(UserUniquenessException.class)
 
 	public ResponseEntity<ValidationErrorResponse> handleUserUniquenessException(UserUniquenessException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Phone number and email already exist.", HttpStatus.BAD_REQUEST.value());
+				"Phone number and email already exist.", HttpStatus.CONFLICT.value());
 		
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
 	// HTTP 404: User not found with the provided ID.
@@ -163,6 +163,32 @@ public class GlobalExceptionHandler {
 		);
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+	}
+
+	// HTTP 403: Attempt to create a group on behalf of another user.
+	@ExceptionHandler(InvalidGroupCreationException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidGroupCreatioNException(InvalidGroupCreationException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+				List.of(ex.getMessage()),
+				"You are not authorized to create a group on behalf of another user.",
+				HttpStatus.FORBIDDEN.value()
+		);
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+	}
+
+	// HTTP 400: One payer must be selected when creating the group.
+	@ExceptionHandler(InvalidPayerSelectionException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidPayerSelectionException(InvalidPayerSelectionException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+				List.of(ex.getMessage()),
+				"Exactly one payer must be selected to create a group, either registered or external.",
+				HttpStatus.BAD_REQUEST.value()
+		);
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 	
 	// HTTP 404: Group not found with the provided ID.
