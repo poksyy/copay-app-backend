@@ -3,8 +3,9 @@ package com.copay.app.controller;
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
 import com.copay.app.dto.expense.response.ExpenseResponseDTO;
+import com.copay.app.dto.expense.response.TotalDebtResponseDTO;
+import com.copay.app.dto.expense.response.TotalSpentResponseDTO;
 import com.copay.app.dto.expense.response.UserExpenseDTO;
-import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.service.ValidationService;
 import com.copay.app.service.expense.ExpenseService;
 import com.copay.app.validation.ValidationErrorResponse;
@@ -64,7 +65,9 @@ public class ExpenseController {
     // Endpoint to user expenses of one group.
     @GetMapping("/{groupId}/user-expenses")
     public ResponseEntity<List<UserExpenseDTO>> getUserExpensesByGroup(@PathVariable Long groupId) {
+
         List<UserExpenseDTO> userExpenses = expenseService.getAllUserExpensesByGroupId(groupId);
+
         return ResponseEntity.ok(userExpenses);
     }
 
@@ -75,5 +78,22 @@ public class ExpenseController {
        MessageResponseDTO messageResponseDTO = expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
 
         return ResponseEntity.ok("messageResponseDTO");
+    }
+
+    // Endpoint to get the total debt amount for a user across all groups
+    @GetMapping("/user/{userId}/total-debt")
+    public ResponseEntity<TotalDebtResponseDTO> getTotalUserDebt(@PathVariable Long userId) {
+
+        TotalDebtResponseDTO totalDebtResponseDTO = expenseService.getTotalUserDebt(userId);
+        return ResponseEntity.ok(totalDebtResponseDTO);
+    }
+
+    // Endpoint to get the total amount spent by a user across all groups
+    @GetMapping("/user/{userId}/total-spent")
+    public ResponseEntity<TotalSpentResponseDTO> getTotalUserSpent(@PathVariable Long userId) {
+
+        TotalSpentResponseDTO totalSpentResponseDTO = expenseService.getTotalUserSpent(userId);
+
+        return ResponseEntity.ok(totalSpentResponseDTO);
     }
 }
