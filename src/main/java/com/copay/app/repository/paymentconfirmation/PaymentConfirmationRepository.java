@@ -92,4 +92,12 @@ public interface PaymentConfirmationRepository extends JpaRepository<PaymentConf
         WHERE p.isConfirmed = false AND p.userExpense.expenseId.groupId.groupId = :groupId
     """)
     List<ListUnconfirmedPaymentConfirmationResponseDTO> findUnconfirmedByGroupId(@Param("groupId") Long groupId);
+
+    @Query("""
+        SELECT SUM(p.confirmationAmount)
+        FROM PaymentConfirmation p
+        WHERE p.isConfirmed = true 
+        AND p.userExpense.debtorUser.userId = :userId
+    """)
+    Float getTotalSpentByUserId(@Param("userId") Long userId);
 }
