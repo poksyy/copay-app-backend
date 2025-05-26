@@ -15,21 +15,21 @@ import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
 
 public interface UserService {
 
-    UserResponseDTO getUserByIdDTO(Long id);
+    List<UserResponseDTO> getAllUsers();
+
+    UserResponseDTO getUserById(Long id);
 
     UserResponseDTO getUserByPhoneDTO(String phoneNumber);
 
     UserResponseDTO createUser(CreateUserRequestDTO request);
 
-    UserResponseDTO updateUser(Long id, UpdateUserRequestDTO request);
-
-    MessageResponseDTO deleteUser(Long userId);
-
-    List<UserResponseDTO> getAllUsers();
+    UserResponseDTO updateUserById(Long id, UpdateUserRequestDTO request);
 
     UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request);
 
     PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request);
 
     EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request);
+
+    MessageResponseDTO deleteUser(Long userId);
 }

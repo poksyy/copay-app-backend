@@ -5,6 +5,8 @@ import java.util.List;
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.user.request.*;
 import com.copay.app.service.user.UserService;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,23 +31,20 @@ public class UserController {
 		this.userService = userService;
 	}
 
-	// Handles user creation with validation.
-	@PostMapping
-	public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequestDTO createUserRequestDTO) {
+	// Retrieves all users.
+	@GetMapping
+	public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
 
-		UserResponseDTO userResponseDTO = userService.createUser(createUserRequestDTO);
+		List<UserResponseDTO> userResponseDTOs = userService.getAllUsers();
 
-		return ResponseEntity.ok(userResponseDTO);
+		return ResponseEntity.ok(userResponseDTOs);
 	}
 
 	// Retrieves a user by their ID and returns it as a DTO.
 	@GetMapping("/{id}")
-	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id, @Valid @ModelAttribute GetUserByIdRequestDTO getUserByIdRequestDTO) {
+	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable @NotNull(message = "User ID must not be null") Long id) {
 
-		// The userId is manually added to the DTO for validation.
-		getUserByIdRequestDTO.setUserId(id);
-
-		UserResponseDTO userResponseDTO = userService.getUserByIdDTO(id);
+		UserResponseDTO userResponseDTO = userService.getUserById(id);
 
 		return ResponseEntity.ok(userResponseDTO);
 	}
@@ -62,36 +61,24 @@ public class UserController {
 		return ResponseEntity.ok(userResponseDTO);
 	}
 
+	// Handles user creation with validation.
+	@PostMapping
+	public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequestDTO createUserRequestDTO) {
+
+		UserResponseDTO userResponseDTO = userService.createUser(createUserRequestDTO);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
+	}
+
 	// Updates a user with the provided ID.
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateUserById(@PathVariable Long id, @Valid @RequestBody UpdateUserRequestDTO updateUserRequestDTO) {
 
-		UserResponseDTO userResponseDTO = userService.updateUser(id, updateUserRequestDTO);
+		UserResponseDTO userResponseDTO = userService.updateUserById(id, updateUserRequestDTO);
 
 		return ResponseEntity.ok(userResponseDTO);
 	}
 
-	// Deletes a user by their ID and returns a response DTO (Used in the Controller).
-	@DeleteMapping("/{id}")
-	public ResponseEntity<MessageResponseDTO> deleteUser(@PathVariable Long id, @Valid @ModelAttribute DeleteUserRequestDTO deleteUserRequestDTO) {
-
-		// The userId is manually added to the DTO for validation.
-		deleteUserRequestDTO.setUserId(id);
-
-		MessageResponseDTO messageResponseDTO = userService.deleteUser(id);
-
-		return ResponseEntity.ok(messageResponseDTO);
-	}
-
-	// Retrieves all users.
-	@GetMapping
-	public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-
-		List<UserResponseDTO> userResponseDTOs = userService.getAllUsers();
-
-		return ResponseEntity.ok(userResponseDTOs);
-	}
-	
 	// Updates only the username of a user by ID.
 	@PutMapping("/edit-username/{id}")
 	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO updateUsernameDTO) {
@@ -122,4 +109,12 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
+	// Deletes a user by their ID and returns a response DTO (Used in the Controller).
+	@DeleteMapping("/{id}")
+	public ResponseEntity<MessageResponseDTO> deleteUser(@PathVariable @NotNull(message = "User ID must not be null") Long id) {
+
+		MessageResponseDTO messageResponseDTO = userService.deleteUser(id);
+
+		return ResponseEntity.ok(messageResponseDTO);
+	}
 }

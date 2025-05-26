@@ -19,7 +19,7 @@ public interface GroupService {
 
 	GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId);
 
-	GroupResponseDTO createGroup(CreateGroupRequestDTO request);
+	GroupResponseDTO createGroup(CreateGroupRequestDTO request, String token);
 
 	MessageResponseDTO updateGroup(Long groupId, Map<String, Object> fields, String token);
 

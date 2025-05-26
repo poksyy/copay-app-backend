@@ -7,6 +7,7 @@ public class UserResponseDTO {
 	private Long id;
 	private String username;
 	private String email;
+	private String phonePrefix;
 	private String phoneNumber;
 
 	// Constructor
@@ -15,6 +16,7 @@ public class UserResponseDTO {
 		this.username = user.getUsername();
 		this.email = user.getEmail();
 		this.phoneNumber = user.getPhoneNumber();
+		this.phonePrefix = user.getPhonePrefix();
 	}
 
 	// Getters and Setters
@@ -40,6 +42,14 @@ public class UserResponseDTO {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getPhonePrefix() {
+		return phonePrefix;
+	}
+
+	public void setPhonePrefix(String phonePrefix) {
+		this.phonePrefix = phonePrefix;
 	}
 
 	public String getPhoneNumber() {

@@ -2,11 +2,7 @@ package com.copay.app.controller;
 
 import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.notification.response.NotificationListResponseDTO;
-import com.copay.app.dto.notification.response.NotificationResponseDTO;
-import com.copay.app.service.JwtService;
 import com.copay.app.service.notification.NotificationService;
-import com.copay.app.service.query.UserQueryService;
-import jakarta.mail.Message;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

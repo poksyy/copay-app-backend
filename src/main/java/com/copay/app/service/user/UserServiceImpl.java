@@ -43,6 +43,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getAllUsers() {
+
+        List<User> users = userRepository.findAll();
+
+        return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserById(Long id) {
+
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
+
+        return new UserResponseDTO(user);
+    }
+
+    @Override
     @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO request) {
 
@@ -57,6 +76,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUsername(request.getUsername());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setPhonePrefix(request.getPhonePrefix());
         newUser.setCompleted(true);
 
         User savedUser = userRepository.save(newUser);
@@ -66,19 +86,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponseDTO getUserByIdDTO(Long id) {
-
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
-        User user = userQueryService.getUserById(id);
-
-        return new UserResponseDTO(user);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public UserResponseDTO getUserByPhoneDTO(String phoneNumber) {
 
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserByPhone(phoneNumber);
 
         return new UserResponseDTO(user);
@@ -87,18 +97,26 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     // TODO: USE REFLECTION UTILS IN THIS METHOD TO UPDATE EACH USER ENTITY FIELD THROUGH 1 SINGLE ENDPOINT
-    public UserResponseDTO updateUser(Long id, UpdateUserRequestDTO request) {
+    public UserResponseDTO updateUserById(Long id, UpdateUserRequestDTO request) {
 
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
 
+        // Create a temporary user only for validation purposes.
+
+        User tempUser = new User();
+        tempUser.setUserId(user.getUserId());
+        tempUser.setEmail(request.getEmail());
+        tempUser.setPhoneNumber(request.getPhoneNumber());
+
+        // Validate user credentials availability (only unique fields in database).
+        userAvailabilityServiceImpl.checkUserExistence(tempUser);
+
+        // Apply all updates to the managed entity after successful validation.
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        // Validate user credentials availability (only unique fields in database).
-        userAvailabilityServiceImpl.checkUserExistence(user);
 
         User updatedUser = userRepository.save(user);
 
@@ -107,30 +125,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public MessageResponseDTO deleteUser(Long id) {
-
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
-        User user = userQueryService.getUserById(id);
-
-        userRepository.delete(user);
-
-        return new MessageResponseDTO("Your account has been deleted successfully.");
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UserResponseDTO> getAllUsers() {
-
-        List<User> users = userRepository.findAll();
-
-        return users.stream().map(UserResponseDTO::new).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
     public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
 
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
 
         user.setUsername(request.getUsername());
@@ -144,7 +141,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
 
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
 
         // Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
@@ -161,7 +158,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
 
-        // Find user via UserQueryService, which delegates exception handling to UserValidator.
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserById(id);
 
         // Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
@@ -172,5 +169,17 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.save(user);
 
         return new EmailResponseDTO(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public MessageResponseDTO deleteUser(Long id) {
+
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserById(id);
+
+        userRepository.delete(user);
+
+        return new MessageResponseDTO("Your account has been deleted successfully.");
     }
 }

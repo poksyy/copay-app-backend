@@ -20,6 +20,7 @@ import com.copay.app.service.notification.NotificationService;
 import com.copay.app.service.query.GroupQueryService;
 import com.copay.app.service.query.UserQueryService;
 import org.springframework.data.util.ReflectionUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,10 +99,20 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional(readOnly = true)
 	public GetGroupResponseDTO getGroupsByUserId(Long userId) {
 
+		// Find the user through the UserQueryService.
+		userQueryService.getUserById(userId);
+
 		// Fetch groups where the user is a member.
 		List<GroupMember> groupMembers = groupMemberRepository.findByIdUserUserId(userId);
 
-		// Transform GroupMembers into unique groups and map data for response.
+		List<Group> availableGroups = groupRepository.findGroupsByUserId(userId);
+
+		// If a user has no groups, return an empty DTO.
+		if (availableGroups.isEmpty()) {
+			return new GetGroupResponseDTO();
+		}
+
+			// Transform GroupMembers into unique groups and map data for response.
 		List<Group> groups = groupMembers.stream().map(gm -> gm.getId().getGroup()).distinct()
 				.toList();
 
@@ -143,7 +154,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional(readOnly = true)
 	public GroupResponseDTO getGroupByGroupId(Long groupId) {
 
-		// Find the group by ID or throw exception if not found.
+		// Find the group by ID or throw an exception if not found.
 		Group group = groupRepository.findById(groupId)
 				.orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
 
@@ -170,7 +181,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional(readOnly = true)
 	public GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId) {
 
-		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		List<RegisteredMemberDTO> registeredMembers = group.getRegisteredMembers().stream()
@@ -186,10 +197,22 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public GroupResponseDTO createGroup(CreateGroupRequestDTO request) {
+	public GroupResponseDTO createGroup(CreateGroupRequestDTO request, String token) {
 
-		// Find user via UserQueryService, which delegates exception handling to UserValidator.
+		// Extract the phone number from the token.
+		String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		User userFromToken = userQueryService.getUserByPhone(phoneNumber);
+
+		// Find a user via UserQueryService, which delegates exception handling to UserValidator.
 		User creator = userQueryService.getUserById(request.getCreatedBy());
+
+		if (!userFromToken.getUserId().equals(request.getCreatedBy())) {
+			throw new InvalidGroupCreationException(
+					"User with ID " + userFromToken.getUserId() +
+							" is not authorized to create a group for user ID " + request.getCreatedBy() + "."
+			);
+		}
 
 		// Validate only one payer (only one can have Payer=true)
 		boolean hasRegisteredPayer = request.getInvitedRegisteredMembers().stream().anyMatch(InvitedRegisteredMemberDTO::isCreditor);
@@ -287,6 +310,7 @@ public class GroupServiceImpl implements GroupService {
 					.orElseThrow(() -> new UserNotFoundException("Registered creditor user with phone " + phone + " not found"));
 		} else {
 
+			// TODO: THIS CODE IS PROBABLY USELESS, NEEDS A CHECK
 			// Get the external payer member from the persisted group by name.
 			String payerName = payerExternal.get().getName();
 			paidByExternalMember = group.getExternalMembers().stream()
@@ -470,13 +494,13 @@ public class GroupServiceImpl implements GroupService {
 		// Iterate through the incoming member DTOs.
 		for (ExternalMemberDTO dto : request.getInvitedExternalMembers()) {
 
-			// Get existing member or create a new one.
+			// Get an existing member or create a new one.
 			ExternalMember member = resolveOrCreateExternalMember(dto, group);
 
 			// Update the member's name.
 			member.setName(dto.getName());
 
-			// Add member to the group if it's not already present.
+			// Add a member to the group if it's not already present.
 			group.getExternalMembers().add(member);
 		}
 
