@@ -15,9 +15,9 @@ import com.copay.app.dto.user.response.profile.EmailResponseDTO;
 import com.copay.app.dto.user.response.profile.PhoneNumberResponseDTO;
 import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
-import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
-import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
-import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
+import com.copay.app.dto.user.request.profile.UpdateEmailRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdatePhoneNumberRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdateUsernameRequestDTO;
 
 import jakarta.validation.Valid;
 
@@ -82,39 +82,39 @@ public class UserController {
 
 	// Updates only the username of a user by ID.
 	@PutMapping("/edit-username/{id}")
-	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO updateUsernameDTO) {
+	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameRequestDTO updateUsernameRequestDTO) {
 
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 	    // Delegate the username update to the service.
-	    UsernameResponseDTO response = userService.updateUsername(id, updateUsernameDTO, token);
+	    UsernameResponseDTO response = userService.updateUsername(id, updateUsernameRequestDTO, token);
 
 	    return ResponseEntity.ok(response);
 	}
 	
 	// Updates only the phone number of a user by ID.
 	@PutMapping("/edit-phone/{id}")
-	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO updatePhoneNumberDTO) {
+	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberRequestDTO updatePhoneNumberRequestDTO) {
 
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 	    // Delegate the phone number update to the service.
-	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, updatePhoneNumberDTO, token);
+	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, updatePhoneNumberRequestDTO, token);
 
 	    return ResponseEntity.ok(response);
 	}
 
 	// Updates only the email of a user by ID.
 	@PutMapping("/edit-email/{id}")
-	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailDTO updateEmailDTO) {
+	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailRequestDTO updateEmailRequestDTO) {
 
 		// Get the token from the SecurityContextHolder.
 		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// Delegate the email update to the service.
-		EmailResponseDTO response = userService.updateEmail(id, updateEmailDTO, token);
+		EmailResponseDTO response = userService.updateEmail(id, updateEmailRequestDTO, token);
 
 		return ResponseEntity.ok(response);
 	}

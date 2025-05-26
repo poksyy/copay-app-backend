@@ -2,16 +2,19 @@ package com.copay.app.dto.user.request.profile;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-public class UpdatePhoneNumberDTO {
-    
+public class UpdatePhoneNumberRequestDTO {
+
+    @Pattern(regexp = "\\d+", message = "Phone number must contain only digits")
+    @Size(min = 6, max = 15, message = "Phone number must be between 6 and 15 digits")
     @NotBlank(message = "Phone number must not be null")
     private String phoneNumber;
 
-    public UpdatePhoneNumberDTO() {
+    public UpdatePhoneNumberRequestDTO() {
     }
 
-    public UpdatePhoneNumberDTO(String phoneNumber) {
+    public UpdatePhoneNumberRequestDTO(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
