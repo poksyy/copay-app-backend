@@ -55,17 +55,21 @@ public class User {
 	@OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<GroupMember> groupMembers = new HashSet<>();
 
-    // Expenses paid by this user
+    // Expenses paid by this user.
     @OneToMany(mappedBy = "paidByUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Expense> paidExpenses = new HashSet<>();
 
-    // UserExpenses where this user is the debtor
+    // UserExpenses where this user is the debtor.
     @OneToMany(mappedBy = "debtorUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserExpense> debtsOwed = new HashSet<>();
 
-    // UserExpenses where this user is the creditor
+    // UserExpenses where this user is the creditor.
     @OneToMany(mappedBy = "creditorUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserExpense> debtsReceivable = new HashSet<>();
+
+    // Notifications for this user.
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Notification> notifications = new HashSet<>();
 
 	// Constructor for fake data.
 	public User(String username, String email, String password, String phonePrefix, String phoneNumber) {
@@ -187,5 +191,13 @@ public class User {
 
 	public void setGoogleId(String googleId) {
 		this.googleId = googleId;
+	}
+	
+	public Set<Notification> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(Set<Notification> notifications) {
+		this.notifications = notifications;
 	}
 }
