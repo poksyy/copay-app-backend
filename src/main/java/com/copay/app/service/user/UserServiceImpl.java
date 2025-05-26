@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.copay.app.dto.MessageResponseDTO;
+import com.copay.app.exception.user.UserPermissionException;
+import com.copay.app.service.JwtService;
 import com.copay.app.service.query.UserQueryService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,9 @@ import com.copay.app.dto.user.response.profile.UsernameResponseDTO;
 import com.copay.app.dto.user.request.CreateUserRequestDTO;
 import com.copay.app.dto.user.response.UserResponseDTO;
 import com.copay.app.dto.user.request.UpdateUserRequestDTO;
-import com.copay.app.dto.user.request.profile.UpdateEmailDTO;
-import com.copay.app.dto.user.request.profile.UpdatePhoneNumberDTO;
-import com.copay.app.dto.user.request.profile.UpdateUsernameDTO;
+import com.copay.app.dto.user.request.profile.UpdateEmailRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdatePhoneNumberRequestDTO;
+import com.copay.app.dto.user.request.profile.UpdateUsernameRequestDTO;
 import com.copay.app.entity.User;
 import com.copay.app.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +35,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserQueryService userQueryService;
 
+    private final JwtService jwtService;
+
     // Constructor.
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           UserAvailabilityServiceImpl userAvailabilityServiceImpl, UserQueryService userQueryService) {
+                           UserAvailabilityServiceImpl userAvailabilityServiceImpl, UserQueryService userQueryService, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userAvailabilityServiceImpl = userAvailabilityServiceImpl;
         this.userQueryService = userQueryService;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -125,10 +130,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UsernameResponseDTO updateUsername(Long id, UpdateUsernameDTO request) {
+    public UsernameResponseDTO updateUsername(Long id, UpdateUsernameRequestDTO request, String token) {
 
-        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
-        User user = userQueryService.getUserById(id);
+        // Validate token ownership against the user ID
+        User user = validateUserAccess(id, token);
 
         user.setUsername(request.getUsername());
 
@@ -139,12 +144,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberDTO request) {
+    public PhoneNumberResponseDTO updatePhoneNumber(Long id, UpdatePhoneNumberRequestDTO request, String token) {
 
-        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
-        User user = userQueryService.getUserById(id);
+        // Validate token ownership against the user ID
+        User user = validateUserAccess(id, token);
 
-        // Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
+        // Checks if a phone number exists via UserQueryService, which delegates exception handling to UserValidator.
         userQueryService.existsUserByPhone(request.getPhoneNumber());
 
         user.setPhoneNumber(request.getPhoneNumber());
@@ -156,10 +161,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public EmailResponseDTO updateEmail(Long id, UpdateEmailDTO request) {
+    public EmailResponseDTO updateEmail(Long id, UpdateEmailRequestDTO request, String token) {
 
-        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
-        User user = userQueryService.getUserById(id);
+        // Validate token ownership against the user ID
+        User user = validateUserAccess(id, token);
 
         // Checks if email exists via UserQueryService, which delegates exception handling to UserValidator.
         userQueryService.existsUserByEmail(request.getEmail());
@@ -181,5 +186,20 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
 
         return new MessageResponseDTO("Your account has been deleted successfully.");
+    }
+
+    // Helper method to validate token ownership against the user ID.
+    private User validateUserAccess(Long id, String token) {
+        User user = userQueryService.getUserById(id);
+        String phoneNumberFromToken = jwtService.getUserIdentifierFromToken(token);
+
+        if (!user.getPhoneNumber().equals(phoneNumberFromToken)) {
+            throw new UserPermissionException(
+                    "Unauthorized access: phone number from token (" + phoneNumberFromToken +
+                            ") does not match user phone number (" + user.getPhoneNumber() + ")."
+            );
+        }
+
+        return user;
     }
 }
