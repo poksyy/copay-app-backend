@@ -8,6 +8,7 @@ import com.copay.app.service.user.UserService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.copay.app.dto.user.response.profile.EmailResponseDTO;
@@ -83,8 +84,11 @@ public class UserController {
 	@PutMapping("/edit-username/{id}")
 	public ResponseEntity<?> updateUsername(@PathVariable Long id, @Valid @RequestBody UpdateUsernameDTO updateUsernameDTO) {
 
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
 	    // Delegate the username update to the service.
-	    UsernameResponseDTO response = userService.updateUsername(id, updateUsernameDTO);
+	    UsernameResponseDTO response = userService.updateUsername(id, updateUsernameDTO, token);
 
 	    return ResponseEntity.ok(response);
 	}
@@ -93,8 +97,11 @@ public class UserController {
 	@PutMapping("/edit-phone/{id}")
 	public ResponseEntity<?> updatePhoneNumber(@PathVariable Long id, @Valid @RequestBody UpdatePhoneNumberDTO updatePhoneNumberDTO) {
 
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
 	    // Delegate the phone number update to the service.
-	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, updatePhoneNumberDTO);
+	    PhoneNumberResponseDTO response = userService.updatePhoneNumber(id, updatePhoneNumberDTO, token);
 
 	    return ResponseEntity.ok(response);
 	}
@@ -103,8 +110,11 @@ public class UserController {
 	@PutMapping("/edit-email/{id}")
 	public ResponseEntity<?> updateEmail(@PathVariable Long id, @Valid @RequestBody UpdateEmailDTO updateEmailDTO) {
 
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
 		// Delegate the email update to the service.
-		EmailResponseDTO response = userService.updateEmail(id, updateEmailDTO);
+		EmailResponseDTO response = userService.updateEmail(id, updateEmailDTO, token);
 
 		return ResponseEntity.ok(response);
 	}
