@@ -7,6 +7,7 @@ import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.group.request.*;
 
 import com.copay.app.service.group.GroupService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,6 +59,11 @@ public class GroupController {
 
 		GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
 
+		// Check if the group list is empty and return 204 No Content if so.
+		if (getGroupResponseDTO.getGroups() == null || getGroupResponseDTO.getGroups().isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
+		
 		return ResponseEntity.ok(getGroupResponseDTO);
 	}
 
@@ -77,9 +83,12 @@ public class GroupController {
 	@PostMapping
 	public ResponseEntity<?> createGroup(@RequestBody @Valid CreateGroupRequestDTO createGroupRequestDTO) {
 
-		GroupResponseDTO groupResponseDTO = groupService.createGroup(createGroupRequestDTO);
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		return ResponseEntity.ok(groupResponseDTO);
+		GroupResponseDTO groupResponseDTO = groupService.createGroup(createGroupRequestDTO, token);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(groupResponseDTO);
 	}
 
 	@PatchMapping("/{groupId}")
