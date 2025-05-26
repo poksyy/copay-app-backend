@@ -33,4 +33,11 @@ public interface UserExpenseRepository extends JpaRepository<UserExpense, Long> 
 
     List<UserExpense> findByExpenseId(Expense expenseId);
 
+
+    @Query("""
+    SELECT SUM(ue.amount)
+    FROM UserExpense ue
+    WHERE ue.debtorUser.userId = :userId
+    """)
+    Float getTotalDebtByUserId(@Param("userId") Long userId);
 }
