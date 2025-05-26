@@ -37,7 +37,7 @@ public class AuthController {
 		return ResponseEntity.ok(registerStepOneResponseDTO);
 	}
 
-	// Update phone number of the user.
+	// Update the phone number of the user.
 	@PostMapping("/register/step-two")
 	public ResponseEntity<?> registerStepTwo(@RequestBody @Valid UserRegisterStepTwoRequestDTO userRegisterStepTwoRequestDTO) {
 
@@ -82,5 +82,4 @@ public class AuthController {
 
 		return ResponseEntity.ok(loginResponseDTO);
 	}
-
 }
