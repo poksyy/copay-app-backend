@@ -221,7 +221,7 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
                             ue.getDebtorExternalMember().getExternalMembersId().equals(externalMember.getExternalMembersId()));
 
             if (!hasExpense) {
-                
+
                 // Creates user_expenses_id for the new external members added.
                 UserExpense newUserExpense = new UserExpense();
                 newUserExpense.setExpense(expense);

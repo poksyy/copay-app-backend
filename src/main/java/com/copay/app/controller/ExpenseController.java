@@ -6,12 +6,10 @@ import com.copay.app.dto.expense.response.ExpenseResponseDTO;
 import com.copay.app.dto.expense.response.TotalDebtResponseDTO;
 import com.copay.app.dto.expense.response.TotalSpentResponseDTO;
 import com.copay.app.dto.expense.response.UserExpenseDTO;
-import com.copay.app.service.ValidationService;
 import com.copay.app.service.expense.ExpenseService;
-import com.copay.app.validation.ValidationErrorResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,27 +27,36 @@ public class ExpenseController {
 
     // Endpoint to retrieve all the expenses.
     @GetMapping("/{groupId}")
-    public ResponseEntity<?> getExpenses(@PathVariable Long groupId) {
+    public ResponseEntity<?> getAllExpensesByGroupId(@PathVariable Long groupId) {
 
-        List<ExpenseResponseDTO> getExpenses = expenseService.getExpenses(groupId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        List<ExpenseResponseDTO> getExpenses = expenseService.getExpenses(groupId, token);
 
        return ResponseEntity.ok(getExpenses);
     }
 
     // Endpoint to retrieve details of one expense.
     @GetMapping("/{groupId}/{expenseId}")
-    public ResponseEntity<?> getExpense(@PathVariable Long groupId, @PathVariable Long expenseId){
+    public ResponseEntity<?> getExpenseByGroupIdAndExternalId(@PathVariable Long groupId, @PathVariable Long expenseId){
 
-        ExpenseResponseDTO getExpense = expenseService.getExpense(groupId, expenseId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        ExpenseResponseDTO getExpense = expenseService.getExpenseByGroupIdAndExternalId(groupId, expenseId, token);
 
         return ResponseEntity.ok(getExpense);
     }
 
     // Endpoint to user expenses of one group.
     @GetMapping("/{groupId}/user-expenses")
-    public ResponseEntity<List<UserExpenseDTO>> getUserExpensesByGroup(@PathVariable Long groupId) {
+    public ResponseEntity<List<UserExpenseDTO>> getAllUserExpensesByGroupId(@PathVariable Long groupId) {
 
-        List<UserExpenseDTO> userExpenses = expenseService.getAllUserExpensesByGroupId(groupId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        List<UserExpenseDTO> userExpenses = expenseService.getAllUserExpensesByGroupId(groupId, token);
 
         return ResponseEntity.ok(userExpenses);
     }
@@ -67,7 +74,7 @@ public class ExpenseController {
     @DeleteMapping("/{groupId}/{expenseId}")
     public ResponseEntity<?> deleteExpense(@PathVariable Long groupId, @PathVariable Long expenseId) {
 
-       MessageResponseDTO messageResponseDTO = expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
+        MessageResponseDTO messageResponseDTO = expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
 
         return ResponseEntity.ok("messageResponseDTO");
     }
@@ -76,7 +83,11 @@ public class ExpenseController {
     @GetMapping("/user/{userId}/total-debt")
     public ResponseEntity<TotalDebtResponseDTO> getTotalUserDebt(@PathVariable Long userId) {
 
-        TotalDebtResponseDTO totalDebtResponseDTO = expenseService.getTotalUserDebt(userId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        TotalDebtResponseDTO totalDebtResponseDTO = expenseService.getTotalUserDebt(userId, token);
+
         return ResponseEntity.ok(totalDebtResponseDTO);
     }
 
@@ -84,7 +95,10 @@ public class ExpenseController {
     @GetMapping("/user/{userId}/total-spent")
     public ResponseEntity<TotalSpentResponseDTO> getTotalUserSpent(@PathVariable Long userId) {
 
-        TotalSpentResponseDTO totalSpentResponseDTO = expenseService.getTotalUserSpent(userId);
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        TotalSpentResponseDTO totalSpentResponseDTO = expenseService.getTotalUserSpent(userId, token);
 
         return ResponseEntity.ok(totalSpentResponseDTO);
     }

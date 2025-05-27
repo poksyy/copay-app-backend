@@ -4,14 +4,18 @@ import com.copay.app.dto.MessageResponseDTO;
 import com.copay.app.dto.expense.request.CreateExpenseRequestDTO;
 import com.copay.app.dto.expense.response.*;
 import com.copay.app.entity.Expense;
+import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
 import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
+import com.copay.app.exception.user.UserPermissionException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.repository.expense.UserExpenseRepository;
 import com.copay.app.repository.paymentconfirmation.PaymentConfirmationRepository;
 
+import com.copay.app.service.JwtService;
+import com.copay.app.service.query.UserQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,24 +33,60 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     private final UserExpenseRepository userExpenseRepository;
 
-    public ExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository, PaymentConfirmationRepository paymentConfirmationRepository) {
+    private final JwtService jwtService;
+    private final UserQueryService userQueryService;
+
+    public ExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository,
+                              PaymentConfirmationRepository paymentConfirmationRepository, JwtService jwtService, UserQueryService userQueryService) {
 
         this.expenseRepository = expenseRepository;
         this.userExpenseRepository = userExpenseRepository;
         this.paymentConfirmationRepository = paymentConfirmationRepository;
+        this.jwtService = jwtService;
+        this.userQueryService = userQueryService;
     }
 
-    // TODO: Implement this method of creating expenses when implementing more than one expense per group.
-    @Override
-    @Transactional
-    public ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request) {
-        return null;
-    }
-
-    // Find the expenses of a group by id.
     @Override
     @Transactional(readOnly = true)
-    public List<ExpenseResponseDTO> getExpenses(Long groupId) {
+    public TotalDebtResponseDTO getTotalUserDebt(Long userId, String token) {
+
+        // Extract the phone number from the token.
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+        User user = userQueryService.getUserByPhone(phoneNumber);
+
+        if (!user.getUserId().equals(userId)) {
+
+            throw new UserPermissionException("User does not match the user in the token.");
+        }
+
+        Float totalDebt = userExpenseRepository.getTotalDebtByUserId(userId);
+
+        return new TotalDebtResponseDTO(totalDebt != null ? totalDebt : 0.0f);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TotalSpentResponseDTO getTotalUserSpent(Long userId, String token) {
+
+        // Extract the phone number from the token.
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+        User user = userQueryService.getUserByPhone(phoneNumber);
+
+        if (!user.getUserId().equals(userId)) {
+
+            throw new UserPermissionException("User does not match the user in the token.");
+        }
+
+        Float totalSpent = paymentConfirmationRepository.getTotalSpentByUserId(userId);
+
+        return new TotalSpentResponseDTO(totalSpent != null ? totalSpent : 0.0f);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponseDTO> getExpenses(Long groupId, String token) {
 
         List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
 
@@ -59,21 +99,29 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .collect(Collectors.toList());
     }
 
-    // Find user expenses of a group by id.
+    // Find all user expenses of a group by groupid.
     @Override
-    public List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId) {
+    public List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId, String token) {
+
         return userExpenseRepository.findAllByGroupId(groupId);
     }
 
     // Find an expense by id of a specific group by id.
     @Override
     @Transactional(readOnly = true)
-    public ExpenseResponseDTO getExpense(Long groupId, Long expenseId) {
+    public ExpenseResponseDTO getExpenseByGroupIdAndExternalId(Long groupId, Long expenseId, String token) {
 
         Expense expense = expenseRepository.findByExpenseIdAndGroupId_GroupId(expenseId, groupId)
                 .orElseThrow(() -> new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId));
 
         return mapToExpenseResponseDTO(expense);
+    }
+
+    // TODO: Implement this method of creating expenses when implementing more than one expense per group.
+    @Override
+    @Transactional
+    public ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request) {
+        return null;
     }
 
     @Override
@@ -99,7 +147,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId);
         }
 
-        // Return success message.
+        // Return a success message.
         return new MessageResponseDTO("Group deleted successfully.");
     }
 
@@ -160,23 +208,5 @@ public class ExpenseServiceImpl implements ExpenseService {
                 creditorExternalMemberId,
                 amount
         );
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public TotalDebtResponseDTO getTotalUserDebt(Long userId) {
-
-        Float totalDebt = userExpenseRepository.getTotalDebtByUserId(userId);
-
-        return new TotalDebtResponseDTO(totalDebt != null ? totalDebt : 0.0f);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public TotalSpentResponseDTO getTotalUserSpent(Long userId) {
-
-        Float totalSpent = paymentConfirmationRepository.getTotalSpentByUserId(userId);
-
-        return new TotalSpentResponseDTO(totalSpent != null ? totalSpent : 0.0f);
     }
 }

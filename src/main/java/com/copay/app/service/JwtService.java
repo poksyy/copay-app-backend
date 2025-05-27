@@ -120,7 +120,7 @@ public class JwtService {
 		}
 	}
 
-	// Original validateToken method now uses the ThreadLocal context.
+	// The original validateToken method now uses the ThreadLocal context.
 	public boolean validateToken(String token) {
 		
 		TokenValidationContext context = getCurrentContext();
@@ -130,7 +130,7 @@ public class JwtService {
 		return validateToken(token, context);
 	}
 
-	// Helper method to get context-specific expiration message.
+	// Helper method to get a context-specific expiration message.
 	private String getExpirationMessage(TokenValidationContext context) {
 		
 		return context == TokenValidationContext.REGISTER_STEP_TWO
@@ -138,7 +138,7 @@ public class JwtService {
 				: "Your session has expired, please login again";
 	}
 
-	// Generate 1 hour token for the registerStepTwo().
+	// Generate 1-hour token for the registerStepTwo().
 	public String generateToken(String phoneNumber) {
 		
 		long expirationTimeMillis = System.currentTimeMillis() + (REGULAR_JWT_EXPIRATION * 1000);

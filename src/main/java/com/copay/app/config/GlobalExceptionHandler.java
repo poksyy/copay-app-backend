@@ -100,14 +100,14 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
 
-	// HTTP 400: Incorrect password provided.
+	// HTTP 401: Incorrect password provided.
 	@ExceptionHandler(IncorrectPasswordException.class)
 	public ResponseEntity<ValidationErrorResponse> handleIncorrectPasswordException(IncorrectPasswordException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Current password is incorrect.", HttpStatus.BAD_REQUEST.value());
+				"Current password is incorrect.", HttpStatus.UNAUTHORIZED.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
 	}
 
 	// HTTP 409: User uniqueness violation (Phone number and email already exist).

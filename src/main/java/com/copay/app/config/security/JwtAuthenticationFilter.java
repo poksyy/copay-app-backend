@@ -120,7 +120,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private void checkRegisterTokenValidity(String token, HttpServletRequest request, HttpServletResponse response) {
+
 		if (Boolean.TRUE.equals(jwtService.isRegisterToken(token))) {
+
 			String path = request.getServletPath();
 
 			// Throws exception if "register" claim token is used outside step-two or password update endpoint.

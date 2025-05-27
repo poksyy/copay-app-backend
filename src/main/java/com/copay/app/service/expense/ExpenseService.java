@@ -13,11 +13,11 @@ public interface ExpenseService {
 
     ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request);
 
-    List<ExpenseResponseDTO> getExpenses(Long groupId);
+    List<ExpenseResponseDTO> getExpenses(Long groupId, String token);
 
-    List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId);
+    List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId, String token);
 
-    ExpenseResponseDTO getExpense(Long groupId, Long expenseId);
+    ExpenseResponseDTO getExpenseByGroupIdAndExternalId(Long groupId, Long expenseId, String token);
 
     MessageResponseDTO deleteExpenseByGroupAndId (Long groupId, Long expenseId);
 
@@ -26,12 +26,12 @@ public interface ExpenseService {
      * @param userId the ID of the user
      * @return the total debt amount as a TotalAmountResponseDTO
      */
-    TotalDebtResponseDTO getTotalUserDebt(Long userId);
+    TotalDebtResponseDTO getTotalUserDebt(Long userId, String token);
 
     /**
      * Get the total amount spent by a user across all groups
      * @param userId the ID of the user
      * @return the total amount spent as a TotalAmountResponseDTO
      */
-    TotalSpentResponseDTO getTotalUserSpent(Long userId);
+    TotalSpentResponseDTO getTotalUserSpent(Long userId, String token);
 }
