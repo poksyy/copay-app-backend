@@ -15,7 +15,7 @@ public interface GroupService {
 
 	GetGroupResponseDTO getGroupsByUserId(Long userId);
 
-	GroupResponseDTO getGroupByGroupId(Long groupId);
+	GroupResponseDTO getGroupByGroupId(Long groupId, String token);
 
 	GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId);
 
