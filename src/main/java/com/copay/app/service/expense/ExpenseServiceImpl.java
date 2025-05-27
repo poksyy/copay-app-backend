@@ -36,7 +36,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         this.paymentConfirmationRepository = paymentConfirmationRepository;
     }
 
-    //TODO: Implement this method of creating expenses when implementing more than one expense per group.
+    // TODO: Implement this method of creating expenses when implementing more than one expense per group.
     @Override
     @Transactional
     public ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request) {
