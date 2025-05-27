@@ -20,6 +20,7 @@ public interface UserExpenseRepository extends JpaRepository<UserExpense, Long> 
     SELECT new com.copay.app.dto.expense.response.UserExpenseDTO(
         ue.userExpenseId,
         ue.debtorUser.userId,
+        ue.debtorExternalMember.externalMembersId,
         ue.amount)
     FROM UserExpense ue
     WHERE ue.expenseId.groupId.groupId = :groupId
