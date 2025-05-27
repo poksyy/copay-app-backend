@@ -41,10 +41,13 @@ public class GroupController {
 	public ResponseEntity<?> getGroupByGroupId(@PathVariable Long groupId,
 											   @Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
 
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
 		// The userId is manually added to the DTO for validation.
 		getGroupsByGroupRequestDTO.setGroupId(groupId);
 
-		GroupResponseDTO GroupResponseDTO = groupService.getGroupByGroupId(groupId);
+		GroupResponseDTO GroupResponseDTO = groupService.getGroupByGroupId(groupId, token);
 
 		return ResponseEntity.ok(GroupResponseDTO);
 	}
