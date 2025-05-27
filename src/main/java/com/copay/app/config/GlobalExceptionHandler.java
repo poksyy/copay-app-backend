@@ -90,6 +90,16 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
 
+	// HTTP 403: User is trying to fetch group unauthorized group information.
+	@ExceptionHandler(GroupAccessDeniedException.class)
+	public ResponseEntity<ValidationErrorResponse> handleGroupAccessDeniedException(GroupAccessDeniedException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"You don't have access to this group", HttpStatus.FORBIDDEN.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+	}
+
 	// HTTP 400: Incorrect password provided.
 	@ExceptionHandler(IncorrectPasswordException.class)
 	public ResponseEntity<ValidationErrorResponse> handleIncorrectPasswordException(IncorrectPasswordException ex) {
@@ -201,6 +211,16 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
+	// HTTP 404: External member not found with the provided ID.
+	@ExceptionHandler(ExternalMemberNotFoundException.class)
+	public ResponseEntity<ValidationErrorResponse> handleExternalMembersNotFoundException(ExternalMemberNotFoundException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
+				"One of the external members you tried to update no longer exists.", HttpStatus.NOT_FOUND.value());
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
 	// HTTP 400: Invalid group name or description update.
 	@ExceptionHandler(InvalidGroupUpdateException.class)
 	public ResponseEntity<ValidationErrorResponse> handleInvalidGroupUpdateException(InvalidGroupUpdateException ex) {
@@ -211,14 +231,14 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
-	// HTTP 400: Triggered when trying to remove the creditor from the group.
+	// HTTP 409: Triggered when trying to remove the creditor from the group.
 	@ExceptionHandler(InvalidCreditorRemovalException.class)
 	public ResponseEntity<ValidationErrorResponse> handleInvalidCreditorRemovedException(InvalidCreditorRemovalException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"You can't kick the creditor of the group.", HttpStatus.BAD_REQUEST.value());
+				"The creditor of the group can't leave or be kicked, please assign another creditor first.", HttpStatus.CONFLICT.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 	}
 
 	// HTTP 404: Expense not found with the provided ID.
@@ -270,14 +290,14 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
 
-	// HTTP 401: Deleting a notification that doesn't belong to the user.
+	// HTTP 403: Deleting a notification that doesn't belong to the user.
 	@ExceptionHandler(NotificationAccessDeniedException.class)
 	public ResponseEntity<ValidationErrorResponse> handleNotificationAccessDeniedException(NotificationAccessDeniedException ex) {
 
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(List.of(ex.getMessage()),
-				"Permission denied: unable to delete a notification not owned by the user", HttpStatus.UNAUTHORIZED.value());
+				"Permission denied: unable to delete a notification not owned by the user", HttpStatus.FORBIDDEN.value());
 
-		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
 
 	// Handle other generic exceptions.
