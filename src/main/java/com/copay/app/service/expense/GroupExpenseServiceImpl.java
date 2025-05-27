@@ -7,6 +7,7 @@ import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.exception.expense.DebtorNotFoundException;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
+import com.copay.app.exception.group.ExternalMemberNotFoundException;
 import com.copay.app.repository.expense.ExpenseRepository;
 import com.copay.app.repository.expense.UserExpenseRepository;
 import com.copay.app.service.query.UserQueryService;
@@ -31,13 +32,10 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
 
     private final UserExpenseRepository userExpenseRepository;
 
-    private final UserQueryService userQueryService;
-
-    public GroupExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository, UserQueryService userQueryService) {
+    public GroupExpenseServiceImpl(ExpenseRepository expenseRepository, UserExpenseRepository userExpenseRepository) {
 
         this.expenseRepository = expenseRepository;
         this.userExpenseRepository = userExpenseRepository;
-        this.userQueryService = userQueryService;
     }
 
     @Override
@@ -74,17 +72,15 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         expenseRepository.save(expense);
     }
 
-    @Override
-    @Transactional
     // Method triggered when updating members through GroupServiceImpl.
     public void updateExpenseGroupMembers(Group group, User userCreditor, ExternalMember externalCreditor) {
 
+        // Find the existing expense for this group
         Expense expense = findExpenseByGroup(group);
 
         // Update expenses based on member changes
         adjustExpenseMembers(group, expense, userCreditor, externalCreditor);
     }
-
 
     // Updates the distribution after expenses changes.
     private void createExpenseDistribution(Group group, Expense expense, User userCreditor, ExternalMember externalCreditor) {
@@ -155,20 +151,24 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
         // Store registered members.
         List<User> users = collectRegisteredUsers(group);
 
-        // Store external members.
+        // Store external members and ensure they are persisted.
         List<ExternalMember> externals = collectExternalMembers(group);
 
+        // Calculate the amount per member based on total participants.
         BigDecimal perMember = calculatePerMember(expense.getTotalAmount(), users.size() + externals.size());
 
+        // Get all existing user expenses for this expense.
         List<UserExpense> existingExpenses = userExpenseRepository.findByExpenseId(expense);
 
+        // Categorize existing expenses.
         List<UserExpense> expensesToKeep = new ArrayList<>();
         List<UserExpense> expensesToDelete = new ArrayList<>();
         List<UserExpense> expensesToCreate = new ArrayList<>();
 
-        // Identify expenses to keep and delete.
+        // Identify expenses to keep and delete based on current members.
         for (UserExpense userExpense : existingExpenses) {
 
+            // Check registered user expenses.
             if (userExpense.getDebtorUser() != null) {
 
                 boolean stillMember = users.stream()
@@ -180,25 +180,29 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
                     expensesToDelete.add(userExpense);
                 }
 
+                // Check external member expenses.
             } else if (userExpense.getDebtorExternalMember() != null) {
+
                 boolean stillMember = externals.stream()
                         .anyMatch(em -> em.getExternalMembersId().equals(userExpense.getDebtorExternalMember().getExternalMembersId()));
 
                 if (stillMember) {
                     expensesToKeep.add(userExpense);
+
                 } else {
                     expensesToDelete.add(userExpense);
                 }
             }
         }
 
-        // Identify new members that need expenses created.
+        // Create expenses for new registered members.
         for (User user : users) {
 
             boolean hasExpense = expensesToKeep.stream()
                     .anyMatch(ue -> ue.getDebtorUser() != null && ue.getDebtorUser().getUserId().equals(user.getUserId()));
 
             if (!hasExpense) {
+
                 // Creates user_expenses_id for the new registered members added.
                 UserExpense newUserExpense = new UserExpense();
                 newUserExpense.setExpense(expense);
@@ -209,12 +213,15 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
             }
         }
 
+        // Create expenses for new external members.
         for (ExternalMember externalMember : externals) {
 
             boolean hasExpense = expensesToKeep.stream()
-                    .anyMatch(ue -> ue.getDebtorExternalMember() != null && ue.getDebtorExternalMember().getExternalMembersId().equals(externalMember.getExternalMembersId()));
+                    .anyMatch(ue -> ue.getDebtorExternalMember() != null &&
+                            ue.getDebtorExternalMember().getExternalMembersId().equals(externalMember.getExternalMembersId()));
 
             if (!hasExpense) {
+                
                 // Creates user_expenses_id for the new external members added.
                 UserExpense newUserExpense = new UserExpense();
                 newUserExpense.setExpense(expense);
@@ -246,19 +253,35 @@ public class GroupExpenseServiceImpl implements GroupExpenseService{
 
     // Collects registered users including creator
     private List<User> collectRegisteredUsers(Group group) {
+
         List<User> registeredMembers = new ArrayList<>(group.getRegisteredMembers().stream()
                 .map(gm -> gm.getId().getUser()).toList());
         User creator = group.getCreatedBy();
+
         if (registeredMembers.stream().noneMatch(u -> u.getUserId().equals(creator.getUserId()))) {
             registeredMembers.add(creator);
         }
         return registeredMembers;
     }
 
-    // Collects external members
+
+    // Collects external members and validates they are persisted.
     private List<ExternalMember> collectExternalMembers(Group group) {
 
-        return new ArrayList<>(group.getExternalMembers().stream().toList());
+        List<ExternalMember> externals = new ArrayList<>(group.getExternalMembers());
+
+        // Verify all external members have been persisted (have ID)
+        for (int i = 0; i < externals.size(); i++) {
+            ExternalMember em = externals.get(i);
+            System.err.println("ExternalMember[" + i + "]: ID=" + em.getExternalMembersId() + ", Name=" + em.getName());
+
+            if (em.getExternalMembersId() == null) {
+
+                throw new ExternalMemberNotFoundException("ExternalMember without ID found: " + em.getName());
+            }
+        }
+
+        return externals;
     }
 
     // Calculates amount per member and validates debtors
