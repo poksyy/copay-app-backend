@@ -7,7 +7,6 @@ import com.copay.app.dto.paymentconfirmation.response.ListUnconfirmedPaymentConf
 import com.copay.app.entity.Expense;
 import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
-import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.PaymentConfirmation;
 import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
@@ -52,6 +51,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
             PaymentConfirmationRepository paymentConfirmationRepository,
             UserExpenseRepository userExpenseRepository,
             ExpenseRepository expenseRepository, JwtService jwtService, UserQueryService userQueryService,
+            GroupQueryService groupQueryService, NotificationService  notificationService) {
         this.paymentConfirmationRepository = paymentConfirmationRepository;
         this.userExpenseRepository = userExpenseRepository;
         this.expenseRepository = expenseRepository;
@@ -82,6 +82,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
      * Retrieves user expense IDs for the authenticated user within a group.
      *
      * @param groupId the ID of the group.
+     * @param token the user's authentication token.
      * @return a list of payment responses for the user's expenses in the group.
      */
     @Override
@@ -115,6 +116,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
      * Requests a payment confirmation for a user expense.
      *
      * @param request the payment confirmation request DTO.
+     * @param token the user's authentication token.
      * @return the created payment response DTO.
      */
     @Override
@@ -158,6 +160,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
      * Confirms a payment for a user expense.
      *
      * @param request the payment confirmation request DTO.
+     * @param token the user's authentication token.
      * @return the confirmed payment response DTO.
      */
     @Override
@@ -251,23 +254,14 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
         expense.setTotalAmount(currentTotal - confirmationAmount);
         expenseRepository.save(expense);
 
-        // Notify debtor that the payment has been confirmed (only if it's a regular user, not an external member)
+        // Notify debtor that thee payment has been confirmed.
         User debtorUser = userExpense.getDebtorUser();
-        if (debtorUser != null) {
-            String notificationMessage = String.format(
-                    "Your payment of %.2f in group '%s' has been confirmed.",
-                    confirmationAmount,
-                    group.getName()
-            );
-            notificationService.createNotification(debtorUser, notificationMessage);
-        } else {
-            // External member - no notification is sent as they don't have user accounts
-            ExternalMember debtorExternalMember = userExpense.getDebtorExternalMember();
-            // Log the confirmation for external member (optional)
-            System.out.println("Payment confirmed for external member: " +
-                    (debtorExternalMember != null ? debtorExternalMember.getName() : "Unknown") +
-                    " - Amount: " + confirmationAmount);
-        }
+        String notificationMessage = String.format(
+                "Your payment of %.2f in group '%s' has been confirmed.",
+                confirmationAmount,
+                group.getName()
+        );
+        notificationService.createNotification(debtorUser, notificationMessage);
 
         // Return the response DTO.
         return createResponseDTO(confirmation);
@@ -277,7 +271,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
      * Marks a pending payment confirmation as confirmed by the group creator.
      *
      * @param confirmationId the ID of the payment confirmation.
-     * @param token          the user's authentication token.
+     * @param token the user's authentication token.
      * @return the updated payment response DTO.
      */
     @Override
@@ -290,7 +284,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
 
         // Validation that the confirmation is not already confirmed.
         if (confirmation.getIsConfirmed()) {
-            throw new InvalidPaymentConfirmationException("Payment confirmation with ID " + confirmationId + " is already confirmed.");
+            throw new InvalidPaymentConfirmationException("Payment confirmation with ID " + confirmationId+ " is already confirmed.");
         }
 
         // Load related entities with payment confirmation.
@@ -317,23 +311,15 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
         expense.setTotalAmount(expenseTotal);
         expenseRepository.save(expense);
 
-        // Send notification to debtor user (only if it's a regular user, not an external member)
+        // Send notification to debtor user.
         User debtorUser = userExpense.getDebtorUser();
-        if (debtorUser != null) {
-            String notificationMessage = String.format(
-                    "Your payment of %.2f in group '%s' has been confirmed.",
-                    amount,
-                    group.getName()
-            );
-            notificationService.createNotification(debtorUser, notificationMessage);
-        } else {
-            // External member - no notification is sent as they don't have user accounts
-            ExternalMember debtorExternalMember = userExpense.getDebtorExternalMember();
-            // Log the confirmation for external member (optional)
-            System.out.println("Payment confirmed for external member: " +
-                    (debtorExternalMember != null ? debtorExternalMember.getName() : "Unknown") +
-                    " - Amount: " + amount);
-        }
+        String notificationMessage = String.format(
+            "Your payment of %.2f in group '%s' has been confirmed.", 
+            amount, 
+            group.getName()
+        );
+        
+        notificationService.createNotification(debtorUser, notificationMessage);
 
         return createResponseDTO(confirmation);
     }
@@ -342,6 +328,7 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
      * Deletes a payment confirmation by ID, only allowed by the group creator.
      *
      * @param confirmationId the ID of the payment confirmation.
+     * @param token the user's authentication token.
      * @return a message response DTO confirming deletion.
      */
     @Override
@@ -422,29 +409,16 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     }
 
     private PaymentResponseDTO createResponseDTO(PaymentConfirmation confirmation) {
-        UserExpense userExpense = confirmation.getUserExpense();
-
-        String debtorUsername = userExpense.getDebtorUser() != null
-                ? userExpense.getDebtorUser().getUsername()
-                : userExpense.getDebtorExternalMember() != null
-                ? userExpense.getDebtorExternalMember().getName()
-                : "Unknown";
-
-        String creditorUsername = userExpense.getCreditorUser() != null
-                ? userExpense.getCreditorUser().getUsername()
-                : userExpense.getCreditorExternalMember() != null
-                ? userExpense.getCreditorExternalMember().getName()
-                : "Unknown";
 
         return new PaymentResponseDTO(
                 confirmation.getPaymentConfirmationId(),
-                userExpense.getUserExpenseId(),
+                confirmation.getUserExpense().getUserExpenseId(),
                 confirmation.getConfirmationAmount(),
                 confirmation.getConfirmationDate(),
                 confirmation.getIsConfirmed(),
                 confirmation.getConfirmedAt(),
-                debtorUsername,
-                creditorUsername
+                confirmation.getUserExpense().getDebtorUser().getUsername(),
+                confirmation.getUserExpense().getCreditorUser().getUsername()
         );
     }
 }
