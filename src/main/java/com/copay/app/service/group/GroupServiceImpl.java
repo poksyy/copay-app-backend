@@ -11,6 +11,7 @@ import com.copay.app.dto.group.request.UpdateGroupEstimatedPriceRequestDTO;
 import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.group.response.GroupResponseDTO;
 import com.copay.app.entity.Expense;
+import com.copay.app.exception.expense.ExpenseNotFoundException;
 import com.copay.app.exception.group.*;
 import com.copay.app.repository.expense.ExpenseRepository;
 
@@ -20,7 +21,6 @@ import com.copay.app.service.notification.NotificationService;
 import com.copay.app.service.query.GroupQueryService;
 import com.copay.app.service.query.UserQueryService;
 import org.springframework.data.util.ReflectionUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,8 +78,8 @@ public class GroupServiceImpl implements GroupService {
 
 	// Constructor to initialize all the instances.
 	public GroupServiceImpl(GroupRepository groupRepository, GroupMemberRepository groupMemberRepository,
-                            UserRepository userRepository, ExternalMemberRepository externalMemberRepository, ExpenseRepository expenseRepository, JwtService jwtService, GroupExpenseService groupExpenseService,
-                            ExpenseService expenseService, UserQueryService userQueryService, GroupQueryService groupQueryService, NotificationService notificationService, EntityManager entityManager) {
+							UserRepository userRepository, ExternalMemberRepository externalMemberRepository, ExpenseRepository expenseRepository, JwtService jwtService, GroupExpenseService groupExpenseService,
+							ExpenseService expenseService, UserQueryService userQueryService, GroupQueryService groupQueryService, NotificationService notificationService, EntityManager entityManager) {
 
 		this.groupRepository = groupRepository;
 		this.groupMemberRepository = groupMemberRepository;
@@ -89,10 +89,10 @@ public class GroupServiceImpl implements GroupService {
 		this.jwtService = jwtService;
 		this.groupExpenseService = groupExpenseService;
 		this.expenseService = expenseService;
-        this.userQueryService = userQueryService;
-        this.groupQueryService = groupQueryService;
-        this.notificationService = notificationService;
-        this.entityManager = entityManager;
+		this.userQueryService = userQueryService;
+		this.groupQueryService = groupQueryService;
+		this.notificationService = notificationService;
+		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
 			return new GetGroupResponseDTO();
 		}
 
-			// Transform GroupMembers into unique groups and map data for response.
+		// Transform GroupMembers into unique groups and map data for response.
 		List<Group> groups = groupMembers.stream().map(gm -> gm.getId().getGroup()).distinct()
 				.toList();
 
@@ -152,11 +152,27 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public GroupResponseDTO getGroupByGroupId(Long groupId) {
+	public GroupResponseDTO getGroupByGroupId(Long groupId, String token) {
 
-		// Find the group by ID or throw an exception if not found.
-		Group group = groupRepository.findById(groupId)
-				.orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
+		Group group = groupQueryService.getGroupById(groupId);
+
+		// Extract the phone number from the token.
+		String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		User userFromToken = userQueryService.getUserByPhone(phoneNumber);
+
+		// Check if the current user is part of the group (registered member or creator).
+		boolean isCreator = group.getCreatedBy().getUserId().equals(userFromToken.getUserId());
+		boolean isMember = group.getRegisteredMembers().stream()
+				.anyMatch(member -> member.getId().getUser().getUserId().equals(userFromToken.getUserId()));
+
+		if (!isCreator && !isMember) {
+			throw new GroupAccessDeniedException(
+					"Access denied: user with ID " + userFromToken.getUserId() +
+							" is neither the group creator nor a registered member of group ID " + group.getGroupId()
+			);
+		}
 
 		// Fetch all expenses associated with the group.
 		List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
@@ -275,6 +291,9 @@ public class GroupServiceImpl implements GroupService {
 			external.setGroupId(group);
 			external.setJoinedAt(LocalDateTime.now());
 
+			// Save external member explicitly to avoid TransientObjectException when used as payer.
+			external = externalMemberRepository.save(external);
+
 			// Add the external member to the group
 			group.getExternalMembers().add(external);
 		}
@@ -327,9 +346,9 @@ public class GroupServiceImpl implements GroupService {
 
 			User invitedUser = userRepository.findByPhoneNumber(registeredMember.getPhoneNumber()).get();
 			String notificationMessage = String.format(
-				"You have been added to group '%s' by %s", 
-				group.getName(), 
-				creator.getUsername()
+					"You have been added to group '%s' by %s",
+					group.getName(),
+					creator.getUsername()
 			);
 			notificationService.createNotification(invitedUser, notificationMessage);
 		}
@@ -371,7 +390,7 @@ public class GroupServiceImpl implements GroupService {
 		return new MessageResponseDTO("Group updated successfully.");
 	}
 
-	// This only updats name or description of the group.
+	// This only updates the name or description of the group.
 	private void updateGroupFields(Group group, Map<String, Object> fields) {
 
 		// Initialize ObjectMapper to convert values to the correct type.
@@ -418,27 +437,27 @@ public class GroupServiceImpl implements GroupService {
 		for (GroupMember member : group.getRegisteredMembers()) {
 			User user = member.getId().getUser();
 
-			// Don't send notification to the group creator (they already know they updated the price).
+			// Don't send a notification to the group creator (they already know they updated the price).
 			if (!user.getUserId().equals(group.getCreatedBy().getUserId())) {
 
 				String notificationMessage = String.format(
-					"The estimated price for group '%s' has been updated to %.2f %s", 
-					group.getName(), 
-					group.getEstimatedPrice(),
-					group.getCurrency()
+						"The estimated price for group '%s' has been updated to %.2f %s",
+						group.getName(),
+						group.getEstimatedPrice(),
+						group.getCurrency()
 				);
 				notificationService.createNotification(user, notificationMessage);
 			}
 		}
 
 		return new MessageResponseDTO("Estimated price updated and shares recalculated.");
-    }
+	}
 
 	@Override
 	@Transactional
 	public MessageResponseDTO updateGroupRegisteredMembers(Long groupId, UpdateGroupRegisteredMembersRequestDTO request, String token) {
 
-		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		// Validates if the user is the group creator.
@@ -453,10 +472,18 @@ public class GroupServiceImpl implements GroupService {
 		// Add new registered members to the list
 		addNewRegisteredMembers(group, invitedPhoneNumbers);
 
-		User userCreditor = group.getCreatedBy();
+		// Find the current creditor from the expense.
+		Expense expense = expenseRepository.findByGroupId_GroupId(group.getGroupId())
+				.stream()
+				.findFirst()
+				.orElseThrow(() -> new ExpenseNotFoundException("No expense found for group " + group.getGroupId()));
+
+		// Store the creditor user of the group (external and registered member).
+		User userCreditor = expense.getPaidByUser();
+		ExternalMember externalCreditor = expense.getPaidByExternalMember();
 
 		// Update the expense group members and the money distribution through the expenseService interface.
-		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, null);
+		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, externalCreditor);
 
 		for (String phone : request.getInvitedRegisteredMembers()) {
 			User user = userRepository.findByPhoneNumber(phone)
@@ -476,39 +503,65 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional
-	public MessageResponseDTO updateGroupExternalMembers(Long groupId,
-			UpdateGroupExternalMembersRequestDTO request, String token) {
+	public MessageResponseDTO updateGroupExternalMembers(Long groupId, UpdateGroupExternalMembersRequestDTO request, String token) {
 
-		// Find group via GroupQueryService, which delegates exception handling to GroupValidator.
+		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
 
 		// Validates if the user is the group creator.
 		groupQueryService.validateGroupCreator(group, token);
 
-		// Extract the set of external member IDs from the request.
+		// Extract IDs from the request.
 		Set<Long> newIds = extractExternalMemberIds(request);
 
-		// Remove members from the group that are not in the new list.
-		removeDeletedExternalMembers(group, newIds);
+		// Ensure the creditor is not being removed.
+		Expense expense = expenseRepository.findByGroupId_GroupId(group.getGroupId())
+				.stream()
+				.findFirst()
+				.orElseThrow(() -> new ExpenseNotFoundException("No expense found for group " + group.getGroupId()));
 
-		// Iterate through the incoming member DTOs.
-		for (ExternalMemberDTO dto : request.getInvitedExternalMembers()) {
+		User userCreditor = expense.getPaidByUser();
+		ExternalMember externalCreditor = expense.getPaidByExternalMember();
 
-			// Get an existing member or create a new one.
-			ExternalMember member = resolveOrCreateExternalMember(dto, group);
-
-			// Update the member's name.
-			member.setName(dto.getName());
-
-			// Add a member to the group if it's not already present.
-			group.getExternalMembers().add(member);
+		if (externalCreditor != null && !newIds.contains(externalCreditor.getExternalMembersId())) {
+			System.err.println("Creditor ID: " + externalCreditor.getExternalMembersId());
+			System.err.println("newIds: " + newIds);
+			throw new InvalidCreditorRemovalException("The creditor (" + externalCreditor.getName() + ") can't be removed from the group. Please assign another creditor first.");
 		}
 
-		User userCreditor = group.getCreatedBy();
+		// Remove deleted external members.
+		removeDeletedExternalMembers(group, newIds);
 
-		// Update the expense group members and the money distribution through the expenseService interface.
-		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, null);
+		// Process new or existing members.
+		List<ExternalMember> processedMembers = new ArrayList<>();
 
+		for (ExternalMemberDTO dto : request.getInvitedExternalMembers()) {
+
+			// Resolve an existing member or create a new one.
+			ExternalMember member = resolveOrCreateExternalMember(dto, group);
+
+			// Update member name.
+			member.setName(dto.getName());
+
+			// Save if the member is new.
+			if (member.getExternalMembersId() == null) {
+				member = externalMemberRepository.save(member);
+			}
+
+			processedMembers.add(member);
+		}
+
+		// Clear and reassign processed members.
+		group.getExternalMembers().clear();
+		group.getExternalMembers().addAll(processedMembers);
+
+		// Flush changes to the database (Forces all entities to be saved).
+		entityManager.flush();
+
+		// Update group members in the expense.
+		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, externalCreditor);
+
+		// Notify registered members.
 		for (GroupMember member : group.getRegisteredMembers()) {
 			User user = member.getId().getUser();
 			String notificationMessage = String.format(
@@ -518,8 +571,6 @@ public class GroupServiceImpl implements GroupService {
 			);
 			notificationService.createNotification(user, notificationMessage);
 		}
-
-		// Return success message.
 		return new MessageResponseDTO("Group members updated successfully.");
 	}
 
@@ -555,7 +606,7 @@ public class GroupServiceImpl implements GroupService {
 
 			// Send the corresponding notification to the user.
 			notificationService.createNotification(user, message);
-	}
+		}
 
 		// Persists deletion in the database.
 		groupRepository.delete(group);
@@ -581,8 +632,27 @@ public class GroupServiceImpl implements GroupService {
 		// Store the leaving user for notification purposes.
 		User leavingUser = groupMember.getId().getUser();
 
+		// Find the current creditor from the expense.
+		Expense expense = expenseRepository.findByGroupId_GroupId(group.getGroupId())
+				.stream()
+				.findFirst()
+				.orElseThrow(() -> new ExpenseNotFoundException("No expense found for group " + group.getGroupId()));
+
+		// Store the creditor user of the group (external and registered member).
+		User userCreditor = expense.getPaidByUser();
+		ExternalMember externalCreditor = expense.getPaidByExternalMember();
+
+		// Check if the leaving user is the creditor.
+		if (userCreditor != null && userCreditor.getUserId().equals(leavingUser.getUserId())) {
+			throw new InvalidCreditorRemovalException(
+					"The creditor (" + userPhoneNumber + ") can't leave the group. Please assign another creditor first."
+			);
+		}
+
+		// TODO: THIS IS NOT IMPLEMENTED IN THE FRONT END BECAUSE THE CREATOR CAN'T SEE THE LEAVE BUTTON.
 		// Check if the user is the owner (creator) of the group.
 		if (group.getCreatedBy().getPhoneNumber().equals(userPhoneNumber)) {
+
 			// If the user is the owner, delete the group entirely.
 			groupRepository.delete(group);
 
@@ -594,6 +664,9 @@ public class GroupServiceImpl implements GroupService {
 
 		// Persists the group details in the database.
 		groupRepository.save(group);
+
+		// Update the expense group members and the money distribution through the groupExpenseService interface.
+		groupExpenseService.updateExpenseGroupMembers(group, userCreditor, externalCreditor);
 
 		// Notify that the leavingUser left the group to the registered members.
 		for (GroupMember member : group.getRegisteredMembers()) {
@@ -684,12 +757,15 @@ public class GroupServiceImpl implements GroupService {
 				.orElse(null);
 
 		if (creditorUser != null) {
+
+			String creditorPhone = creditorUser.getPhoneNumber();
 			boolean isCreditorInvited = invitedPhones.contains(creditorUser.getPhoneNumber());
 
 			// If the removed member is the creditor, throw a custom exception.
 			if (!isCreditorInvited) {
-
-				throw new InvalidCreditorRemovalException("The creditor can't be removed from the group.");
+				throw new InvalidCreditorRemovalException(
+						"The creditor (" + creditorPhone + ") can't be removed from the group."
+				);
 			}
 		}
 
@@ -712,7 +788,7 @@ public class GroupServiceImpl implements GroupService {
 				continue;
 			}
 
-			// Find user via userQueryService, which delegates exception handling to userValidator.
+			// Find a user via userQueryService, which delegates exception handling to userValidator.
 			User user = userQueryService.getUserByPhone(phone);
 
 			// Create and add a new group member to the group.
@@ -721,9 +797,9 @@ public class GroupServiceImpl implements GroupService {
 
 			// Send notification to the newly added member
 			String notificationMessage = String.format(
-				"You have been added to group '%s' by %s", 
-				group.getName(), 
-				group.getCreatedBy().getUsername()
+					"You have been added to group '%s' by %s",
+					group.getName(),
+					group.getCreatedBy().getUsername()
 			);
 			notificationService.createNotification(user, notificationMessage);
 		}
@@ -731,22 +807,22 @@ public class GroupServiceImpl implements GroupService {
 
 	// Extract IDs of invited external members from the request.
 	private Set<Long> extractExternalMemberIds(UpdateGroupExternalMembersRequestDTO request) {
-
-		return request.getInvitedExternalMembers().stream().map(ExternalMemberDTO::getExternalMembersId)
-				.filter(Objects::nonNull).collect(Collectors.toSet());
+		return request.getInvitedExternalMembers().stream()
+				.map(ExternalMemberDTO::getExternalMembersId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 	}
 
 	// Remove external members that are no longer invited.
 	private void removeDeletedExternalMembers(Group group, Set<Long> newIds) {
-
 		group.getExternalMembers().removeIf(member -> !newIds.contains(member.getExternalMembersId()));
 	}
 
-	// Return existing external member or create a new one.
+
 	private ExternalMember resolveOrCreateExternalMember(ExternalMemberDTO dto, Group group) {
 
-		// Validates if the provided externalMemberID exists in the database.
 		if (dto.getExternalMembersId() != null) {
+
 			return externalMemberRepository.findById(dto.getExternalMembersId()).orElseThrow(
 					() -> new ExternalMemberNotFoundException("External member with ID " + dto.getExternalMembersId() + " not found"));
 		}
@@ -754,6 +830,7 @@ public class GroupServiceImpl implements GroupService {
 		ExternalMember newMember = new ExternalMember();
 
 		newMember.setGroupId(group);
+		newMember.setJoinedAt(LocalDateTime.now());
 
 		return newMember;
 	}
