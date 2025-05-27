@@ -7,6 +7,7 @@ import com.copay.app.dto.paymentconfirmation.response.ListUnconfirmedPaymentConf
 import com.copay.app.entity.Expense;
 import com.copay.app.entity.Group;
 import com.copay.app.entity.User;
+import com.copay.app.entity.relations.ExternalMember;
 import com.copay.app.entity.relations.PaymentConfirmation;
 import com.copay.app.entity.relations.UserExpense;
 import com.copay.app.exception.expense.ExpenseNotFoundException;
@@ -20,7 +21,6 @@ import com.copay.app.service.JwtService;
 import com.copay.app.service.notification.NotificationService;
 import com.copay.app.service.query.GroupQueryService;
 import com.copay.app.service.query.UserQueryService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -254,14 +254,23 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
         expense.setTotalAmount(currentTotal - confirmationAmount);
         expenseRepository.save(expense);
 
-        // Notify debtor that thee payment has been confirmed.
+        // Notify debtor that the payment has been confirmed (only if it's a regular user, not an external member)
         User debtorUser = userExpense.getDebtorUser();
-        String notificationMessage = String.format(
-                "Your payment of %.2f in group '%s' has been confirmed.",
-                confirmationAmount,
-                group.getName()
-        );
-        notificationService.createNotification(debtorUser, notificationMessage);
+        if (debtorUser != null) {
+            String notificationMessage = String.format(
+                    "Your payment of %.2f in group '%s' has been confirmed.",
+                    confirmationAmount,
+                    group.getName()
+            );
+            notificationService.createNotification(debtorUser, notificationMessage);
+        } else {
+            // External member - no notification is sent as they don't have user accounts
+            ExternalMember debtorExternalMember = userExpense.getDebtorExternalMember();
+            // Log the confirmation for external member (optional)
+            System.out.println("Payment confirmed for external member: " +
+                    (debtorExternalMember != null ? debtorExternalMember.getName() : "Unknown") +
+                    " - Amount: " + confirmationAmount);
+        }
 
         // Return the response DTO.
         return createResponseDTO(confirmation);
@@ -314,11 +323,11 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
         // Send notification to debtor user.
         User debtorUser = userExpense.getDebtorUser();
         String notificationMessage = String.format(
-            "Your payment of %.2f in group '%s' has been confirmed.", 
-            amount, 
-            group.getName()
+                "Your payment of %.2f in group '%s' has been confirmed.",
+                amount,
+                group.getName()
         );
-        
+
         notificationService.createNotification(debtorUser, notificationMessage);
 
         return createResponseDTO(confirmation);
@@ -409,16 +418,29 @@ public class PaymentConfirmationServiceImpl implements PaymentConfirmationServic
     }
 
     private PaymentResponseDTO createResponseDTO(PaymentConfirmation confirmation) {
+        UserExpense userExpense = confirmation.getUserExpense();
+
+        String debtorUsername = userExpense.getDebtorUser() != null
+                ? userExpense.getDebtorUser().getUsername()
+                : userExpense.getDebtorExternalMember() != null
+                ? userExpense.getDebtorExternalMember().getName()
+                : "Unknown";
+
+        String creditorUsername = userExpense.getCreditorUser() != null
+                ? userExpense.getCreditorUser().getUsername()
+                : userExpense.getCreditorExternalMember() != null
+                ? userExpense.getCreditorExternalMember().getName()
+                : "Unknown";
 
         return new PaymentResponseDTO(
                 confirmation.getPaymentConfirmationId(),
-                confirmation.getUserExpense().getUserExpenseId(),
+                userExpense.getUserExpenseId(),
                 confirmation.getConfirmationAmount(),
                 confirmation.getConfirmationDate(),
                 confirmation.getIsConfirmed(),
                 confirmation.getConfirmedAt(),
-                confirmation.getUserExpense().getDebtorUser().getUsername(),
-                confirmation.getUserExpense().getCreditorUser().getUsername()
+                debtorUsername,
+                creditorUsername
         );
     }
 }
