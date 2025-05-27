@@ -27,23 +27,6 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
-    // Endpoint to create a new expense.
-    @PostMapping("/{groupId}")
-    public ResponseEntity<?> createExpense(@PathVariable Long groupId, @RequestBody @Valid CreateExpenseRequestDTO createExpenseRequestDTO,
-                                           BindingResult result) {
-
-        ValidationErrorResponse validationResponse = ValidationService.validate(result);
-
-        // Validates the DTO annotations.
-        if (validationResponse != null) {
-            return ResponseEntity.badRequest().body(validationResponse);
-        }
-
-        ExpenseResponseDTO expenseResponseDTO = expenseService.createExpense(groupId, createExpenseRequestDTO);
-
-        return ResponseEntity.ok(expenseResponseDTO);
-    }
-
     // Endpoint to retrieve all the expenses.
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getExpenses(@PathVariable Long groupId) {
@@ -69,6 +52,15 @@ public class ExpenseController {
         List<UserExpenseDTO> userExpenses = expenseService.getAllUserExpensesByGroupId(groupId);
 
         return ResponseEntity.ok(userExpenses);
+    }
+
+    // TODO: Implement this method of creating expenses when implementing more than one expense per group.
+    @PostMapping("/{groupId}")
+    public ResponseEntity<?> createExpense(@PathVariable Long groupId, @RequestBody @Valid CreateExpenseRequestDTO createExpenseRequestDTO) {
+
+        ExpenseResponseDTO expenseResponseDTO = expenseService.createExpense(groupId, createExpenseRequestDTO);
+
+        return ResponseEntity.ok(expenseResponseDTO);
     }
 
     // TODO: Implement delete expense when more than one expense in one group is implemented.
