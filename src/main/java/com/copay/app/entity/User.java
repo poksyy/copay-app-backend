@@ -128,7 +128,6 @@ public class User {
 		this.phonePrefix = phonePrefix;
 	}
 
-
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
