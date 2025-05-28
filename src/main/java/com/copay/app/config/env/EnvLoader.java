@@ -24,5 +24,8 @@ public class EnvLoader {
 		System.setProperty("MAIL_URL", Objects.requireNonNull(dotenv.get("MAIL_URL")));
 		System.setProperty("MAIL_USERNAME", Objects.requireNonNull(dotenv.get("MAIL_USERNAME")));
 		System.setProperty("MAIL_PASSWORD", Objects.requireNonNull(dotenv.get("MAIL_PASSWORD")));
+
+		// Unsplash
+		System.setProperty("UNSPLASH_ACCESS_KEY", Objects.requireNonNull(dotenv.get("UNSPLASH_ACCESS_KEY")));
 	}
 }
