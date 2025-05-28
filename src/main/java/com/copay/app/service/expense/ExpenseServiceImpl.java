@@ -48,11 +48,60 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ExpenseResponseDTO> getExpenseByGroupId(Long groupId, String token) {
+
+        // Extract the phone number from the token.
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserByPhone(phoneNumber);
+
+        // Validate that the user that is doing the request forms part of the group.
+        userQueryService.validateUserInGroup(groupId, user.getUserId());
+
+        List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
+
+        if (expenses.isEmpty()) {
+            throw new ExpenseNotFoundException("No expenses found for group " + groupId);
+        }
+
+        return expenses.stream()
+                .map(this::mapToExpenseResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Find all user expenses of a group by group id.
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId, String token) {
+
+        // Extract the phone number from the token.
+        String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
+        User user = userQueryService.getUserByPhone(phoneNumber);
+
+        userQueryService.validateUserInGroup(user.getUserId(), groupId);
+
+        return userExpenseRepository.findAllByGroupId(groupId);
+    }
+
+    // TODO: THIS IS GOING TO BE IMPLEMENTED WHEN 1 GROUP CAN HANDLE SEVERAL EXPENSES.
+    @Override
+    @Transactional(readOnly = true)
+    public ExpenseResponseDTO getExpenseByGroupIdAndExpenseId(Long groupId, Long expenseId, String token) {
+
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public TotalDebtResponseDTO getTotalUserDebt(Long userId, String token) {
 
         // Extract the phone number from the token.
         String phoneNumber = jwtService.getUserIdentifierFromToken(token);
 
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserByPhone(phoneNumber);
 
         if (!user.getUserId().equals(userId)) {
@@ -72,6 +121,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         // Extract the phone number from the token.
         String phoneNumber = jwtService.getUserIdentifierFromToken(token);
 
+        // Find a user via UserQueryService, which delegates exception handling to UserValidator.
         User user = userQueryService.getUserByPhone(phoneNumber);
 
         if (!user.getUserId().equals(userId)) {
@@ -84,43 +134,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         return new TotalSpentResponseDTO(totalSpent != null ? totalSpent : 0.0f);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ExpenseResponseDTO> getExpenses(Long groupId, String token) {
-
-        List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
-
-        if (expenses.isEmpty()) {
-            throw new ExpenseNotFoundException("No expenses found for group " + groupId);
-        }
-
-        return expenses.stream()
-                .map(this::mapToExpenseResponseDTO)
-                .collect(Collectors.toList());
-    }
-
-    // Find all user expenses of a group by groupid.
-    @Override
-    public List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId, String token) {
-
-        return userExpenseRepository.findAllByGroupId(groupId);
-    }
-
-    // Find an expense by id of a specific group by id.
-    @Override
-    @Transactional(readOnly = true)
-    public ExpenseResponseDTO getExpenseByGroupIdAndExternalId(Long groupId, Long expenseId, String token) {
-
-        Expense expense = expenseRepository.findByExpenseIdAndGroupId_GroupId(expenseId, groupId)
-                .orElseThrow(() -> new ExpenseNotFoundException("Expense with ID " + expenseId + " not found in group " + groupId));
-
-        return mapToExpenseResponseDTO(expense);
-    }
-
     // TODO: Implement this method of creating expenses when implementing more than one expense per group.
     @Override
     @Transactional
     public ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request) {
+
         return null;
     }
 
