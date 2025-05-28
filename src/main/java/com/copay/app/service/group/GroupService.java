@@ -13,11 +13,11 @@ import com.copay.app.dto.group.response.GroupResponseDTO;
 
 public interface GroupService {
 
-	GetGroupResponseDTO getGroupsByUserId(Long userId);
+	GetGroupResponseDTO getAllGroupsByUserId(Long userId, String token);
 
 	GroupResponseDTO getGroupByGroupId(Long groupId, String token);
 
-	GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId);
+	GetGroupMembersResponseDTO getGroupMembersByGroupId(Long groupId, String token);
 
 	GroupResponseDTO createGroup(CreateGroupRequestDTO request, String token);
 
