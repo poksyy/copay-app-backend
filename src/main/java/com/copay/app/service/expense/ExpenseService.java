@@ -13,11 +13,11 @@ public interface ExpenseService {
 
     ExpenseResponseDTO createExpense(Long groupId, CreateExpenseRequestDTO request);
 
-    List<ExpenseResponseDTO> getExpenses(Long groupId, String token);
+    List<ExpenseResponseDTO> getExpenseByGroupId(Long groupId, String token);
 
     List<UserExpenseDTO> getAllUserExpensesByGroupId(Long groupId, String token);
 
-    ExpenseResponseDTO getExpenseByGroupIdAndExternalId(Long groupId, Long expenseId, String token);
+    ExpenseResponseDTO getExpenseByGroupIdAndExpenseId(Long groupId, Long expenseId, String token);
 
     MessageResponseDTO deleteExpenseByGroupAndId (Long groupId, Long expenseId);
 
