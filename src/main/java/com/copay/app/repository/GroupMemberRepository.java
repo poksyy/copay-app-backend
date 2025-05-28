@@ -13,4 +13,7 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, GroupM
 	// The method follows Spring Data JPA conventions to access the `userId`
 	// within the embedded `GroupMemberId` object.
 	List<GroupMember> findByIdUserUserId(Long userId);
+
+	// Checks if a specific user belongs to a given group by their IDs.
+	boolean existsByIdUserUserIdAndIdGroupGroupId(Long userId, Long groupId);
 }
