@@ -38,22 +38,41 @@ public interface PaymentConfirmationRepository extends JpaRepository<PaymentConf
 
     // === Custom queries with @Query ===
 
-    // Get all user expenses by group id.
+// Get all user expenses by group id.
+
+    /**
+     * NOTE: LEFT JOINs are used intentionally in this query to avoid excluding records
+     * where either debtorUser or creditorUser (or their external counterparts) are null.
+     * Without LEFT JOIN, JPQL performs implicit INNER JOINs which filter out rows
+     * with null relationships, resulting in missing data even when some values are present.
+     */
     @Query("""
-        SELECT new com.copay.app.dto.paymentconfirmation.response.PaymentResponseDTO(
-            p.paymentConfirmationId,
-            ue.userExpenseId,
-            p.confirmationAmount,
-            p.confirmationDate,
-            p.isConfirmed,
-            p.confirmedAt,
-            ue.debtorUser.username,
-            ue.creditorUser.username
-        )
-        FROM PaymentConfirmation p
-        JOIN p.userExpense ue
-        WHERE ue.expenseId.groupId.groupId = :groupId
-""")
+            SELECT new com.copay.app.dto.paymentconfirmation.response.PaymentResponseDTO(
+                p.paymentConfirmationId,
+                ue.userExpenseId,
+                p.confirmationAmount,
+                p.confirmationDate,
+                p.isConfirmed,
+                p.confirmedAt,
+                CASE 
+                    WHEN ue.debtorUser IS NOT NULL THEN ue.debtorUser.username 
+                    WHEN ue.debtorExternalMember IS NOT NULL THEN ue.debtorExternalMember.name 
+                    ELSE 'Unknown' 
+                END,
+                CASE 
+                    WHEN ue.creditorUser IS NOT NULL THEN ue.creditorUser.username 
+                    WHEN ue.creditorExternalMember IS NOT NULL THEN ue.creditorExternalMember.name 
+                    ELSE 'Unknown' 
+                END
+            )
+            FROM PaymentConfirmation p
+            JOIN p.userExpense ue
+            LEFT JOIN ue.debtorUser du
+            LEFT JOIN ue.creditorUser cu
+            LEFT JOIN ue.debtorExternalMember dem
+            LEFT JOIN ue.creditorExternalMember cem
+            WHERE ue.expenseId.groupId.groupId = :groupId
+            """)
     List<PaymentResponseDTO> findAllUserExpensesByGroupId(@Param("groupId") Long groupId);
 
 
