@@ -17,7 +17,7 @@ public interface UserService {
 
     List<UserResponseDTO> getAllUsers();
 
-    UserResponseDTO getUserById(Long id);
+    UserResponseDTO getUserById(Long id, String token);
 
     UserResponseDTO getUserByPhoneDTO(String phoneNumber);
 

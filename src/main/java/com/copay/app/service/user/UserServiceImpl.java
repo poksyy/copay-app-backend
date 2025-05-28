@@ -58,10 +58,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponseDTO getUserById(Long id) {
+    public UserResponseDTO getUserById(Long userId, String token) {
 
         // Find a user via UserQueryService, which delegates exception handling to UserValidator.
-        User user = userQueryService.getUserById(id);
+        User user = userQueryService.getUserById(userId);
+
+        userQueryService.validateUserIdMatchesToken(userId, token);
 
         return new UserResponseDTO(user);
     }
