@@ -57,7 +57,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         User user = userQueryService.getUserByPhone(phoneNumber);
 
         // Validate that the user that is doing the request forms part of the group.
-        userQueryService.validateUserInGroup(groupId, user.getUserId());
+        userQueryService.validateUserInGroup(user.getUserId(), groupId);
 
         List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
 
