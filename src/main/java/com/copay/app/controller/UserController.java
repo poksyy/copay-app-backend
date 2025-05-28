@@ -45,7 +45,10 @@ public class UserController {
 	@GetMapping("/{id}")
 	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable @NotNull(message = "User ID must not be null") Long id) {
 
-		UserResponseDTO userResponseDTO = userService.getUserById(id);
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		UserResponseDTO userResponseDTO = userService.getUserById(id, token);
 
 		return ResponseEntity.ok(userResponseDTO);
 	}
