@@ -97,10 +97,10 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public GetGroupResponseDTO getGroupsByUserId(Long userId) {
+	public GetGroupResponseDTO getAllGroupsByUserId(Long userId, String token) {
 
-		// Find the user through the UserQueryService.
-		userQueryService.getUserById(userId);
+		// Validates if the path variable of user ID matches the token ID through the userQueryService.
+		userQueryService.validateUserIdMatchesToken(userId, token);
 
 		// Fetch groups where the user is a member.
 		List<GroupMember> groupMembers = groupMemberRepository.findByIdUserUserId(userId);
@@ -160,19 +160,11 @@ public class GroupServiceImpl implements GroupService {
 		// Extract the phone number from the token.
 		String phoneNumber = jwtService.getUserIdentifierFromToken(token);
 
+		// Find the user through the UserQueryService.
 		User userFromToken = userQueryService.getUserByPhone(phoneNumber);
 
-		// Check if the current user is part of the group (registered member or creator).
-		boolean isCreator = group.getCreatedBy().getUserId().equals(userFromToken.getUserId());
-		boolean isMember = group.getRegisteredMembers().stream()
-				.anyMatch(member -> member.getId().getUser().getUserId().equals(userFromToken.getUserId()));
-
-		if (!isCreator && !isMember) {
-			throw new GroupAccessDeniedException(
-					"Access denied: user with ID " + userFromToken.getUserId() +
-							" is neither the group creator nor a registered member of group ID " + group.getGroupId()
-			);
-		}
+		// Validate that the user that is doing the request forms part of the group.
+		userQueryService.validateUserInGroup(userFromToken.getUserId(), groupId);
 
 		// Fetch all expenses associated with the group.
 		List<Expense> expenses = expenseRepository.findByGroupId_GroupId(groupId);
@@ -195,10 +187,19 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public GetGroupMembersResponseDTO getGroupMembersByGroup(Long groupId) {
+	public GetGroupMembersResponseDTO getGroupMembersByGroupId(Long groupId, String token) {
 
 		// Find a group via GroupQueryService, which delegates exception handling to GroupValidator.
 		Group group = groupQueryService.getGroupById(groupId);
+
+		// Extract the phone number from the token.
+		String phoneNumber = jwtService.getUserIdentifierFromToken(token);
+
+		// Find the user through the UserQueryService.
+		User userFromToken = userQueryService.getUserByPhone(phoneNumber);
+
+		// Validate that the user that is doing the request forms part of the group.
+		userQueryService.validateUserInGroup(userFromToken.getUserId(), groupId);
 
 		List<RegisteredMemberDTO> registeredMembers = group.getRegisteredMembers().stream()
 				.map(registeredMember -> new RegisteredMemberDTO(registeredMember.getId().getUser().getUserId(), registeredMember.getId().getUser().getUsername(), registeredMember.getId().getUser().getPhoneNumber()))
