@@ -5,6 +5,7 @@ import java.util.List;
 import com.copay.app.exception.expense.*;
 import com.copay.app.exception.group.*;
 import com.copay.app.exception.email.EmailSendingException;
+import com.copay.app.exception.paymentconfirmation.InvalidPaymentConfirmationException;
 import com.copay.app.exception.user.*;
 import com.copay.app.exception.notification.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -288,6 +289,18 @@ public class GlobalExceptionHandler {
 				"Notification with that id was not found", HttpStatus.NOT_FOUND.value());
 
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(InvalidPaymentConfirmationException.class)
+	public ResponseEntity<ValidationErrorResponse> handleInvalidPaymentConfirmationException(InvalidPaymentConfirmationException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+				List.of(ex.getMessage()),
+				ex.getMessage(),
+				HttpStatus.BAD_REQUEST.value()
+		);
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
 	// HTTP 403: Deleting a notification that doesn't belong to the user.
