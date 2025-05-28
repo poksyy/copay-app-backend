@@ -25,31 +25,19 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
-    // Endpoint to retrieve all the expenses.
+    // Endpoint to retrieve the expense of a group by group id.
     @GetMapping("/{groupId}")
-    public ResponseEntity<?> getAllExpensesByGroupId(@PathVariable Long groupId) {
+    public ResponseEntity<?> getExpenseByGroupId(@PathVariable Long groupId) {
 
         // Get the token from the SecurityContextHolder.
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-        List<ExpenseResponseDTO> getExpenses = expenseService.getExpenses(groupId, token);
+        List<ExpenseResponseDTO> getExpenses = expenseService.getExpenseByGroupId(groupId, token);
 
        return ResponseEntity.ok(getExpenses);
     }
 
-    // Endpoint to retrieve details of one expense.
-    @GetMapping("/{groupId}/{expenseId}")
-    public ResponseEntity<?> getExpenseByGroupIdAndExternalId(@PathVariable Long groupId, @PathVariable Long expenseId){
-
-        // Get the token from the SecurityContextHolder.
-        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
-        ExpenseResponseDTO getExpense = expenseService.getExpenseByGroupIdAndExternalId(groupId, expenseId, token);
-
-        return ResponseEntity.ok(getExpense);
-    }
-
-    // Endpoint to user expenses of one group.
+    // Endpoint to retrieve all user expenses for a specific group by group id.
     @GetMapping("/{groupId}/user-expenses")
     public ResponseEntity<List<UserExpenseDTO>> getAllUserExpensesByGroupId(@PathVariable Long groupId) {
 
@@ -59,6 +47,42 @@ public class ExpenseController {
         List<UserExpenseDTO> userExpenses = expenseService.getAllUserExpensesByGroupId(groupId, token);
 
         return ResponseEntity.ok(userExpenses);
+    }
+
+    // TODO: THIS ENDPOINT IS GOING TO BE IMPLEMENTED WHEN 1 GROUP CAN HANDLE SEVERAL EXPENSES.
+    @GetMapping("/{groupId}/{expenseId}")
+    public ResponseEntity<?> getExpenseByGroupIdAndExpenseId(@PathVariable Long groupId, @PathVariable Long expenseId){
+
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        ExpenseResponseDTO getExpense = expenseService.getExpenseByGroupIdAndExpenseId(groupId, expenseId, token);
+
+        return ResponseEntity.ok(getExpense);
+    }
+
+    // Endpoint to get the total debt amount for a user across all groups.
+    @GetMapping("/user/{userId}/total-debt")
+    public ResponseEntity<TotalDebtResponseDTO> getTotalUserDebt(@PathVariable Long userId) {
+
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        TotalDebtResponseDTO totalDebtResponseDTO = expenseService.getTotalUserDebt(userId, token);
+
+        return ResponseEntity.ok(totalDebtResponseDTO);
+    }
+
+    // Endpoint to get the total amount spent by a user across all groups.
+    @GetMapping("/user/{userId}/total-spent")
+    public ResponseEntity<TotalSpentResponseDTO> getTotalUserSpent(@PathVariable Long userId) {
+
+        // Get the token from the SecurityContextHolder.
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+        TotalSpentResponseDTO totalSpentResponseDTO = expenseService.getTotalUserSpent(userId, token);
+
+        return ResponseEntity.ok(totalSpentResponseDTO);
     }
 
     // TODO: Implement this method of creating expenses when implementing more than one expense per group.
@@ -77,29 +101,5 @@ public class ExpenseController {
         MessageResponseDTO messageResponseDTO = expenseService.deleteExpenseByGroupAndId(groupId, expenseId);
 
         return ResponseEntity.ok("messageResponseDTO");
-    }
-
-    // Endpoint to get the total debt amount for a user across all groups
-    @GetMapping("/user/{userId}/total-debt")
-    public ResponseEntity<TotalDebtResponseDTO> getTotalUserDebt(@PathVariable Long userId) {
-
-        // Get the token from the SecurityContextHolder.
-        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
-        TotalDebtResponseDTO totalDebtResponseDTO = expenseService.getTotalUserDebt(userId, token);
-
-        return ResponseEntity.ok(totalDebtResponseDTO);
-    }
-
-    // Endpoint to get the total amount spent by a user across all groups
-    @GetMapping("/user/{userId}/total-spent")
-    public ResponseEntity<TotalSpentResponseDTO> getTotalUserSpent(@PathVariable Long userId) {
-
-        // Get the token from the SecurityContextHolder.
-        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
-        TotalSpentResponseDTO totalSpentResponseDTO = expenseService.getTotalUserSpent(userId, token);
-
-        return ResponseEntity.ok(totalSpentResponseDTO);
     }
 }
