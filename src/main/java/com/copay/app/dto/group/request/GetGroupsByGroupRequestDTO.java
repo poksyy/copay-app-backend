@@ -7,7 +7,7 @@ public class GetGroupsByGroupRequestDTO {
     @NotNull(message = "Group ID must not be null")
     private Long groupId;
 
-    // Getters y Setters
+    // Getters and Setters.
     public Long getGroupId() { return groupId; }
     public void setGroupId(Long groupId) { this.groupId = groupId; }
 }
