@@ -1508,7 +1508,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgyODIyMzMsImV4cCI6MTc0ODI4NTgzM30.i6X39ebQaMjPl5Rh1ApUdlRPUDn1OTs4hnxVfppD_xdOFPjMoDvMalGfm5WWh94z3UpYIXKAfwQ3B8xNU3U27g",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDUxODYsImV4cCI6MTc0ODQ0ODc4Nn0.mP9toq3y-RA7I8Ik94O7x5gKt2lSnBuhVq8Mq2la7sq7Z8PoY-CjCuFzZcJOCQkjoCynKEqDUn8g9ijThZ7IXA",
 											"type": "string"
 										}
 									]
@@ -1527,7 +1527,7 @@
 										"users"
 									]
 								},
-								"description": "### **GET ALL USERS**\n\n`http://localhost:8080/api/users`\n\nThis endpoint retrieves a complete list of users registered in the system.\n\nIt returns an array of user objects in JSON format.\n\n### **Users retrieval information**\n\nEach user object in the response will contain the following fields:\n\n- `id` (number): The unique identifier of the user.\n    \n- `username` (string): The username of the user.\n    \n- `email` (string): The user's email address.\n    \n- `phonePrefix` (string): The phone prefix associated with the user.\n    \n- `phoneNumber` (string): The phone number of the user.\n    \n\n### **Responses**\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| 200 OK | Users retrieved successfully | Full user list returned as JSON array |"
+								"description": "### **GET ALL USERS**\n\n`http://localhost:8080/api/users`\n\nThis endpoint retrieves a complete list of users registered in the system.\n\nIt returns an array of user objects in JSON format.\n\n**⚠️ This is a backoffice-oriented endpoint. It is intended for administrative/internal use only and is not exposed in the frontend application.**\n\n### **Users retrieval information**\n\nEach user object in the response will contain the following fields:\n\n- `id` (number): The unique identifier of the user.\n    \n- `username` (string): The username of the user.\n    \n- `email` (string): The user's email address.\n    \n- `phonePrefix` (string): The phone prefix associated with the user.\n    \n- `phoneNumber` (string): The phone number of the user.\n    \n\n### **Responses**\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| 200 OK | Users retrieved successfully | Full user list returned as JSON array |"
 							},
 							"response": [
 								{
@@ -1615,14 +1615,14 @@
 							]
 						},
 						{
-							"name": "Get User by userid",
+							"name": "Get User by userId",
 							"request": {
 								"auth": {
 									"type": "bearer",
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgyODY3NDEsImV4cCI6MTc0ODI5MDM0MX0.qYTL4N-J3Pq2Pae_ZPSZC2UaA-zo_jVe1JdA4vSNZbmYbJEBhGrX-qUhvMpgAmqvs1apa-Xh9N1fwmQDeLNrZw",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDgwMTEsImV4cCI6MTc0ODQ1MTYxMX0.j4w8o3pNjUoNzC09PdIzO4hj3G1K_v30GcXynmhR8_e1doXxgTNlfxTpDvvk3QsmSgcnH25cDQHsyGLEmx7f9w",
 											"type": "string"
 										}
 									]
@@ -1630,7 +1630,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/users/2",
+									"raw": "http://localhost:8080/api/users/{userid}",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -1639,7 +1639,7 @@
 									"path": [
 										"api",
 										"users",
-										"2"
+										"{userid}"
 									]
 								},
 								"description": "## GET USERS BY USER ID ENDPOINT\n\n[http://localhost:8080/api/users](http://localhost:8080/api/users)\n\nThis endpoint retrieves user information based on the provided user ID.\n\n### Response\n\nThe response will be in JSON format and will contain the following fields:\n\n- `id` (number): The unique identifier of the user.\n    \n- `username` (string): The username of the user.\n    \n- `email` (string): The email address of the user.\n    \n- `phonePrefix` (string): The phone number prefix of the user.\n    \n- `phoneNumber` (string): The phone number of the user.\n    \n\n### Responses\n\n| Status Code | Description | Example Case (Postman) |\n| --- | --- | --- |\n| 200 OK | User ID retrieval successful | Request with valid ID returns user data |\n| 400 Bad Request | Invalid or missing path variable or validation failure | ID is not a number or violates validation |\n| 401 Unauthorized | Authentication token is missing or invalid | Missing or invalid `Authorization` header |\n| 404 Not Found | No user found with the specified ID | User with ID `9999` does not exist |\n\nEndFragment"
@@ -1903,6 +1903,89 @@
 									"body": "{\n    \"exception\": \"InvalidTokenException\",\n    \"message\": \"Invalid token - Possibly malformed, invalid signature, or unsupported format.\",\n    \"status\": 401\n}"
 								},
 								{
+									"name": "403 Forbidden (You can only fetch data of your userId)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/users/26",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users",
+												"26"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:01:10 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"User with ID 26 does not match the token user ID 27\"\n    ],\n    \"message\": \"Your token ID does not match the requested user ID.\",\n    \"status\": 403\n}"
+								},
+								{
 									"name": "404 Not found",
 									"originalRequest": {
 										"method": "GET",
@@ -1988,7 +2071,7 @@
 							]
 						},
 						{
-							"name": "Get Users by phonenumber",
+							"name": "Get User by phonenumber",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -2016,7 +2099,7 @@
 										"616689085"
 									]
 								},
-								"description": "## GET USERS BY PHONE NUMBER\n\n[http://localhost:8080/api/users/phone/<br>](http://localhost:8080/api/users)\n\nThis endpoint retrieves user information based on the provided phone number.\n\n**Response**\n\nThe response will be in JSON format and will contain the following fields:\n\n- `id` (number): The unique identifier of the user.\n    \n- `username` (string): The username of the user.\n    \n- `email` (string): The email address of the user.\n    \n- `phonePrefix` (string): The phone number prefix of the user.\n    \n- `phoneNumber` (string): The phone number of the user.\n    \n\n**Responses**\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| 200 OK | User phone number retrieval | User with phone number found and returned |\n| 400 Bad Request | Missing or invalid phone number format | Phone number is empty or contains invalid characters |\n| 401 Unauthorized | Authentication token is missing or invalid | 401 Unauthorized - Invalid token provided |\n| 404 Not Found | No user found with the specified phone number | 404 Not Found - Phone number not associated with user |\n\nEndFragment"
+								"description": "## GET USERS BY PHONE NUMBER\n\n[http://localhost:8080/api/users/phone/<br>](http://localhost:8080/api/users)\n\nThis endpoint retrieves user information based on the provided phone number.\n\n**Response**\n\nThe response will be in JSON format and will contain the following fields:\n\n- `id` (number): The unique identifier of the user.\n    \n- `username` (string): The username of the user.\n    \n- `email` (string): The email address of the user.\n    \n- `phonePrefix` (string): The phone number prefix of the user.\n    \n- `phoneNumber` (string): The phone number of the user.\n    \n\n**Responses**\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| 200 OK | User phone number retrieval | User with phone number found and returned |\n| 400 Bad Request | Missing or invalid phone number format | Phone number is empty or contains invalid characters |\n| 401 Unauthorized | Authentication token is missing or invalid | 401 Unauthorized - Invalid token provided |\n| 404 Not Found | No user found with the specified phone number | 404 Not Found - Phone number not associated with user |"
 							},
 							"response": [
 								{
@@ -2396,7 +2479,7 @@
 										"users"
 									]
 								},
-								"description": "## CREATE USER ENDPOINT\n\n[http://localhost:8080/api/users](http://localhost:8080/api/usersEndFragment)\n\nThis endpoint allows the creation of a new user.\n\n### Request Body\n\n- `username` (string, required): The username of the user.\n    \n- `email` (string, required): The email address of the user.\n    \n- `password` (string, required): The password for the user account.\n    \n- `phonePrefix` (string, required): The prefix of the user phone number.\n    \n- `phoneNumber` (string, required): The phone number of the user.\n    \n\n### Responses\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| `201 Created` | User successfully created | `201 Created - User registered` |\n| `400 Bad Request` | Missing or invalid fields in request body | `400 Bad Request - Empty email field` |\n| `401 Unauthorized` | Authentication token is missing or invalid | `401 Unauthorized - Invalid token provided` |\n| `409 Conflict` | User with the given email/phone already exists | `409 Conflict - Email or phone already in use` |\n| `422 Unprocessable Entity` | Data format is valid but semantically incorrect | `422 Unprocessable Entity - Invalid phone format` |\n| `500 Internal Server Error` | Unexpected error on the server side | `500 Internal Server Error - DB connection` |"
+								"description": "## CREATE USER ENDPOINT\n\n[http://localhost:8080/api/users](http://localhost:8080/api/usersEndFragment)\n\nThis endpoint allows the creation of a new user.\n\n**⚠️ This is a backoffice-oriented endpoint. It is intended for administrative/internal use only and is not exposed in the frontend application.**\n\n### Request Body\n\n- `username` (string, required): The username of the user.\n    \n- `email` (string, required): The email address of the user.\n    \n- `password` (string, required): The password for the user account.\n    \n- `phonePrefix` (string, required): The prefix of the user phone number.\n    \n- `phoneNumber` (string, required): The phone number of the user.\n    \n\n### Responses\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| `201 Created` | User successfully created | `201 Created - User registered` |\n| `400 Bad Request` | Missing or invalid fields in request body | `400 Bad Request - Empty email field` |\n| `401 Unauthorized` | Authentication token is missing or invalid | `401 Unauthorized - Invalid token provided` |\n| `409 Conflict` | User with the given email/phone already exists | `409 Conflict - Email or phone already in use` |\n| `422 Unprocessable Entity` | Data format is valid but semantically incorrect | `422 Unprocessable Entity - Invalid phone format` |\n| `500 Internal Server Error` | Unexpected error on the server side | `500 Internal Server Error - DB connection` |"
 							},
 							"response": [
 								{
@@ -5742,7 +5825,7 @@
 							]
 						},
 						{
-							"name": "Delete User by userid",
+							"name": "Delete User by userId",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -6032,7 +6115,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgzNTc1MjUsImV4cCI6MTc0ODM2MTEyNX0.4yuy6B8u5fEBbxp-gB4Z1a03b2VaWXwkTRLTBqMPEcFTW_mM8m5Pc8bp6oBmTDp_RSZ1puF3m2N2UVKJA1a6sw",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDcyNDAsImV4cCI6MTc0ODQ1MDg0MH0.YqEonLfrHvunR-CDYakOvOLa2SVgvDbuCgUK5V4He3TVE7j_RotNqIWzvU2IS-FotHAbITnAnUCa-AXBEnRzXw",
 											"type": "string"
 										}
 									]
@@ -6053,7 +6136,7 @@
 										"group"
 									]
 								},
-								"description": "### **GET GROUP BY GROUP ID**\n\n`http://localhost:8080/api/groups/{groupId}`\n\nRetrieves full details of a specific group by its unique identifier.  \n  \nAccess is restricted to users who are members or the owner of the group.  \n  \nStartFragment\n\n### **Path Variable**\n\n- `groupId` (number): The unique ID of the group to be retrieved.\n    \n\nStartFragment\n\n### **Group retrieval information**\n\nEach group object in the response will contain the following fields:\n\n- `groupId` (number): The unique identifier of the group.\n    \n- `name` (string): The name of the group.\n    \n- `description` (string): The description of the group.\n    \n- `estimatedPrice` (number): The estimated price associated with the group.\n    \n- `currency` (string): The currency used (e.g., \"EUR\").\n    \n- `createdAt` (string): Timestamp of when the group was created (format: `yyyy-MM-dd HH:mm:ss`).\n    \n- `userIsOwner` (boolean): Indicates if the user performing the request is the owner of the group.\n    \n\n##### **Creditor object**\n\n- `creditorId` (number): The unique identifier of the creditor user.\n    \n- `creditorName` (string): The username of the creditor.\n    \n\n##### **Group owner object**\n\n- `ownerId` (number): The unique identifier of the owner.\n    \n- `ownerName` (string): The username of the group owner.\n    \n\n##### **Registered members**\n\nA list of registered users in the group. Each member object contains:\n\n- `registeredMemberId` (number): The ID of the registered member.\n    \n- `username` (string): The member's username.\n    \n- `phoneNumber` (string): The member's phone number.\n    \n\n##### **External members**\n\nA list of external members added manually. Each object may contain only:\n\n- `externalMemberId` (number): The ID of the external member.\n    \n- `name` (string): The name of the external member.\n    \n\n### **Responses**\n\n| Status Code | Description | Example case |\n| --- | --- | --- |\n| 200 OK | Group information successfully retrieved | The user is authorized (member or owner) |\n| 400 Bad Request | Invalid input or malformed endpoint | `groupId` is not a number |\n| 403 Forbidden | Access denied | User is neither a member nor the group creator |\n| 404 Not Found | Group not found | No group exists with the specified `groupId` |"
+								"description": "### **GET GROUP BY GROUP ID**\n\n`http://localhost:8080/api/groups/{groupId}`\n\nRetrieves full details of a specific group by its unique identifier.\n\nAccess is restricted to users who are members or the owner of the group.\n\n### **Path Variable**\n\n- `groupId` (number): The unique ID of the group to be retrieved.\n    \n\n### **Group retrieval information**\n\nThe group object in the response will contain the following fields:\n\n- `groupId` (number): The unique identifier of the group.\n    \n- `name` (string): The name of the group.\n    \n- `description` (string): The description of the group.\n    \n- `estimatedPrice` (number): The estimated price associated with the group.\n    \n- `currency` (string): The currency used (e.g., \"EUR\").\n    \n- `createdAt` (string): Timestamp of when the group was created (format: `yyyy-MM-dd HH:mm:ss`).\n    \n- `userIsOwner` (boolean): Indicates if the user performing the request is the owner of the group.\n    \n\n##### **Creditor object**\n\n- `creditorId` (number): The unique identifier of the creditor user.\n    \n- `creditorName` (string): The username of the creditor.\n    \n\n##### **Group owner object**\n\n- `ownerId` (number): The unique identifier of the owner.\n    \n- `ownerName` (string): The username of the group owner.\n    \n\n##### **Registered members**\n\nA list of registered users in the group. Each member object contains:\n\n- `registeredMemberId` (number): The ID of the registered member.\n    \n- `username` (string): The member's username.\n    \n- `phoneNumber` (string): The member's phone number.\n    \n\n##### **External members**\n\nA list of external members added manually. Each object may contain only:\n\n- `externalMemberId` (number): The ID of the external member.\n    \n- `name` (string): The name of the external member.\n    \n\n### **Responses**\n\n| Status Code | Description | Example case |\n| --- | --- | --- |\n| 200 OK | Group information successfully retrieved | The user is authorized (member or owner) |\n| 400 Bad Request | Invalid input or malformed endpoint | `groupId` is not a number |\n| 403 Forbidden | Access denied | User is neither a member nor the group creator |\n| 404 Not Found | Group not found | No group exists with the specified `groupId` |"
 							},
 							"response": [
 								{
@@ -6386,12 +6469,12 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n    \"errors\": [\n        \"Access denied: user with ID 27 is neither the group creator nor a registered member of group ID 18\"\n    ],\n    \"message\": \"You don't have access to this group\",\n    \"status\": 403\n}"
+									"body": "{\n    \"errors\": [\n        \"User with ID 27 does not belong to group with ID 56\"\n    ],\n    \"message\": \"You don't have access to this group\",\n    \"status\": 403\n}"
 								}
 							]
 						},
 						{
-							"name": "Get Group by user id",
+							"name": "Get All Groups by userId",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -6401,7 +6484,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgyODY3NDEsImV4cCI6MTc0ODI5MDM0MX0.qYTL4N-J3Pq2Pae_ZPSZC2UaA-zo_jVe1JdA4vSNZbmYbJEBhGrX-qUhvMpgAmqvs1apa-Xh9N1fwmQDeLNrZw",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDcyNDAsImV4cCI6MTc0ODQ1MDg0MH0.YqEonLfrHvunR-CDYakOvOLa2SVgvDbuCgUK5V4He3TVE7j_RotNqIWzvU2IS-FotHAbITnAnUCa-AXBEnRzXw",
 											"type": "string"
 										}
 									]
@@ -6418,7 +6501,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/groups/19",
+									"raw": "http://localhost:8080/api/groups/1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -6427,10 +6510,10 @@
 									"path": [
 										"api",
 										"groups",
-										"19"
+										"1"
 									]
 								},
-								"description": "### **GET GROUP BY USER ID**\n\n`http://localhost:8080/api/groups/1`\n\nThis endpoint retrieves all groups in which a specific user is a member, based on the provided user ID in the path.\n\n### **Path Parameter**\n\n- `1` (number): The user ID used to filter and return the associated groups.\n    \n\n### **Responses**\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| 200 OK | Groups successfully retrieved for the given user | User is a member of at least one group |\n| 204 No Content | The user is not a member of any group | Valid user ID but no associated groups |\n| 400 Bad Request | Invalid input format or wrong endpoint used | Non-numeric ID or malformed path parameter |\n| 404 Not Found | User ID provided in the endpoint does not exist | No user found with the given ID |"
+								"description": "### **GET GROUP BY USER ID**\n\n`http://localhost:8080/api/groups/1`\n\nRetrieves full details of all the groups that the user is member of.\n\nAccess is restricted: the userId in the token must match the userId specified in the endpoint path.\n\n### **Path Variable**\n\n- `userId` (number): The user's unique identifier for retrieving all groups they are a member of.\n    \n\n### **Group retrieval information**\n\nEach group object in the response will contain the following fields:\n\n- `groupId` (number): The unique identifier of the group.\n    \n- `name` (string): The name of the group.\n    \n- `description` (string): The description of the group.\n    \n- `estimatedPrice` (number): The estimated price associated with the group.\n    \n- `currency` (string): The currency used (e.g., \"EUR\").\n    \n- `createdAt` (string): Timestamp of when the group was created (format: `yyyy-MM-dd HH:mm:ss`).\n    \n- `userIsOwner` (boolean): Indicates if the user performing the request is the owner of the group.\n    \n\n##### **Creditor object**\n\n- `creditorId` (number): The unique identifier of the creditor user.\n    \n- `creditorName` (string): The username of the creditor.\n    \n\n##### **Group owner object**\n\n- `ownerId` (number): The unique identifier of the owner.\n    \n- `ownerName` (string): The username of the group owner.\n    \n\n##### **Registered members**\n\nA list of registered users in the group. Each member object contains:\n\n- `registeredMemberId` (number): The ID of the registered member.\n    \n- `username` (string): The member's username.\n    \n- `phoneNumber` (string): The member's phone number.\n    \n\n##### **External members**\n\nA list of external members added manually. Each object may contain only:\n\n- `externalMemberId` (number): The ID of the external member.\n    \n- `name` (string): The name of the external member.\n    \n\n### **Responses**\n\n| Status Code | Description | Example case (Postman) |\n| --- | --- | --- |\n| 200 OK | Groups successfully retrieved for the given user | User is a member of at least one group |\n| 204 No Content | The user is not a member of any group | Valid user ID but no associated groups |\n| 400 Bad Request | Invalid input format or wrong endpoint used | Non-numeric ID or malformed path parameter |\n| 404 Not Found | User ID provided in the endpoint does not exist | No user found with the given ID |\n| 403 Forbidden | USER ID provided in the endpoint does not match the user id from the token sent | Incorrect match of the userId between the user token and the endpoint path variable |"
 							},
 							"response": [
 								{
@@ -6698,6 +6781,98 @@
 									"body": "{\n    \"errors\": [\n        \"Invalid value '\\\"' for 'userId'. Expected a 'Long'. Please check the endpoint and try again.\"\n    ],\n    \"message\": \"Invalid endpoint input detected. Ensure the parameter is correct and matches the expected format.\",\n    \"status\": 400\n}"
 								},
 								{
+									"name": "403 Forbidden (You can only fetch data of your userId)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/groups/1",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"groups",
+												"1"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 15:52:58 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"User with ID 1 does not match the token user ID 27\"\n    ],\n    \"message\": \"Your token ID does not match the requested user ID.\",\n    \"status\": 403\n}"
+								},
+								{
 									"name": "404 Not found",
 									"originalRequest": {
 										"method": "GET",
@@ -6792,14 +6967,14 @@
 							]
 						},
 						{
-							"name": "List Group members by group id",
+							"name": "Get All Group members by groupId",
 							"request": {
 								"auth": {
 									"type": "bearer",
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgyODkwNjQsImV4cCI6MTc0ODI5MjY2NH0.fy8OYFg4DnPsND1-4WBPbKdUHkuVlDho802ve5Xrc2CdKnR5zF8Is89q6vUZHl7KZ3yKQnfPNICoPTbjJ_DEdw",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDUxODYsImV4cCI6MTc0ODQ0ODc4Nn0.mP9toq3y-RA7I8Ik94O7x5gKt2lSnBuhVq8Mq2la7sq7Z8PoY-CjCuFzZcJOCQkjoCynKEqDUn8g9ijThZ7IXA",
 											"type": "string"
 										}
 									]
@@ -6807,7 +6982,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/api/groups/2/members",
+									"raw": "http://localhost:8080/api/groups/49/members",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -6816,7 +6991,7 @@
 									"path": [
 										"api",
 										"groups",
-										"2",
+										"49",
 										"members"
 									]
 								}
@@ -7069,6 +7244,90 @@
 									],
 									"cookie": [],
 									"body": "{\n    \"errors\": [\n        \"Invalid value '\\\"' for 'groupId'. Expected a 'Long'. Please check the endpoint and try again.\"\n    ],\n    \"message\": \"Invalid endpoint input detected. Ensure the parameter is correct and matches the expected format.\",\n    \"status\": 400\n}"
+								},
+								{
+									"name": "403 Forbidden (User does not belong to the requested group)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/groups/2/members",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"groups",
+												"2",
+												"members"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 15:54:33 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"User with ID 27 does not belong to group with ID 2\"\n    ],\n    \"message\": \"You don't have access to this group\",\n    \"status\": 403\n}"
 								},
 								{
 									"name": "404 Not found",
@@ -10559,7 +10818,7 @@
 							]
 						},
 						{
-							"name": "Delete Group by groupid",
+							"name": "Delete Group by groupId",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -11420,7 +11679,7 @@
 					"name": "Expenses",
 					"item": [
 						{
-							"name": "Get Group Expenses by group id",
+							"name": "Get Expense by group id",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -11430,7 +11689,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgzODE1NjcsImV4cCI6MTc0ODM4NTE2N30.12dBz47jF7w-EOF_XLHwh3b0ibaktf-kDY3K8uipRQN9n8tb-0Uo88ZL84Hi_RALopf_FWlu5r-aJV1jMmasnA",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDgwMTEsImV4cCI6MTc0ODQ1MTYxMX0.j4w8o3pNjUoNzC09PdIzO4hj3G1K_v30GcXynmhR8_e1doXxgTNlfxTpDvvk3QsmSgcnH25cDQHsyGLEmx7f9w",
 											"type": "string"
 										}
 									]
@@ -11459,7 +11718,7 @@
 										"2"
 									]
 								},
-								"description": "### WORKING IN PROGRESS\n\nThe business logic of this endpoint it's not implemented yet."
+								"description": "### **GET EXPENSES BY GROUP ID**\n\n`GET http://localhost:8080/api/expenses/{groupId}`\n\nThis endpoint is used to **retrieve all expenses** associated with a specific **group**, identified by its `groupId`.\n\n---\n\n### **Path Parameters**\n\n- groupId(number): The id of the group.\n    \n\n### Response Body\n\nEach expense object in the response contains:\n\n- **id** (number): The unique identifier of the expense.\n    \n- **totalAmount** (number): The total value of the expense.\n    \n- **groupId** (number): The ID of the group to which the expense belongs.\n    \n- **creditorUserId** (number | null): ID of the registered user who is the creditor (null if creditor is an external member).\n    \n- **creditorExternalMemberId** (number | null): ID of the external member who is the creditor (null if creditor is a registered user).\n    \n- **registeredMembers** (array): List of registered users who owe part of the expense.\n    \n    - **amount** (number): Amount this user owes.\n        \n    - **debtorUserId** (number): ID of the registered user who owes the amount.\n        \n    - **creditorExternalMemberId** (number): ID of the external member to whom the user owes money.\n        \n- **externalMembers** (array): List of external members who owe part of the expense.\n    \n    - **debtorExternalMemberId** (number): ID of the external member who owes the amount.\n        \n    - **amount** (number): Amount this external member owes.\n        \n    - **creditorExternalMemberId** (number): ID of the external creditor.\n        \n\n### **Responses**\n\n| Status Code | Description |\n| --- | --- |\n| 200 OK | Successfully retrieved the list of expenses for the group. |\n| 400 Bad Request | Invalid group ID format or endpoint input. |\n| 403 Forbidden | The user is not a member or owner of the specified group. |\n| 404 Not Found | No group exists with the provided ID. |"
 							},
 							"response": [
 								{
@@ -11733,11 +11992,103 @@
 									],
 									"cookie": [],
 									"body": "{\n    \"errors\": [\n        \"No expenses found for group 8\"\n    ],\n    \"message\": \"Specified expense doesn't exist.\",\n    \"status\": 404\n}"
+								},
+								{
+									"name": "403 Forbidden (User does not belong to the requested group)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"2"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 15:09:43 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"User with ID 2 does not belong to group with ID 27\"\n    ],\n    \"message\": \"You don't have access to this group\",\n    \"status\": 403\n}"
 								}
 							]
 						},
 						{
-							"name": "Get total spent by user id",
+							"name": "Get all UserExpenses by a groupId",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -11747,7 +12098,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDgzNzgxMzUsImV4cCI6MTc0ODM4MTczNX0.CtVjL4DQXhJay00-Q2sMHfPdLZMQQ27_45dbpVxQ-NHfzIc_sD4gFzg9Rb7k0PLeVXd8mofdarB4hjbrPrhHvQ",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDgwMTEsImV4cCI6MTc0ODQ1MTYxMX0.j4w8o3pNjUoNzC09PdIzO4hj3G1K_v30GcXynmhR8_e1doXxgTNlfxTpDvvk3QsmSgcnH25cDQHsyGLEmx7f9w",
 											"type": "string"
 										}
 									]
@@ -11764,7 +12115,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/expenses/{userId}",
+									"raw": "http://localhost:8080/api/expenses/27/user-expenses",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -11773,7 +12124,330 @@
 									"path": [
 										"api",
 										"expenses",
-										"{userId}"
+										"27",
+										"user-expenses"
+									]
+								},
+								"description": "### **GET USEREXPENSES BY GROUP ID**\n\n  \n`GET http://localhost:8080/api/expenses/{groupId}/user-expenses`\n\nThis endpoint fetches all user expenses (debts) associated with a specific group. This includes both registered users and external members.\n\n### **Response Body**\n\nEach user expense object contains:\n\n- `userExpenseId` (number): Unique identifier of the user expense entry.\n    \n- `debtorUserId` (number | null): The ID of the registered user who owes money (null if it's an external member).\n    \n- `debtorExternalId` (number | null): The ID of the external member who owes money (null if it's a registered user).\n    \n- `amount` (number): The amount owed by the user or external member.\n    \n\n### Responses\n\n| Status Code | Description |\n| --- | --- |\n| 200 OK | Successfully retrieved the list of user_expenses for the group. |\n| 400 Bad Request | Invalid group ID format or endpoint input. |\n| 403 Forbidden | The user is not a member or owner of the specified group. |"
+							},
+							"response": [
+								{
+									"name": "200 OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/50/user-expenses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"50",
+												"user-expenses"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:38:28 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "[\n    {\n        \"userExpenseId\": 209,\n        \"debtorUserId\": 30,\n        \"debtorExternalId\": null,\n        \"amount\": 16.67\n    },\n    {\n        \"userExpenseId\": 210,\n        \"debtorUserId\": 18,\n        \"debtorExternalId\": null,\n        \"amount\": 16.67\n    },\n    {\n        \"userExpenseId\": 211,\n        \"debtorUserId\": 27,\n        \"debtorExternalId\": null,\n        \"amount\": 16.67\n    },\n    {\n        \"userExpenseId\": 212,\n        \"debtorUserId\": null,\n        \"debtorExternalId\": 157,\n        \"amount\": 16.67\n    },\n    {\n        \"userExpenseId\": 213,\n        \"debtorUserId\": null,\n        \"debtorExternalId\": 155,\n        \"amount\": 16.67\n    },\n    {\n        \"userExpenseId\": 214,\n        \"debtorUserId\": null,\n        \"debtorExternalId\": 156,\n        \"amount\": 16.67\n    }\n]"
+								},
+								{
+									"name": "400 Bad request (Invalid endpoint input)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/\"/user-expenses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"\"",
+												"user-expenses"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:38:37 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"Invalid value '\\\"' for 'groupId'. Expected a 'Long'. Please check the endpoint and try again.\"\n    ],\n    \"message\": \"Invalid endpoint input detected. Ensure the parameter is correct and matches the expected format.\",\n    \"status\": 400\n}"
+								},
+								{
+									"name": "403 Forbidden (User does not belong to the requested group)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/2/user-expenses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"2",
+												"user-expenses"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:37:40 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"User with ID 27 does not belong to group with ID 2\"\n    ],\n    \"message\": \"You don't have access to this group\",\n    \"status\": 403\n}"
+								}
+							]
+						},
+						{
+							"name": "Get total spent by user id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDgwMTEsImV4cCI6MTc0ODQ1MTYxMX0.j4w8o3pNjUoNzC09PdIzO4hj3G1K_v30GcXynmhR8_e1doXxgTNlfxTpDvvk3QsmSgcnH25cDQHsyGLEmx7f9w",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/expenses/user/{userId}/total-spent",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"expenses",
+										"user",
+										"{userId}",
+										"total-spent"
 									]
 								}
 							},
@@ -12053,11 +12727,21 @@
 							]
 						},
 						{
-							"name": "WIP Get specific Expense by group",
+							"name": "Get total debts by user id",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MTY2ODkwODUiLCJpYXQiOjE3NDg0NDgwMTEsImV4cCI6MTc0ODQ1MTYxMX0.j4w8o3pNjUoNzC09PdIzO4hj3G1K_v30GcXynmhR8_e1doXxgTNlfxTpDvvk3QsmSgcnH25cDQHsyGLEmx7f9w",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"body": {
@@ -12070,7 +12754,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/expenses/{groupId}/{expenseId}",
+									"raw": "http://localhost:8080/api/expenses/user/{userid}/total-debt",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -12079,15 +12763,295 @@
 									"path": [
 										"api",
 										"expenses",
-										"{groupId}",
-										"{expenseId}"
+										"user",
+										"{userid}",
+										"total-debt"
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "200 OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/user/27/total-debt",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"user",
+												"27",
+												"total-debt"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:34:57 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"totalDebt\": 279.93\n}"
+								},
+								{
+									"name": "400 Bad Request (Invalid endpoint input)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/user/\"/total-debt",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"user",
+												"\"",
+												"total-debt"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:37:00 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "close"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"Invalid value '\\\"' for 'userId'. Expected a 'Long'. Please check the endpoint and try again.\"\n    ],\n    \"message\": \"Invalid endpoint input detected. Ensure the parameter is correct and matches the expected format.\",\n    \"status\": 400\n}"
+								},
+								{
+									"name": "403 Forbidden (You can only fetch data of your userId)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/expenses/user/3/total-debt",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"expenses",
+												"user",
+												"3",
+												"total-debt"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Vary",
+											"value": "Origin"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Method"
+										},
+										{
+											"key": "Vary",
+											"value": "Access-Control-Request-Headers"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Cache-Control",
+											"value": "no-cache, no-store, max-age=0, must-revalidate"
+										},
+										{
+											"key": "Pragma",
+											"value": "no-cache"
+										},
+										{
+											"key": "Expires",
+											"value": "0"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 28 May 2025 16:31:01 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"errors\": [\n        \"User does not match the user in the token.\"\n    ],\n    \"message\": \"You can only update your own account information.\",\n    \"status\": 403\n}"
+								}
+							]
 						},
 						{
-							"name": "WIP Get specific Expense by group",
+							"name": "WIP Get specific Expense by groupId and expenseId",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -12116,7 +13080,8 @@
 										"{groupId}",
 										"{expenseId}"
 									]
-								}
+								},
+								"description": "### WORKING IN PROGRESS\n\nThis endpoint is not being used in the frontend yet"
 							},
 							"response": []
 						},
@@ -12146,7 +13111,8 @@
 										"expenses",
 										"{groupId}"
 									]
-								}
+								},
+								"description": "### WORKING IN PROGRESS\n\nThis endpoint is not being used in the frontend yet"
 							},
 							"response": []
 						},
@@ -12168,7 +13134,8 @@
 										"{groupId}",
 										"{expenseId}"
 									]
-								}
+								},
+								"description": "### WORKING IN PROGRESS\n\nThis endpoint is not being used in the frontend yet"
 							},
 							"response": []
 						}
