@@ -6,6 +6,7 @@ import com.copay.app.exception.expense.*;
 import com.copay.app.exception.group.*;
 import com.copay.app.exception.email.EmailSendingException;
 import com.copay.app.exception.paymentconfirmation.InvalidPaymentConfirmationException;
+import com.copay.app.exception.token.UserIdNotMatchTokenException;
 import com.copay.app.exception.user.*;
 import com.copay.app.exception.notification.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -170,6 +171,19 @@ public class GlobalExceptionHandler {
 		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
 				List.of(ex.getMessage()),
 				"Only the group creator is authorized to perform this action.",
+				HttpStatus.FORBIDDEN.value()
+		);
+
+		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+	}
+
+	// HTTP 403: Non creator user trying to update/delete a group.
+	@ExceptionHandler(UserIdNotMatchTokenException.class)
+	public ResponseEntity<ValidationErrorResponse> handleUserIdNotMatchTokenException(UserIdNotMatchTokenException ex) {
+
+		ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+				List.of(ex.getMessage()),
+				"Your token ID does not match the requested user ID.",
 				HttpStatus.FORBIDDEN.value()
 		);
 
