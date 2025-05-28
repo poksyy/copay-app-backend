@@ -7,6 +7,7 @@ import com.copay.app.dto.group.response.GetGroupMembersResponseDTO;
 import com.copay.app.dto.group.request.*;
 
 import com.copay.app.service.group.GroupService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,7 +37,7 @@ public class GroupController {
         this.groupService = groupService;
     }
 
-	// Endpoint to retrieve a single group by its group ID.
+	// Endpoint to retrieve a single group details by its group ID.
 	@GetMapping("/{groupId}/group")
 	public ResponseEntity<?> getGroupByGroupId(@PathVariable Long groupId,
 											   @Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
@@ -52,15 +53,18 @@ public class GroupController {
 		return ResponseEntity.ok(GroupResponseDTO);
 	}
 
-	// Endpoint to retrieve groups for a given user (HomeScreen display).
+	// Endpoint to retrieve all groups for a given user (HomeScreen display).
 	@GetMapping("/{userId}")
-	public ResponseEntity<?> getGroupsByUser(@PathVariable Long userId,
+	public ResponseEntity<?> getAllGroupsByUserId(@PathVariable Long userId,
 			@Valid @ModelAttribute GetGroupsByUserRequestDTO getGroupsByUserRequestDTO) {
+
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
 		// The userId is manually added to the DTO for validation.
 		getGroupsByUserRequestDTO.setUserId(userId);
 
-		GetGroupResponseDTO getGroupResponseDTO = groupService.getGroupsByUserId(userId);
+		GetGroupResponseDTO getGroupResponseDTO = groupService.getAllGroupsByUserId(userId, token);
 
 		// Check if the group list is empty and return 204 No Content if so.
 		if (getGroupResponseDTO.getGroups() == null || getGroupResponseDTO.getGroups().isEmpty()) {
@@ -70,14 +74,14 @@ public class GroupController {
 		return ResponseEntity.ok(getGroupResponseDTO);
 	}
 
+	// Endpoint to retrieve all the members (both external or registered) by a group ID.
 	@GetMapping("/{groupId}/members")
-	public ResponseEntity<?> getGroupMembersByGroup(@PathVariable Long groupId,
-													@Valid @ModelAttribute GetGroupsByGroupRequestDTO getGroupsByGroupRequestDTO) {
+	public ResponseEntity<?> getGroupMembersByGroupId(@PathVariable @NotNull(message = "Group ID must not be null") Long groupId) {
 
-		// The groupId is manually added to the DTO for validation.
-		getGroupsByGroupRequestDTO.setGroupId(groupId);
+		// Get the token from the SecurityContextHolder.
+		String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
-		GetGroupMembersResponseDTO getGroupMembersResponseDTO = groupService.getGroupMembersByGroup(groupId);
+		GetGroupMembersResponseDTO getGroupMembersResponseDTO = groupService.getGroupMembersByGroupId(groupId, token);
 
 		return ResponseEntity.ok(getGroupMembersResponseDTO);
 	}
