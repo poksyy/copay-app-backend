@@ -12,7 +12,7 @@ public class CreateGroupRequestDTO {
 	private Long createdBy;
 
 	@NotBlank(message = "Group name must not be null")
-	@Size(max = 25, message = "Group name must be no longer than 25 characters")
+	@Size(min = 3, max = 25, message = "Group name must be between 3 and 25 digits")
 	private String name;
 
 	@Size(max = 150, message = "Description must be no longer than 150 characters")
