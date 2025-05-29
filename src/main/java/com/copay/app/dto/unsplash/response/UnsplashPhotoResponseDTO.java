@@ -1,12 +1,12 @@
-package com.copay.app.dto.unsplash;
+package com.copay.app.dto.unsplash.response;
 
-public class UnsplashPhoto {
+public class UnsplashPhotoResponseDTO {
     private String id;
     private String description;
-    private UnsplashUrls urls;
-    private UnsplashUser user;
+    private UnsplashUrlsResponseDTO urls;
+    private UnsplashUserResponseDTO user;
 
-    public UnsplashPhoto() {}
+    public UnsplashPhotoResponseDTO() {}
 
     // Getters and Setters
     public String getId() {
@@ -25,19 +25,19 @@ public class UnsplashPhoto {
         this.description = description;
     }
 
-    public UnsplashUrls getUrls() {
+    public UnsplashUrlsResponseDTO getUrls() {
         return urls;
     }
 
-    public void setUrls(UnsplashUrls urls) {
+    public void setUrls(UnsplashUrlsResponseDTO urls) {
         this.urls = urls;
     }
 
-    public UnsplashUser getUser() {
+    public UnsplashUserResponseDTO getUser() {
         return user;
     }
 
-    public void setUser(UnsplashUser user) {
+    public void setUser(UnsplashUserResponseDTO user) {
         this.user = user;
     }
 }

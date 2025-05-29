@@ -1,6 +1,6 @@
 package com.copay.app.service;
 
-import com.copay.app.dto.unsplash.UnsplashResponse;
+import com.copay.app.dto.unsplash.response.UnsplashResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -26,7 +26,7 @@ public class UnsplashService {
         this.restTemplate = restTemplate;
     }
 
-    public UnsplashResponse searchPhotos(String query, int page, int perPage) {
+    public UnsplashResponseDTO searchPhotos(String query, int page, int perPage) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Client-ID " + accessKey);
         headers.set("Accept-Version", "v1");
@@ -37,8 +37,8 @@ public class UnsplashService {
                 apiUrl, query, page, perPage);
 
         try {
-            ResponseEntity<UnsplashResponse> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, UnsplashResponse.class);
+            ResponseEntity<UnsplashResponseDTO> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, UnsplashResponseDTO.class);
             return response.getBody();
         } catch (Exception e) {
             // Log del error

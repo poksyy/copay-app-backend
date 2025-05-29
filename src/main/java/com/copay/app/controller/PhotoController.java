@@ -1,6 +1,6 @@
 package com.copay.app.controller;
 
-import com.copay.app.dto.unsplash.UnsplashResponse;
+import com.copay.app.dto.unsplash.response.UnsplashResponseDTO;
 import com.copay.app.service.UnsplashService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ public class PhotoController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<UnsplashResponse> searchPhotos(
+    public ResponseEntity<UnsplashResponseDTO> searchPhotos(
             @RequestParam String query,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int perPage) {
 
         try {
-            UnsplashResponse response = unsplashService.searchPhotos(query, page, perPage);
+            UnsplashResponseDTO response = unsplashService.searchPhotos(query, page, perPage);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

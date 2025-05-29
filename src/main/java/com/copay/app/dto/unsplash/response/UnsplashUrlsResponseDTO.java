@@ -1,13 +1,13 @@
-package com.copay.app.dto.unsplash;
+package com.copay.app.dto.unsplash.response;
 
-public class UnsplashUrls {
+public class UnsplashUrlsResponseDTO {
     private String raw;
     private String full;
     private String regular;
     private String small;
     private String thumb;
 
-    public UnsplashUrls() {}
+    public UnsplashUrlsResponseDTO() {}
 
     // Getters and Setters
     public String getRaw() {

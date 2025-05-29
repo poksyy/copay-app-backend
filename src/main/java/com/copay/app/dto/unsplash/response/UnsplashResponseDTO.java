@@ -1,11 +1,11 @@
-package com.copay.app.dto.unsplash;
+package com.copay.app.dto.unsplash.response;
 
-public class UnsplashResponse {
+public class UnsplashResponseDTO {
     private int total;
     private int total_pages;
-    private java.util.List<UnsplashPhoto> results;
+    private java.util.List<UnsplashPhotoResponseDTO> results;
 
-    public UnsplashResponse() {}
+    public UnsplashResponseDTO() {}
 
     // Getters and Setters
     public int getTotal() {
@@ -24,11 +24,11 @@ public class UnsplashResponse {
         this.total_pages = total_pages;
     }
 
-    public java.util.List<UnsplashPhoto> getResults() {
+    public java.util.List<UnsplashPhotoResponseDTO> getResults() {
         return results;
     }
 
-    public void setResults(java.util.List<UnsplashPhoto> results) {
+    public void setResults(java.util.List<UnsplashPhotoResponseDTO> results) {
         this.results = results;
     }
 }

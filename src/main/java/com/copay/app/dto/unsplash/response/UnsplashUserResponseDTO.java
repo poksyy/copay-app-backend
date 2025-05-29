@@ -1,10 +1,10 @@
-package com.copay.app.dto.unsplash;
+package com.copay.app.dto.unsplash.response;
 
-public class UnsplashUser {
+public class UnsplashUserResponseDTO {
     private String name;
     private String username;
 
-    public UnsplashUser() {}
+    public UnsplashUserResponseDTO() {}
 
     // Getters and Setters
     public String getName() {
