@@ -14,6 +14,8 @@ public class GroupResponseDTO {
 	private String name;
 	private String description;
 	private Float estimatedPrice;
+	private String imageUrl;
+	private String imageProvider;
 	private CreditorResponseDTO creditor;
 	private String currency;
 	private LocalDateTime createdAt;
@@ -66,6 +68,22 @@ public class GroupResponseDTO {
 
 	public void setEstimatedPrice(Float estimatedPrice) {
 		this.estimatedPrice = estimatedPrice;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public String getImageProvider() {
+		return imageProvider;
+	}
+
+	public void setImageProvider(String imageProvider) {
+		this.imageProvider = imageProvider;
 	}
 
 	public CreditorResponseDTO getCreditor() {

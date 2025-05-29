@@ -695,6 +695,8 @@ public class GroupServiceImpl implements GroupService {
 		groupResponseDTO.setName(group.getName());
 		groupResponseDTO.setDescription(group.getDescription());
 		groupResponseDTO.setEstimatedPrice(group.getEstimatedPrice());
+		groupResponseDTO.setImageUrl(group.getImageUrl());
+		groupResponseDTO.setImageProvider(group.getImageProvider());
 		groupResponseDTO.setCurrency(group.getCurrency());
 		groupResponseDTO.setCreatedAt(group.getCreatedAt());
 		groupResponseDTO.setUserIsOwner(group.getCreatedBy().getUserId().equals(userId));
