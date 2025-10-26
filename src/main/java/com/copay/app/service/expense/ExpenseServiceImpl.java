@@ -109,7 +109,7 @@ public class ExpenseServiceImpl implements ExpenseService {
             throw new UserPermissionException("User does not match the user in the token.");
         }
 
-        Float totalDebt = userExpenseRepository.getTotalDebtByUserId(userId);
+        Float totalDebt = userExpenseRepository.getTotalOwedToUser(userId);
 
         return new TotalDebtResponseDTO(totalDebt != null ? totalDebt : 0.0f);
     }
