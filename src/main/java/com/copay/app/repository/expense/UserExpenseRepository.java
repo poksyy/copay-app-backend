@@ -44,6 +44,14 @@ public interface UserExpenseRepository extends JpaRepository<UserExpense, Long> 
     @Query("""
     SELECT COALESCE(SUM(ue.amount), 0)
     FROM UserExpense ue
+    WHERE ue.debtorUser.userId = :userId
+      AND (ue.creditorUser.userId IS NULL OR ue.creditorUser.userId <> :userId)
+""")
+    Float getTotalOwedByUser(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT COALESCE(SUM(ue.amount), 0)
+    FROM UserExpense ue
     WHERE ue.creditorUser.userId = :userId
       AND (ue.debtorUser.userId IS NULL OR ue.debtorUser.userId <> :userId)
 """)
